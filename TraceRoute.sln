@@ -1,7 +1,10 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceRoute", "TraceRoute\TraceRoute.csproj", "{B6FA57DC-1CA7-4BE7-B758-F3C684DE0C6D}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34714.143
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceRoute", "TraceRoute\TraceRoute.csproj", "{B6FA57DC-1CA7-4BE7-B758-F3C684DE0C6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{AAECBF87-D6FA-48DA-851F-7D8CFBC35B2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,5 +16,15 @@ Global
 		{B6FA57DC-1CA7-4BE7-B758-F3C684DE0C6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6FA57DC-1CA7-4BE7-B758-F3C684DE0C6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6FA57DC-1CA7-4BE7-B758-F3C684DE0C6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAECBF87-D6FA-48DA-851F-7D8CFBC35B2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAECBF87-D6FA-48DA-851F-7D8CFBC35B2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAECBF87-D6FA-48DA-851F-7D8CFBC35B2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAECBF87-D6FA-48DA-851F-7D8CFBC35B2E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E626A8BE-B525-4583-AAB2-3589D61BD6A0}
 	EndGlobalSection
 EndGlobal

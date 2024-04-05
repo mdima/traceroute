@@ -1,16 +1,25 @@
-FROM microsoft/aspnetcore-build:2.0 AS build-env
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
+EXPOSE 80
+EXPOSE 443
 
-# copy csproj and restore as distinct layers
-COPY *.csproj ./
-RUN dotnet restore
+RUN apt-get update \
+    && apt-get install -y curl traceroute
 
-# copy everything else and build
-COPY . ./
-RUN dotnet publish -c Release -o out
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["TraceRoute/TraceRoute.csproj", "TraceRoute/"]
+RUN dotnet restore "./TraceRoute/TraceRoute.csproj"
+COPY . .
+WORKDIR "/src/TraceRoute"
+RUN dotnet build "./TraceRoute.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# build runtime image
-FROM microsoft/aspnetcore:2.0
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./TraceRoute.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
 WORKDIR /app
-COPY --from=build-env /app/out .
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TraceRoute.dll"]

@@ -1,3 +1,4 @@
-﻿(function () {
-    var app = angular.module("app", []);
+(function () {
+    'use strict';
+    var traceRouteApp = angular.module("traceRouteApp", []);
 })();

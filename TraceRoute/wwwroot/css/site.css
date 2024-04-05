@@ -1,55 +1,12 @@
-﻿.tr-container{
+﻿html, body {
+    min-height: 100vh;
+    padding: 0;
 }
 
-.tr-map{
+.tr-map {
     left: 0;
     right: 0;
-    height: 100%;
+    height: calc(100% - 95px);
     overflow-x: hidden !important;
     position: absolute !important;
-    margin-top: -1em;
-}
-
-.tr-input {
-    position: fixed;
-    width: 100%;
-    margin-top: -.3em !important;
-    z-index: 10;
-    margin: auto;
-    left: -10px;
-    right: 0;
-}
-
-body{
-    font-weight: 200 !important;
-}
-
-.tr-input-group {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02) !important;
-    border-radius: 2px !important;
-    width: 392px;
-    height: 48px;
-    border-bottom: 1px solid transparent !important;
-    transition-property: background,box-shadow !important;
-    transition-duration: 0.3s;
-}
-
-.btn-secondary {
-    background-color: rgba(65,134,245,1);
-    border-radius: 2px !important;
-}
-
-.btn-secondary:hover {
-    background-color: rgba(65,134,245,.8);
-}
-
-input {
-    font-weight: 200 !important;
-}
-
-input:focus,
-select:focus,
-textarea:focus,
-button:focus {
-    outline: none !important;
 }

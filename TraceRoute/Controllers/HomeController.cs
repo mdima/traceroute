@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using TraceRoute.Helpers;
 using TraceRoute.Models;
 
 namespace TraceRoute.Controllers
@@ -12,6 +13,7 @@ namespace TraceRoute.Controllers
     {
         public IActionResult Index()
         {
+            ViewData["GoogleMapsAPIKey"] = ConfigurationHelper.GetGoogleMapsAPIKey();
             return View();
         }
 

@@ -3,6 +3,8 @@
 var traceRoute;
 var map;
 var markers = [];
+var polyLine = [];
+var bounds = [];
 
 function initMap() {
     var styleNightMode = new google.maps.StyledMapType(
@@ -120,7 +122,6 @@ function initMap() {
 
 }
 
-
 function addLatLng(event) {
     var path = traceRoute.getPath();
 
@@ -151,4 +152,13 @@ function clearMarkersAndPaths()
 {
     clearMarkers();
     markers = [];
+    polyLine = [];
+    bounds = [];
 }   
+
+function autoZoom() {
+    if (bounds && bounds.length > 0) {
+        map.fitBounds(bounds);
+        map.panToBounds(bounds);
+    }
+}
