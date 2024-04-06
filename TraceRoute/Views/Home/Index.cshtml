@@ -1,45 +1,35 @@
 ﻿@{
 ViewData["Title"] = "Visual Trace Route";
 }
-<div id="map" class="tr-map"></div>
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" data-bs-scroll="true" data-bs-backdrop="false" aria-labelledby="offcanvasLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasLabel">Route details</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+<div class="row m-0 p-0 fullHeight">
+    <div class="col-12 col-md-8 m-0 p-0">
+        <div id="map" class="tr-map"></div>
     </div>
-    <div class="offcanvas-body">
+    <div class="col-12 col-md-4 m-0">
+        <h6>Route details</h6>
         <table class="table table-striped table-sm">
             <thead class="thead-dark">
                 <tr>
                     <th>IP</th>
                     <th>Trip time</th>
-                    <th></th>
+                    <th>Location</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="hop in vm.HostList">
                     <td>{{hop.hopAddress}}</td>
                     <td class="text-end">{{hop.tripTime.toFixed(3)}} ms</td>
-                    <td ng-show="hop.details.isp == null">
+                    <td ng-show="hop.details.isp == null" class="small">
                         <div class="spinner-border spinner-border-sm" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </td>
-                    <td ng-show="hop.details.isp != null">
-                        <a tabindex="0" class="btn btn-lg btn-danger popover-dismiss" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover" data-content="And here's some amazing content. It's very engaging. Right?">
-                            ...
-                        </a>
+                    <td ng-show="hop.details.isp != null" class="small">
+                        {{ hop.details.country }} - {{ hop.details.city }}
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
-</div>
-<div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000" id="ToastError">
-    <div class="d-flex">
-        <div class="toast-body">
-            {{vm.ErrorDescription}}
-        </div>
     </div>
 </div>
 @section Scripts

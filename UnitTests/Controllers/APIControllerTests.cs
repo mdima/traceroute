@@ -47,7 +47,7 @@ namespace UnitTests.Controllers
         [TestMethod]
         public async Task IPInfo()
         {
-            TraceHop response = await _controller.IPInfo("192.188.248.215");
+            TraceHopDetails response = await _controller.IPInfo("192.188.248.215");
 
             Assert.AreEqual("", response.ErrorDescription);
             Assert.AreEqual("Milan", response.City);
@@ -56,7 +56,8 @@ namespace UnitTests.Controllers
             Assert.IsNotNull(response.ErrorDescription);
 
             response = await _controller.IPInfo("10.0.0.1");
-            Assert.AreEqual("Internal IP address", response.ErrorDescription);
+            Assert.AreEqual("", response.ErrorDescription);
+            Assert.IsTrue(response.IsBogonIP);
         }
     }
 }

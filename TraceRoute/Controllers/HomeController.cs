@@ -9,31 +9,37 @@ using TraceRoute.Models;
 
 namespace TraceRoute.Controllers
 {
-    public class HomeController : Controller
-    {
+    public class HomeController(BogonIPService bogonIPService) : Controller
+    {        
+        private readonly BogonIPService _bogonIPService = bogonIPService;
+
         public IActionResult Index()
         {
+            if (Request != null && Request.Host != null && Request.Host.HasValue) {
+                string clientIPAddress = Request.Host.ToString();
+                if (! _bogonIPService.IsBogonIP(clientIPAddress))
+                {
+                    ViewData["ClientIPAddress"] = clientIPAddress;
+                }
+            }
+
             ViewData["GoogleMapsAPIKey"] = ConfigurationHelper.GetGoogleMapsAPIKey();
             return View();
         }
 
+        [HttpGet("/about")]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
 
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
+            return PartialView();
         }
 
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            string? RequestID = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+
+            return View(new ErrorViewModel { RequestId = RequestID ?? ""});
         }
     }
 }

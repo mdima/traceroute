@@ -1,1 +1,1 @@
-html,body{min-height:100vh;padding:0}.tr-map{left:0;right:0;height:calc(100% - 95px);overflow-x:hidden !important;position:absolute !important}
+html,body{min-height:100vh;padding:0}.fullHeight{height:calc(100vh - 95px)}.tr-map{height:100%}

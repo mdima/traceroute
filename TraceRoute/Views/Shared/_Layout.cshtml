@@ -14,12 +14,12 @@
         <div class="justify-content-end" >
             <form class="form-inline me-3" role="search" ng-submit="vm.TraceRoute()">
                 <div class="input-group">
-                    <input type="text" ng-model="vm.Hostname" class="form-control" placeholder="Perform Trace Route">
+                    <input type="text" ng-model="vm.Hostname" class="form-control" value="@ViewData["ClientIPAddress"]" placeholder="Perform Trace Route" autocapitalize="off" spellcheck="false">
                     <span class="input-group-append">
                         <button ng-click="vm.TraceRoute()" class="btn btn-secondary" type="button">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
-                        <a class="btn btn-secondary justify-content-end" data-bs-toggle="offcanvas" href="#offcanvas" role="button" aria-controls="offcanvas">
+                        <a class="btn btn-secondary justify-content-end" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" aria-controls="offcanvas" ng-click="vm.ShowAbout()">
                             ...
                         </a>
                     </span>
@@ -27,12 +27,24 @@
             </form>
         </div>
     </nav>
-    <main role="main" class="container-fluid">
+    <main role="main" class="container-fluid p-0">
         @RenderBody()
     </main>
     <footer class="footer fixed-bottom navbar-dark bg-dark">
         <p class="navbar-brand ms-3">&copy; @DateTime.Now.Year - TraceRoute - <a class="link-secondary" href="https://github.com/mdima/traceroute" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></p>
     </footer>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAbout" aria-labelledby="offcanvasRightLabel">
+        <div class="spinner-border spinner-border-lg m-5" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true" id="ToastError">
+            <div class="toast-body">
+                {{vm.ErrorDescription}}
+            </div>
+        </div>
+    </div>
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
     <script src="~/lib/angular.js/angular.min.js"></script>
