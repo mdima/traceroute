@@ -32,7 +32,9 @@
                             return;
                         }
                         vm.HostList = theResponse.data.hops;
-                        $('[data-toggle="tooltip"]').tooltip();
+                        $('.popover-dismiss').popover({
+                            trigger: 'focus'
+                        })
                         for (let i = 0; i < vm.HostList.length; i++) {
                             $http.get("api/IPInfo/" + vm.HostList[i].hopAddress)
                                 .then(

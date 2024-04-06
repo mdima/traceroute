@@ -26,20 +26,13 @@ ViewData["Title"] = "Visual Trace Route";
                         </div>
                     </td>
                     <td ng-show="hop.details.isp != null">
-                        Risultati
+                        <a tabindex="0" class="btn btn-lg btn-danger popover-dismiss" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover" data-content="And here's some amazing content. It's very engaging. Right?">
+                            ...
+                        </a>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <a href="#" data-toggle="tooltip" title="Some tooltip text!">Hover over me</a>
-
-        <!-- Generated markup by the plugin -->
-        <div class="tooltip bs-tooltip-top" role="tooltip">
-            <div class="arrow"></div>
-            <div class="tooltip-inner">
-                Some tooltip text!
-            </div>
-        </div>
     </div>
 </div>
 <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000" id="ToastError">
