@@ -15,8 +15,8 @@ namespace TraceRoute.Controllers
 
         public IActionResult Index()
         {
-            if (Request != null && Request.Host != null && Request.Host.HasValue) {
-                string clientIPAddress = Request.Host.ToString();
+            if (Request != null && Request.HttpContext != null && Request.HttpContext.Connection.RemoteIpAddress != null) {
+                string clientIPAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString();
                 if (! _bogonIPService.IsBogonIP(clientIPAddress))
                 {
                     ViewData["ClientIPAddress"] = clientIPAddress;

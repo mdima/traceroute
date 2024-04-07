@@ -1,1 +1,1 @@
-html,body{min-height:100vh;padding:0}.fullHeight{height:calc(100vh - 95px)}.tr-map{height:100%}
+html,body{min-height:100vh;padding:0}.fullHeight{height:calc(100vh - 95px)}.tr-map{height:100%}@media only screen and (max-width:600px){.mobile-max-50{max-height:15vh}.mobile-50{max-height:45vh}}

@@ -15,7 +15,7 @@
         <div class="justify-content-end" >
             <form class="form-inline me-3" role="search" ng-submit="vm.TraceRoute()">
                 <div class="input-group">
-                    <input type="text" ng-model="vm.Hostname" class="form-control" value="@ViewData["ClientIPAddress"]" placeholder="Perform Trace Route" autocapitalize="off" spellcheck="false">
+                    <input type="text" ng-model="vm.Hostname" class="form-control" placeholder="Perform Trace Route" autocapitalize="off" spellcheck="false">
                     <span class="input-group-append">
                         <button ng-click="vm.TraceRoute()" class="btn btn-secondary" type="button">
                             <i class="fa-solid fa-magnifying-glass"></i>
@@ -54,5 +54,8 @@
     <script src="~/js/traceRouteController.js"></script>
     <script src="~/js/site.min.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
+    <script>
+        this.Hostname = "@ViewData["ClientIPAddress"]";
+    </script>
 </body>
 </html>
