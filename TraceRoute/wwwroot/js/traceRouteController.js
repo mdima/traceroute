@@ -13,7 +13,6 @@
         });
 
         vm.TraceRoute = function () {
-            markers = [];
             clearMarkersAndPaths();            
 
             $http.get("api/trace/" + vm.Hostname)
@@ -39,10 +38,8 @@
                                         var hostDetail = angular.fromJson(responseDetail).data;
                                         vm.HostList[i].details = hostDetail;
                                         if (hostDetail.longitude && hostDetail.latitude) {
-                                            var position = { lat: hostDetail.latitude, lng: hostDetail.longitude };
-                                            var marker = addMarker(position, (i + 1));
-                                            markers.push(marker);
-                                            autoZoom();
+                                            addMarker(hostDetail.latitude, hostDetail.longitude, (i + 1).toString());
+                                            drawPath(vm.HostList);
                                         }
                                     }
                             );

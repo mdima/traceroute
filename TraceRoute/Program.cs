@@ -40,6 +40,15 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.UseStaticFiles();
 
+//Proxy Forwarding IP Address
+var forwardingOptions = new ForwardedHeadersOptions()
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+forwardingOptions.KnownNetworks.Clear(); // Loopback by default, this should be temporary
+forwardingOptions.KnownProxies.Clear(); // Update to include
+app.UseForwardedHeaders(forwardingOptions);
+
 //I record the starting events
 app.Lifetime.ApplicationStarted.Register(() => { _logger.Info($"Application started, environment: {builder.Environment.EnvironmentName}"); });
 app.Lifetime.ApplicationStopping.Register(() => { _logger.Info("Application stopping"); });

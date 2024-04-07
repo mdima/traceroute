@@ -19,6 +19,11 @@
       "provider": "cdnjs",
       "library": "angular.js@1.8.3",
       "destination": "wwwroot/lib/angular.js/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "leaflet@1.9.4",
+      "destination": "wwwroot/lib/leaflet/"
     }
   ]
 }
