@@ -1,4 +1,6 @@
 ﻿var map;
+var polyline;
+var markers = [];
 
 $(function () {
 	initMap();
@@ -21,21 +23,29 @@ function addMarker(lat, long, text) {
 				direction: 'right'
 			})
 		.addTo(map);
+	markers.push[marker];
 }
 
 function clearMarkersAndPaths() {
-	//map.clearMarkers(map)
+	map.eachLayer((layer) => {
+		if (layer['_latlng'] != undefined || layer['_path'] != undefined)
+			layer.remove();
+	});
+	markers = [];
+	polyline = undefined;
 }
 
 function drawPath(HostList) {
-	var latlngs = Array();
+	var latlngs = [];
 
+	//I want to be sure all the details have been received before drawing the line
+	if (HostList.find(x => x.details == undefined || x.details.isp == undefined) != undefined) { return };
 	for (let i = 0; i < HostList.length; i++) {
 		if (HostList[i].details && HostList[i].details.latitude && HostList[i].details.longitude) {
-			const point = { lat: HostList[i].details.latitude, lon: HostList[i].details.longitude };
+			var point = new L.latLng(HostList[i].details.latitude, HostList[i].details.longitude);
 			latlngs.push(point);
 		}
 	}
-	var polyline = L.polyline(latlngs, { color: 'red' }).addTo(map);
+	polyline = L.polyline(latlngs, { color: 'red' }).addTo(map);
 	map.fitBounds(polyline.getBounds());
 }

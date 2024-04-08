@@ -36,6 +36,8 @@ namespace TraceRoute.Controllers
 
             try
             {
+                _logger.LogInformation("Requested trace to: {0}", destination);
+
                 string trace = "traceroute -n -m 30 -w1 -I -q 1 " + destination;
                 var traceResult = await trace.Bash();
                 var hops = traceResult.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -64,8 +66,17 @@ namespace TraceRoute.Controllers
                         response.Hops.Add(t);
                     }
                 }
-                //response.Hops.Add(new TraceHop() { HopAddress= "15.161.156.80", TripTime = 80 });
-                //response.Hops.Add(new TraceHop() { HopAddress = "213.205.32.10", TripTime = 90 });
+#if DEBUG
+                //In case of a debug I some fake hop
+                response.Hops.Add(new TraceHop() { HopAddress = "15.161.156.80", TripTime = 10});
+                response.Hops.Add(new TraceHop() { HopAddress = "213.205.32.10", TripTime = 11 });
+                response.Hops.Add(new TraceHop() { HopAddress = "62.101.124.129", TripTime = 12 });
+                response.Hops.Add(new TraceHop() { HopAddress = "93.63.100.249", TripTime = 13 });
+                response.Hops.Add(new TraceHop() { HopAddress = "4.14.49.2", TripTime = 14 });
+                response.Hops.Add(new TraceHop() { HopAddress = "66.219.34.194", TripTime = 15 });
+                response.Hops.Add(new TraceHop() { HopAddress = "208.123.73.4", TripTime = 16 });
+                response.Hops.Add(new TraceHop() { HopAddress = "208.123.73.68", TripTime = 17 });
+#endif
             }
             catch (Exception ex)
             {
@@ -82,6 +93,8 @@ namespace TraceRoute.Controllers
 
             try
             {
+                _logger.LogInformation("Requested IPInfo for: {0}", ipAddress);
+
                 if (!_bogonIPService.IsBogonIP(ipAddress))
                 {
                     IpApiResponse? ipInfo = await _ipApiClient.Get(ipAddress, new CancellationToken());

@@ -11,9 +11,12 @@
 </head>
 <body ng-app="traceRouteApp" ng-controller="traceRouteController as vm">
     <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
-        <a class="navbar-brand ms-3" href="">TraceRoute</a>
-        <div class="justify-content-end" >
-            <form class="form-inline me-3" role="search" ng-submit="vm.TraceRoute()">
+        <a class="navbar-brand ms-3" href="#">TraceRoute</a>
+        <div class="spinner-border text-light ms-3" role="status" ng-show="vm.isTracing">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="justify-content-end">
+            <form class="form-inline me-3" role="search" ng-submit="vm.TraceRoute()" data-ng-init="vm.Hostname='@ViewData["ClientIPAddress"]'">
                 <div class="input-group">
                     <input type="text" ng-model="vm.Hostname" class="form-control" placeholder="Perform Trace Route" autocapitalize="off" spellcheck="false">
                     <span class="input-group-append">
@@ -54,8 +57,5 @@
     <script src="~/js/traceRouteController.js"></script>
     <script src="~/js/site.min.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
-    <script>
-        this.Hostname = "@ViewData["ClientIPAddress"]";
-    </script>
 </body>
 </html>

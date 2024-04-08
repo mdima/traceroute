@@ -8,16 +8,18 @@
         var vm = this;
         var theResponse;
         vm.HostList = [];
+        vm.isTracing = false;
         $(function () {
 
         });
 
         vm.TraceRoute = function () {
+            vm.isTracing = true;
             clearMarkersAndPaths();            
-
             $http.get("api/trace/" + vm.Hostname)
                 .then(
                     function successFunction(response) {
+                        vm.isTracing = false;
                         theResponse = angular.fromJson(response);
                         if (theResponse.data.errorDescription)
                         {
