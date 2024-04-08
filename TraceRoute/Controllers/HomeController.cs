@@ -22,8 +22,6 @@ namespace TraceRoute.Controllers
                     ViewData["ClientIPAddress"] = clientIPAddress;
                 }
             }
-
-            ViewData["GoogleMapsAPIKey"] = ConfigurationHelper.GetGoogleMapsAPIKey();
             return View();
         }
 
