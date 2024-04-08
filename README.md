@@ -1,6 +1,6 @@
 # Visual Trace Route
 C# ASP.NET Core 8.0 Visual Trace Route Web Application
-![Visual Trace Route Screenshot](screenshot.jpg)
+![Visual Trace Route Screenshot](https://github.com/mdima/traceroute/blob/master/screenshot.png?raw=true)
 
 Based on the original repository: https://github.com/bencorn/traceroute
 
