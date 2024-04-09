@@ -10,6 +10,7 @@ Based on the original repository: https://github.com/bencorn/traceroute
 * Changed the IP information source from keycdn.com to ip-api.com
 * Added a sidebar with the hops information
 * Introduced the Unit Tests (Code coverage: > 80%)
+* Many interface improvements
 
 ### Running in Docker
 You can use the following image to run Visual Trace Route locally:

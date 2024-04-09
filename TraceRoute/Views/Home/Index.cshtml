@@ -17,16 +17,16 @@ ViewData["Title"] = "Visual Trace Route";
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="hop in vm.HostList track by $index">
-                    <td class="ps-2">{{$index + 1}}</td>
-                    <td>{{hop.hopAddress}}</td>
-                    <td class="small text-end text-nowrap">{{hop.tripTime.toFixed(3)}} ms</td>
-                    <td ng-show="hop.details.isp == null" class="small">
+                <tr ng-repeat="hop in vm.HostList track by $index" class="tr_hop_{{$index + 1}}" data-index-value="{{ $index + 1 }}" onmouseover="hilightTooltip(this)">
+                    <td class="ps-2 tr_hop_{{$index + 1}}">{{$index + 1}}</td>
+                    <td class="tr_hop_{{$index + 1}}">{{hop.hopAddress}}</td>
+                    <td class="small text-end text-nowrap tr_hop_{{$index + 1}}">{{hop.tripTime.toFixed(3)}} ms</td>
+                    <td ng-show="hop.details.isp == null" class="small tr_hop_{{$index + 1}}">
                         <div class="spinner-border spinner-border-sm" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </td>
-                    <td ng-show="hop.details.isp != null" class="small">
+                    <td ng-show="hop.details.isp != null" class="small tr_hop_{{$index + 1}}">
                         {{ hop.details.country }} - {{ hop.details.city }}
                     </td>
                 </tr>

@@ -58,5 +58,10 @@
                     }
             );
         }
+
+        vm.hilightTooltip = function(index) {
+            alert("index")
+            console.log("Index: " + index);
+        }
     };
 })();

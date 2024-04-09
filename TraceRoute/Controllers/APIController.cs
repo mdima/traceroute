@@ -36,7 +36,7 @@ namespace TraceRoute.Controllers
 
             try
             {
-                _logger.LogInformation("Requested trace to: {0}", destination);
+                _logger.LogInformation("Requested Trace to: {0}", destination);
 
                 string trace = "traceroute -n -m 30 -w1 -I -q 1 " + destination;
                 var traceResult = await trace.Bash();

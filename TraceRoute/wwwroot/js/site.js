@@ -13,17 +13,52 @@ function initMap() {
 		maxZoom: 19,
 		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 	}).addTo(map);
+	L.Map.include({
+		getMarkerById: function (id) {
+			var marker = null;
+			this.eachLayer(function (layer) {
+				if (layer instanceof L.Marker) {
+					if (layer.options.id === id) {
+						marker = layer;
+					}
+				}
+			});
+			return marker;
+		}
+	});
 }
 
 function addMarker(lat, long, text) {
-	var marker = L.marker([lat, long])
+	var marker = L.marker([lat, long], {id: 'marker_' + text})
 		.bindTooltip(text,
 			{
 				permanent: true,
 				direction: 'right'
 			})
+		.on('mouseover', hilightHopTable)
 		.addTo(map);
 	markers.push[marker];
+}
+
+function hilightHopTable() {
+	var tooltip = this.getTooltip();
+	var hopRowID = ".tr_hop_" + tooltip.getContent();
+
+	$(hopRowID).addClass("highlight");
+	setTimeout(function () {
+		$(hopRowID).removeClass('highlight');
+	}, 2000);
+}
+
+function hilightTooltip(element) {
+	const index = $(element).data("index-value");
+	const marker = map.getMarkerById('marker_' + index);
+	if (marker != null) {
+		$(marker._icon).addClass('highlight');
+		setTimeout(function () {
+			$(marker._icon).removeClass('highlight');
+		}, 1000);
+	}
 }
 
 function clearMarkersAndPaths() {
