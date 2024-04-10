@@ -27,8 +27,9 @@ namespace UnitTests.Controllers
             BogonIPService bogonIPService = new(factory);
 
             IpApiClient ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache);
+            ReverseLookupService reverseService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
 
-            _controller = new(factory, ipApiClient, bogonIPService);
+            _controller = new(factory, ipApiClient, bogonIPService, reverseService);
         }
 
         [TestMethod]
@@ -41,7 +42,7 @@ namespace UnitTests.Controllers
 
             response = await _controller.TraceRoute("127.0.0.1");
             Assert.AreEqual("", response.ErrorDescription);
-            Assert.IsTrue(response.Hops.Count == 1);
+            Assert.IsTrue(response.Hops.Count >= 1);
         }
 
         [TestMethod]

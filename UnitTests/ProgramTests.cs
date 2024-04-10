@@ -19,7 +19,8 @@ namespace UnitTests
         [TestMethod]
         public void Program()
         {
-            var waf = new WebApplicationFactory<Program>();//                .WithWebHostBuilder(builder => builder.UseSolutionRelativeContentRoot("/"));
+            var waf = new WebApplicationFactory<Program>();
+                //.WithWebHostBuilder(builder => builder.UseSolutionRelativeContentRoot("/"));
             var server = waf.Server;
             Assert.IsNotNull(server);
 

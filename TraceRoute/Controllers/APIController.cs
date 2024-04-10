@@ -18,11 +18,12 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace TraceRoute.Controllers
 {
-    public class APIController(ILoggerFactory LoggerFactory, IpApiClient IpApiClient, BogonIPService bogonIPService) : Controller
+    public class APIController(ILoggerFactory LoggerFactory, IpApiClient IpApiClient, BogonIPService bogonIPService, ReverseLookupService reverseLookupService) : Controller
     {
         private readonly ILogger _logger = LoggerFactory.CreateLogger<APIController>();
         private readonly IpApiClient _ipApiClient = IpApiClient;
         private readonly BogonIPService _bogonIPService = bogonIPService;
+        private readonly ReverseLookupService _reverseLookupService = reverseLookupService;
 
         /// <summary>
         /// Performs traceroute on specified hostname.
@@ -87,6 +88,11 @@ namespace TraceRoute.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Retrives the information about the given IP address
+        /// </summary>
+        /// <param name="ipAddress">The IP address to request</param>
+        /// <returns>The IP information</returns>
         [HttpGet("api/ipinfo/{ipAddress}")]
         public async Task<TraceHopDetails> IPInfo(string ipAddress)
         {
@@ -107,6 +113,7 @@ namespace TraceRoute.Controllers
                         result.ISP = ipInfo.isp;
                         result.Latitude = ipInfo.lat;
                         result.Longitude = ipInfo.lon;
+                        result.HostName = await _reverseLookupService.GetHostName(ipAddress);
                     }
                     else
                     {
@@ -118,6 +125,7 @@ namespace TraceRoute.Controllers
                     result.IsBogonIP = true;
                     result.ISP = "Internal IP address";
                     result.ErrorDescription = "";
+                    result.HostName = await _reverseLookupService.GetHostName(ipAddress);
                 }
             }
             catch (Exception ex)

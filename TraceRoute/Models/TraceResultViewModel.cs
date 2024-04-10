@@ -24,6 +24,7 @@ namespace TraceRoute.Models
             public string? Country { get; set; }
             public string? City { get; set; }
             public string? ISP { get; set; }
+            public string? HostName { get; set; }
         }
     }
 }

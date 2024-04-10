@@ -21,6 +21,7 @@ builder.Services.AddMvc();
 builder.WebHost.UseIISIntegration();
 builder.Services.AddHttpClient<IpApiClient>();
 builder.Services.AddSingleton<BogonIPService>();
+builder.Services.AddSingleton<ReverseLookupService>();
 builder.Services.AddMemoryCache(x => { x.TrackStatistics = true; x.TrackLinkedCacheEntries = true; });
 //Forward headers configuration for reverse proxy
 builder.Services.Configure<ForwardedHeadersOptions>(options => {
@@ -35,6 +36,13 @@ ILog _logger = LogManager.GetLogger("Startup");
 
 //I build the app
 var app = builder.Build();
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment() || true)
+{
+    app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

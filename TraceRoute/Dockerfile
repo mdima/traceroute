@@ -4,7 +4,7 @@ EXPOSE 80
 EXPOSE 443
 
 RUN apt-get update \
-    && apt-get install -y curl traceroute
+    && apt-get install -y curl traceroute dnsutils 
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release

@@ -11,7 +11,7 @@
 </head>
 <body ng-app="traceRouteApp" ng-controller="traceRouteController as vm">
     <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
-        <a class="navbar-brand ms-3" href="#">TraceRoute</a>
+        <a class="navbar-brand ms-3" href="/">TraceRoute</a>
         <div class="spinner-border text-light ms-3" role="status" ng-show="vm.isTracing">
             <span class="visually-hidden">Loading...</span>
         </div>
@@ -34,7 +34,7 @@
     <main role="main" class="container-fluid p-0">
         @RenderBody()
     </main>
-    <footer class=" footer fixed-bottom navbar-dark bg-dark">
+    <footer class="footer fixed-bottom navbar-dark bg-dark">
         <p class="navbar-brand ms-3">&copy; @DateTime.Now.Year - TraceRoute - <a class="link-secondary" href="https://github.com/mdima/traceroute" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></p>
     </footer>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAbout" aria-labelledby="offcanvasRightLabel">

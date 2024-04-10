@@ -24,7 +24,7 @@ namespace UnitTests.Controllers
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
             BogonIPService bogonIPService = new(factory);
 
-            _controller = new(bogonIPService);
+            _controller = new(bogonIPService, factory);
         }
 
         [TestMethod]

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
+using System.Net;
 using TraceRoute.Helpers;
 using TraceRoute.Models;
 

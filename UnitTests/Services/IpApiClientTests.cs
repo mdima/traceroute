@@ -27,7 +27,6 @@ namespace UnitTests.Services
         [TestMethod]
         public async Task GetKnownIP()
         {
-
             IpApiResponse? result = await _ipApiClient.Get("192.188.248.215");
 
             Assert.IsNotNull(result);
@@ -46,7 +45,6 @@ namespace UnitTests.Services
         [TestMethod]
         public async Task GetUnKnownIP()
         {
-
             IpApiResponse? result = await _ipApiClient.Get("192.168.0.1");
 
             Assert.IsNotNull(result);
@@ -56,7 +54,6 @@ namespace UnitTests.Services
         [TestMethod]
         public async Task GetErrorIP()
         {
-
             IpApiResponse? result = await _ipApiClient.Get("qwerty");
 
             Assert.IsNotNull(result);
