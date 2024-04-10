@@ -40,6 +40,7 @@ namespace TraceRoute.Controllers
 
                 string trace = "traceroute -n -m 30 -w1 -I -q 1 " + destination;
                 var traceResult = await trace.Bash();
+                _logger.LogDebug("Bash result: {0}", traceResult);
                 var hops = traceResult.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
 
                 if (hops[0].Contains("traceroute"))
