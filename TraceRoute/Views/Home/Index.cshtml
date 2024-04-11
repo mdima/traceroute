@@ -14,7 +14,7 @@ ViewData["Title"] = "Visual Trace Route";
                     <th>IP</th>
                     <th>Trip time</th>
                     <th>Location</th>
-                    <th class="d-none d-xl-block">ISP</th>
+                    <th class="d-none d-xl-table-cell">ISP</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,10 +31,10 @@ ViewData["Title"] = "Visual Trace Route";
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </td>
-                    <td ng-show="hop.details.isp != null" class="small tr_hop_{{$index + 1}}">
+                    <td ng-hide="hop.details.isp == null" class="small tr_hop_{{$index + 1}}">
                         {{ hop.details.country }} - {{ hop.details.city }}
                     </td>                    
-                    <td ng-show="hop.details.isp != null" class="small tr_hop_{{$index + 1}} d-none d-xl-block">
+                    <td ng-hide="hop.details.isp == null" class="small tr_hop_{{$index + 1}} d-none d-xl-table-cell">
                         {{ hop.details.isp }}
                     </td>
                 </tr>

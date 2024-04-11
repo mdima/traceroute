@@ -14,10 +14,10 @@ Based on the original repository: https://github.com/bencorn/traceroute
 
 ### Running in Docker
 You can use the following image to run Visual Trace Route locally:
-michele73/traceroute:latest
+michele73/traceroute:1.1.0
 
 Example:
-docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:latest
+docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:1.1.0
 
 ### Live Demo
 You can view a live demo of the Trace Route application here: https://traceroute.di-maria.it/
