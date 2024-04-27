@@ -14,8 +14,15 @@
         });
 
         vm.TraceRoute = function () {
+            if (!vm.Hostname)
+            {
+                vm.ErrorDescription = "Please specify an IP or host to trace";
+                let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
+                toastError.show();
+                return;
+            }
             vm.isTracing = true;
-            clearMarkersAndPaths();            
+            clearMarkersAndPaths();
             $http.get("api/trace/" + vm.Hostname)
                 .then(
                     function successFunction(response) {
@@ -23,10 +30,9 @@
                         theResponse = angular.fromJson(response);
                         if (theResponse.data.errorDescription)
                         {
-                            //alert("error")
                             vm.ErrorDescription = theResponse.data.errorDescription;
                             let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-                            toastError.show();        
+                            toastError.show();
                             return;
                         }
                         vm.HostList = theResponse.data.hops;
@@ -47,7 +53,14 @@
                             );
                         }
                     }
-                );               
+                )
+                .catch((err) => {
+                    vm.isTracing = false;
+                    vm.ErrorDescription = "Could not calculate the route";
+                    let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
+                    toastError.show();
+                    console.error('An error occurred:', err);
+            });
         };
 
         vm.ShowAbout = function () {
