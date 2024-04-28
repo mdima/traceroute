@@ -38,7 +38,7 @@ namespace TraceRoute.Controllers
             try
             {
                 _logger.LogInformation("Requested Trace to: {0}", destination);
-
+                destination = destination.Replace(";", "").Replace("&&", "").Replace("||", "").Replace(" ", "");    //makes the request secure
                 string trace = "traceroute -n -m 30 -w1 -I -q 1 " + destination;
                 var traceResult = await trace.Bash();
                 _logger.LogDebug("Bash result: {0}", traceResult);

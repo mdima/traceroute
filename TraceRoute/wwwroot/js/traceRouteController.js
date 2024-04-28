@@ -22,6 +22,7 @@
                 return;
             }
             vm.isTracing = true;
+            vm.HostList = [];
             clearMarkersAndPaths();
             $http.get("api/trace/" + vm.Hostname)
                 .then(

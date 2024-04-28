@@ -11,13 +11,14 @@ Based on the original repository: https://github.com/bencorn/traceroute
 * Added a sidebar with the hops information
 * Introduced the Unit Tests (Code coverage: > 80%)
 * Many interface improvements
+* Added a security check on all the inbound parameters to avoid command injection
 
 ### Running in Docker
 You can use the following image to run Visual Trace Route locally:
-michele73/traceroute:1.1.1
+michele73/traceroute:1.1.2
 
 Example:
-docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:1.1.1
+docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:1.1.2
 
 ### Live Demo
 You can view a live demo of the Trace Route application here: https://traceroute.di-maria.it/
