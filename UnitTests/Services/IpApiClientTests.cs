@@ -56,8 +56,7 @@ namespace UnitTests.Services
         {
             IpApiResponse? result = await _ipApiClient.Get("qwerty");
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("fail", result.status);
+            Assert.IsNull(result);
         }
     }
 }

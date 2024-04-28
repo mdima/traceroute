@@ -60,5 +60,16 @@ namespace UnitTests.Controllers
             Assert.AreEqual("", response.ErrorDescription);
             Assert.IsTrue(response.IsBogonIP);
         }
+
+
+        [TestMethod]
+        public async Task SecurityChecks()
+        {
+            TraceResultViewModel response = await _controller.TraceRoute("www.nt2.it;ls /");
+            Assert.AreEqual("Error while tracing", response.ErrorDescription);
+
+            TraceHopDetails hopResponse = await _controller.IPInfo("ls /");
+            Assert.AreEqual("Could not retrive the IP information", hopResponse.ErrorDescription);
+        }
     }
 }

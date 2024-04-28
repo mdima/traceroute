@@ -105,7 +105,7 @@ namespace TraceRoute.Controllers
                 if (!_bogonIPService.IsBogonIP(ipAddress))
                 {
                     IpApiResponse? ipInfo = await _ipApiClient.Get(ipAddress, new CancellationToken());
-                    if (ipInfo != null)
+                    if (ipInfo != null && ipInfo.status != "fail")
                     {
                         result.City = ipInfo.city;
                         result.Country = ipInfo.country;

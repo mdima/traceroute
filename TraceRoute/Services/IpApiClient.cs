@@ -31,19 +31,27 @@ namespace TraceRoute.Services
 
             try
             {
-                IpApiResponse? response = _MemoryCache.Get<IpApiResponse>(cacheName);
-                if (response == null)
+                if (IPAddress.TryParse(ipAddress, out IPAddress? checkIP))
                 {
-                    _logger.LogDebug("Asking the IP information for IP: {0}", ipAddress);
-                    string route = $"{BASE_URL}/json/{ipAddress}";
-                    response = await _httpClient.GetFromJsonAsync<IpApiResponse>(route, ct);
-                    _logger.LogDebug("Result: {0}", JsonConvert.SerializeObject(response));
-                    if (response != null)
+                    IpApiResponse? response = _MemoryCache.Get<IpApiResponse>(cacheName);
+                    if (response == null)
                     {
-                        _MemoryCache.Set(cacheName, response, DateTimeOffset.Now.AddMinutes(10));
+                        _logger.LogDebug("Asking the IP information for IP: {0}", ipAddress);
+                        string route = $"{BASE_URL}/json/{ipAddress}";
+                        response = await _httpClient.GetFromJsonAsync<IpApiResponse>(route, ct);
+                        _logger.LogDebug("Result: {0}", JsonConvert.SerializeObject(response));
+                        if (response != null)
+                        {
+                            _MemoryCache.Set(cacheName, response, DateTimeOffset.Now.AddMinutes(10));
+                        }
                     }
+                    return response;
                 }
-                return response;
+                else
+                {
+                    _logger.LogWarning("Incorrect IP address received for parsing: {0}", ipAddress);
+                    return null;
+                }
             }
             catch (Exception ex)
             {
