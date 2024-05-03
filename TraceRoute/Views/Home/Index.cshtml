@@ -20,7 +20,13 @@ ViewData["Title"] = "Visual Trace Route";
             <tbody>
                 <tr ng-repeat="hop in vm.HostList track by $index" class="tr_hop_{{$index + 1}}" data-index-value="{{ $index + 1 }}" onmouseover="hilightTooltip(this)">
                     <td class="ps-2 tr_hop_{{$index + 1}}">{{$index + 1}}</td>
-                    <td class="tr_hop_{{$index + 1}}">{{hop.hopAddress}}
+                    <td class="tr_hop_{{$index + 1}}">
+                        <a href="#" class="link-secondary" ng-click="vm.IpDetails(hop.hopAddress)" ng-show="!hop.details.isBogonIP">
+                            {{hop.hopAddress}}
+                        </a>
+                        <span ng-show="hop.details.isBogonIP">
+                            {{hop.hopAddress}}
+                        </span>
                         <small ng-show="hop.details.hostName != null" class="small text-muted">
                             <br />{{hop.details.hostName}}
                         </small>

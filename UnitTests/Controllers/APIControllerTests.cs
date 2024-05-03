@@ -71,5 +71,21 @@ namespace UnitTests.Controllers
             TraceHopDetails hopResponse = await _controller.IPInfo("ls /");
             Assert.AreEqual("Could not retrive the IP information", hopResponse.ErrorDescription);
         }
+
+        [TestMethod]
+        public async Task IPDetails()
+        {
+            IpApiResponse response = await _controller.IPDetails("192.188.248.215");
+
+            Assert.AreEqual("192.188.248.215", response.query);
+            Assert.AreEqual("success", response.status);
+            Assert.AreEqual("Milan", response.city);
+
+            response = await _controller.IPDetails("errorgen");
+            Assert.AreEqual("Could not retrive the IP information", response.status);
+
+            response = await _controller.IPDetails("10.0.0.1");
+            Assert.AreEqual("BogonIP", response.status);            
+        }
     }
 }

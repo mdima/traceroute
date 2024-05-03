@@ -9,6 +9,8 @@
         var theResponse;
         vm.HostList = [];
         vm.isTracing = false;
+        vm.ipDetail = null;
+
         $(function () {
 
         });
@@ -73,9 +75,33 @@
             );
         }
 
-        vm.hilightTooltip = function(index) {
-            alert("index")
-            console.log("Index: " + index);
+        vm.IpDetails = function(ipAddress)
+        {
+            vm.ipDetail = null;
+            $('#modalIpDetails').modal('show');
+            $http.get("api/IPDetails/" + ipAddress)
+                .then(
+                    function successFunction(response) {
+                        vm.ipDetail = angular.fromJson(response).data;
+                        if (vm.ipDetail.status != "success") {
+                            vm.ErrorDescription = vm.ipDetail.status;
+                            let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
+                            toastError.show();
+                            $('#modalIpDetails').modal('hide');
+                        }
+                    }
+                )
+                .catch((err) => {
+                    vm.ErrorDescription = "Could not retrive the IP information";
+                    let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
+                    toastError.show();
+                    console.error('An error occurred:', err);
+                });
+        }
+
+        vm.closeModalIpDetails = function (ipAddress) {
+            vm.ipDetail = null;
+            $('#modalIpDetails').modal('hide');
         }
     };
 })();

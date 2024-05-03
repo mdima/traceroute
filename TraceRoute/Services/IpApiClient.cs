@@ -37,7 +37,7 @@ namespace TraceRoute.Services
                     if (response == null)
                     {
                         _logger.LogDebug("Asking the IP information for IP: {0}", ipAddress);
-                        string route = $"{BASE_URL}/json/{ipAddress}";
+                        string route = $"{BASE_URL}/json/{ipAddress}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
                         response = await _httpClient.GetFromJsonAsync<IpApiResponse>(route, ct);
                         _logger.LogDebug("Result: {0}", JsonConvert.SerializeObject(response));
                         if (response != null)

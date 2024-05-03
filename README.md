@@ -20,5 +20,7 @@ michele73/traceroute:1.1.2
 Example:
 docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:1.1.2
 
+The image repository is here: https://hub.docker.com/r/michele73/traceroute
+
 ### Live Demo
 You can view a live demo of the Trace Route application here: https://traceroute.di-maria.it/

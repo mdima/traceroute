@@ -49,6 +49,45 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modalIpDetails" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">IP details for: <strong>{{vm.ipDetail.query}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div class="spinner-border spinner-border-lg m-5" role="status" ng-show="vm.ipDetail == null">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div class="row" ng-show="vm.ipDetail != null">
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Continent</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.continent}}</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Country</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.country}} ({{vm.ipDetail.countryCode}})</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Region</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.regionName}} ({{vm.ipDetail.region}})</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">City</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.city}} <span ng-show="vm.ipDetail.district"> ({{vm.ipDetail.district}}) </span>- {{vm.ipDetail.zip}}</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">ISP</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.isp}}</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Organization</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.org}}</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">AS</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.as}} ({{vm.ipDetail.asname}})</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Is mobile</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.mobile}}</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Is proxy</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.proxy}}</div>
+                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Is hosting</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.hosting}}</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" ng-click="vm.closeModalIpDetails()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
     <script src="~/lib/leaflet/leaflet.min.js"></script>

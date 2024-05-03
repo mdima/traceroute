@@ -63,7 +63,10 @@ namespace TraceRoute.Controllers
                         TraceHop t = new()
                         {
                             HopAddress = hopData[1],
-                            TripTime = float.Parse(hopData[2])
+                            TripTime = float.Parse(hopData[2]),
+                            Details = new() { 
+                                IsBogonIP = _bogonIPService.IsBogonIP(hopData[1]) 
+                            }
                         };
                         response.Hops.Add(t);
                     }
@@ -132,6 +135,45 @@ namespace TraceRoute.Controllers
             {
                 _logger.LogError(ex, "Error getting the IP information: {0}", ipAddress);
                 result.ErrorDescription = "Error";
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Retrives the detailed information about the given IP address
+        /// </summary>
+        /// <param name="ipAddress">The IP address to request</param>
+        /// <returns>The IP information</returns>
+        [HttpGet("api/ipdetails/{ipAddress}")]
+        public async Task<IpApiResponse> IPDetails(string ipAddress)
+        {
+            IpApiResponse result = new();
+
+            try
+            {
+                _logger.LogDebug("Requested IPDetails for: {0}", ipAddress);
+
+                if (!_bogonIPService.IsBogonIP(ipAddress))
+                {
+                    IpApiResponse? response = await _ipApiClient.Get(ipAddress, new CancellationToken());
+                    if (response != null)
+                    {
+                        result = response;
+                    }
+                    else
+                    {
+                        result.status = "Could not retrive the IP information";
+                    }
+                }
+                else
+                {
+                    result.status = "BogonIP";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting the IP details: {0}", ipAddress);
+                result.status = "Error";
             }
             return result;
         }
