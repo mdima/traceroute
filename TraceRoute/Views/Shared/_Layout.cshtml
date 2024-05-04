@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TraceRoute</title>
     <link rel="stylesheet" href="~/lib/twitter-bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/site.css?t=@DateTime.Now.Ticks" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/leaflet/leaflet.min.css" />
 </head>
@@ -35,7 +35,11 @@
         @RenderBody()
     </main>
     <footer class="footer fixed-bottom navbar-dark bg-dark">
-        <p class="navbar-brand ms-3">&copy; @DateTime.Now.Year - TraceRoute - <a class="link-secondary" href="https://github.com/mdima/traceroute" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></p>
+        <p class="navbar-brand ms-3">
+            &copy; @DateTime.Now.Year - TraceRoute - 
+            <i class="fa-brands fa-github link-secondary"></i> <a class="link-secondary" href="https://github.com/mdima/traceroute" target="_blank">GitHub</a> -
+            <i class="fa-brands fa-docker link-secondary"></i> <a class="link-secondary" href="https://hub.docker.com/r/michele73/traceroute" target="_blank">Docker</a>
+        </p>
     </footer>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAbout" aria-labelledby="offcanvasRightLabel">
         <div class="spinner-border spinner-border-lg m-5" role="status">
@@ -60,25 +64,25 @@
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     <div class="row" ng-show="vm.ipDetail != null">
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Continent</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Continent</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.continent}}</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Country</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Country</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.country}} ({{vm.ipDetail.countryCode}})</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Region</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Region</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.regionName}} ({{vm.ipDetail.region}})</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">City</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">City</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.city}} <span ng-show="vm.ipDetail.district"> ({{vm.ipDetail.district}}) </span>- {{vm.ipDetail.zip}}</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">ISP</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">ISP</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.isp}}</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Organization</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Organization</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.org}}</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">AS</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">AS</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.as}} ({{vm.ipDetail.asname}})</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Is mobile</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Is mobile</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.mobile}}</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Is proxy</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Is proxy</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.proxy}}</div>
-                        <div class="col-3 HalfStrong" ng-show="vm.ipDetail != null">Is hosting</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Is hosting</div>
                         <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.hosting}}</div>
                     </div>
                 </div>
@@ -92,9 +96,9 @@
     <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
     <script src="~/lib/leaflet/leaflet.min.js"></script>
     <script src="~/lib/angular.js/angular.min.js"></script>
-    <script src="~/js/app.js"></script>
-    <script src="~/js/traceRouteController.js"></script>
-    <script src="~/js/site.min.js" asp-append-version="true"></script>
+    <script src="~/js/app.js?t=@DateTime.Now.Ticks"></script>
+    <script src="~/js/traceRouteController.js?t=@DateTime.Now.Ticks"></script>
+    <script src="~/js/site.min.js?t=@DateTime.Now.Ticks" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

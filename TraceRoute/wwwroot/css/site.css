@@ -20,10 +20,6 @@ ul {
     margin: 0px
 }
 
-.HalfStrong {
-    font-weight: 400
-}
-
 @keyframes highlight {
     0% {
         background: #ffff99;

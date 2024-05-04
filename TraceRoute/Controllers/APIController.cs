@@ -151,7 +151,7 @@ namespace TraceRoute.Controllers
 
             try
             {
-                _logger.LogDebug("Requested IPDetails for: {0}", ipAddress);
+                _logger.LogInformation("Requested IPDetails for: {0}", ipAddress);
 
                 if (!_bogonIPService.IsBogonIP(ipAddress))
                 {

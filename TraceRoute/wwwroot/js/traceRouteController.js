@@ -49,9 +49,10 @@
                                         var hostDetail = angular.fromJson(responseDetail).data;
                                         vm.HostList[i].details = hostDetail;
                                         if (hostDetail.longitude && hostDetail.latitude) {
-                                            addMarker(hostDetail.latitude, hostDetail.longitude, (i + 1).toString());
+                                            addMarker(hostDetail.latitude, hostDetail.longitude, (i + 1).toString(), vm.HostList[i].hopAddress);
                                             drawPath(vm.HostList);
                                         }
+                                        $(window).trigger('resize');
                                     }
                             );
                         }

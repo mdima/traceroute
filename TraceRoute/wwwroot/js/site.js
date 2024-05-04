@@ -28,7 +28,7 @@ function initMap() {
 	});
 }
 
-function addMarker(lat, long, text) {
+function addMarker(lat, long, text, ipAddress) {
 	var marker = L.marker([lat, long], {id: 'marker_' + text})
 		.bindTooltip(text,
 			{
@@ -36,10 +36,15 @@ function addMarker(lat, long, text) {
 				direction: 'right'
 			})
 		.on('mouseover', hilightHopTable)
+		.on('click', function (evt) { ipDetailsJS(ipAddress); })
 		.addTo(map);
 	markers.push[marker];
 }
 
+function ipDetailsJS(ipAddress) {
+	var scope = angular.element(document.querySelector("body")).controller();
+	scope.IpDetails(ipAddress);
+}
 function hilightHopTable() {
 	var tooltip = this.getTooltip();
 	var hopRowID = ".tr_hop_" + tooltip.getContent();
