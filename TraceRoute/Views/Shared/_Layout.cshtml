@@ -3,11 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="This utility provides a Trace Route functionality with a nice layout" />
     <title>@ViewData["Title"] - TraceRoute</title>
-    <link rel="stylesheet" href="~/lib/twitter-bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/lib/twitter-bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css?t=@DateTime.Now.Ticks" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
-    <link rel="stylesheet" href="~/lib/leaflet/leaflet.min.css" />
+    <link rel="preload" href="~/lib/leaflet/leaflet.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preconnect" href="https://tile.openstreetmap.org">
 </head>
 <body ng-app="traceRouteApp" ng-controller="traceRouteController as vm">
     <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
@@ -20,10 +22,10 @@
                 <div class="input-group">
                     <input type="text" ng-model="vm.Hostname" class="form-control" placeholder="Perform Trace Route" autocapitalize="off" spellcheck="false">
                     <span class="input-group-append">
-                        <button ng-click="vm.TraceRoute()" class="btn btn-secondary" type="button">
+                        <button ng-click="vm.TraceRoute()" class="btn btn-secondary" type="button" aria-label="Perform the Trace Route">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
-                        <a class="btn btn-secondary justify-content-end" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" aria-controls="offcanvas" ng-click="vm.ShowAbout()">
+                        <a class="btn btn-secondary justify-content-end" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" ng-click="vm.ShowAbout()">
                             ...
                         </a>
                     </span>
@@ -37,8 +39,8 @@
     <footer class="footer fixed-bottom navbar-dark bg-dark">
         <p class="navbar-brand ms-3">
             &copy; @DateTime.Now.Year - TraceRoute - 
-            <i class="fa-brands fa-github link-secondary"></i> <a class="link-secondary" href="https://github.com/mdima/traceroute" target="_blank">GitHub</a> -
-            <i class="fa-brands fa-docker link-secondary"></i> <a class="link-secondary" href="https://hub.docker.com/r/michele73/traceroute" target="_blank">Docker</a>
+            <i class="fa-brands fa-github lightLink"></i> <a class="lightLink" href="https://github.com/mdima/traceroute" target="_blank">GitHub</a> -
+            <i class="fa-brands fa-docker lightLink"></i> <a class="lightLink" href="https://hub.docker.com/r/michele73/traceroute" target="_blank">Docker</a>
         </p>
     </footer>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAbout" aria-labelledby="offcanvasRightLabel">
@@ -94,11 +96,11 @@
     </div>
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
-    <script src="~/lib/leaflet/leaflet.min.js"></script>
+    <script src="~/lib/leaflet/leaflet.min.js" async onload="initMap();"></script>
     <script src="~/lib/angular.js/angular.min.js"></script>
+    <script src="~/js/site.min.js?t=@DateTime.Now.Ticks" asp-append-version="true"></script>
     <script src="~/js/app.js?t=@DateTime.Now.Ticks"></script>
     <script src="~/js/traceRouteController.js?t=@DateTime.Now.Ticks"></script>
-    <script src="~/js/site.min.js?t=@DateTime.Now.Ticks" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -20,6 +20,8 @@ ul {
     margin: 0px
 }
 
+.lightLink { color: #bcbcbc }
+
 @keyframes highlight {
     0% {
         background: #ffff99;

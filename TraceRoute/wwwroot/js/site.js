@@ -2,10 +2,6 @@
 var polyline;
 var markers = [];
 
-$(function () {
-	initMap();
-});
-
 function initMap() {
 	map = L.map('map').setView([0, 0], 2);
 	L.Icon.Default.imagePath = 'lib/leaflet/images/';
