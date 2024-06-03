@@ -8,6 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CF5D81FA-5FFF-498E-8626-5FA87E144F26}"
 	ProjectSection(SolutionItems) = preProject
+		SupportFiles\Lighthouse Reports.xlsx = SupportFiles\Lighthouse Reports.xlsx
 		README.md = README.md
 		screenshot.png = screenshot.png
 	EndProjectSection
