@@ -96,11 +96,11 @@
     </div>
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
-    <script src="~/lib/leaflet/leaflet.min.js" async onload="initMap();"></script>
     <script src="~/lib/angular.js/angular.min.js"></script>
     <script src="~/js/site.min.js?t=@DateTime.Now.Ticks" asp-append-version="true"></script>
     <script src="~/js/app.js?t=@DateTime.Now.Ticks"></script>
     <script src="~/js/traceRouteController.js?t=@DateTime.Now.Ticks"></script>
+    <script src="~/lib/leaflet/leaflet.min.js" async onload="initMap();"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

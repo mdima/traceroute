@@ -1,6 +1,6 @@
 # Visual Trace Route
 C# ASP.NET Core 8.0 Visual Trace Route Web Application
-![Visual Trace Route Screenshot](https://github.com/mdima/traceroute/blob/master/screenshot.png?raw=true)
+![Visual Trace Route Screenshot](https://github.com/mdima/traceroute/blob/master/SupportFiles/screenshot.png?raw=true)
 
 Based on the original repository: https://github.com/bencorn/traceroute
 
@@ -15,10 +15,10 @@ Based on the original repository: https://github.com/bencorn/traceroute
 
 ### Running in Docker
 You can use the following image to run Visual Trace Route locally:
-michele73/traceroute:1.2.0
+michele73/traceroute:1.2.1
 
 Example:
-docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:1.2.0
+docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:1.2.1
 
 The image repository is here: https://hub.docker.com/r/michele73/traceroute
 
