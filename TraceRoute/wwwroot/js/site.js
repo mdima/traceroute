@@ -85,3 +85,8 @@ function drawPath(HostList) {
 	polyline = L.polyline(latlngs, { color: 'red' }).addTo(map);
 	map.fitBounds(polyline.getBounds());
 }
+
+function hideKeyboard() {
+    document.activeElement.blur();
+	$("input").trigger("blur");
+}

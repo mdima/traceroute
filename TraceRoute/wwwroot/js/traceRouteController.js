@@ -29,6 +29,7 @@
             $http.get("api/trace/" + vm.Hostname)
                 .then(
                     function successFunction(response) {
+                        hideKeyboard();
                         vm.isTracing = false;
                         theResponse = angular.fromJson(response);
                         if (theResponse.data.errorDescription)
