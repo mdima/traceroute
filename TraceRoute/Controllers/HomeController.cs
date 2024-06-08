@@ -30,7 +30,15 @@ namespace TraceRoute.Controllers
         [HttpGet("/about")]
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            Version? currentVersion = GetType()?.Assembly?.GetName()?.Version;
+            if (currentVersion != null)
+            {
+                ViewData["Version"] = string.Format("{0}.{1}.{2}", currentVersion.Major, currentVersion.Minor, currentVersion.Build);
+            }
+            else
+            {
+                ViewData["Version"] = "Unknown";
+            }
 
             return PartialView();
         }
