@@ -3,11 +3,13 @@ var polyline;
 var markers = [];
 
 function initMap() {
-	map = L.map('map').setView([0, 0], 2);
+	map = L.map('map', { preferCanvas: true }).setView([0, 0], 2);
 	L.Icon.Default.imagePath = 'lib/leaflet/images/';
 	const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
-		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'		
+	//}).on('tileloadstart', function (event) {
+	//	event.tile.setAttribute('loading', 'lazy')
 	}).addTo(map);
 	L.Map.include({
 		getMarkerById: function (id) {
