@@ -7,10 +7,10 @@
     <title>@ViewData["Title"] - TraceRoute</title>
     <link rel="stylesheet" href="~/lib/twitter-bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css?t=@DateTime.Now.Ticks" />
-    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    <link rel="preload" href="~/lib/font-awesome/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <link rel="preload" href="~/lib/leaflet/leaflet.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <link rel="preconnect" href="https://tile.openstreetmap.org" />
-    <link rel="preload" fetchpriority="high" as="image" src="https://tile.openstreetmap.org/2/1/2.png" type="image/png" />
+    <link rel="preload" fetchpriority="high" as="image" href="https://tile.openstreetmap.org/2/1/2.png" />
 </head>
 <body ng-app="traceRouteApp" ng-controller="traceRouteController as vm">
     <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
