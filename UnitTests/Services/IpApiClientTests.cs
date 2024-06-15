@@ -34,12 +34,12 @@ namespace UnitTests.Services
             Assert.AreEqual("Milan", result.city);
             Assert.AreEqual("Italy", result.country);
             Assert.AreEqual("Lombardy", result.regionName);
+            Assert.AreEqual("Europe", result.continent);
             Assert.IsNotNull(result.lat);
             Assert.IsNotNull(result.lon);
             Assert.IsNotNull(result.isp);
             Assert.IsNotNull(result.zip);
-            Assert.IsNull(result.continent);
-            Assert.IsNull(result.district);
+            Assert.IsNotNull(result.district);
         }
 
         [TestMethod]

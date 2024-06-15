@@ -35,7 +35,7 @@ namespace TraceRoute.Services
                         _logger.LogDebug("Lookup bash result: {0}", lookupResult);
                         
                         var splits = lookupResult.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToList();
-                        if (splits.Count > 0 && !lookupResult.Contains("not found:"))
+                        if (splits.Count > 0 && !lookupResult.Contains("not found:") && !lookupResult.Contains("has no PTR record"))
                         { 
                             result = splits.Last();
                             result = result.Replace("\n", "");
