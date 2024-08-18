@@ -22,10 +22,10 @@
     <PackageReference Include="IPNetwork2" Version="3.0.667" />
     <PackageReference Include="log4net" Version="2.0.17" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RestSharp" Version="111.2.0" />
-    <PackageReference Include="WebMarkupMin.AspNetCore8" Version="2.16.0" />
+    <PackageReference Include="RestSharp" Version="111.4.1" />
+    <PackageReference Include="WebMarkupMin.AspNetCore8" Version="2.17.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,5 +52,9 @@
     <Content Update="wwwroot\lib\leaflet\images\marker-shadow.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Config\" />
   </ItemGroup>
 </Project>
