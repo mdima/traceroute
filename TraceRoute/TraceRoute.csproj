@@ -55,6 +55,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Config\" />
+    <Folder Include="config\" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,38 @@
+﻿@model SettingsViewModel
+
+<div class="offcanvas-header">
+    <h5 id="offcanvasRightLabel">Settings</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+</div>
+<div class="offcanvas-body">
+    <h4>Settings</h4>
+    <form method="post">
+        <div class="mb-3">
+            <label for="host" class="form-label">Current node</label>
+            <input type="text" class="form-control" id="host" name="host" value="@Model.CurrentServerURL" required>
+        </div>
+        <div class="mb-3">
+            <label for="maxHops" class="form-label">Root node</label>
+            <input type="number" class="form-control" id="maxHops" name="maxHops" value="@Model.RootNode" required>
+        </div>
+        <div class="mb-3">
+            <label for="timeout" class="form-label">Server IID</label>
+            <input type="number" class="form-control" id="timeout" name="timeout" value="@Model.ServerID" required>
+        </div>
+        <div class="mb-3">
+            <label for="resolveHostnames" class="form-label">Enable remote traces</label>
+            <select class="form-select" id="resolveHostnames" name="resolveHostnames" required>
+                <option value="true" selected="@Model.EnableRemoteTraces")>Yes</option>
+                <option value="false" selected="@(!Model.EnableRemoteTraces)" )>No</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="resolveHostnames" class="form-label">Host remote traces</label>
+            <select class="form-select" id="resolveHostnames" name="resolveHostnames" required>
+                <option value="true" selected="@Model.HostRemoteTraces" )>Yes</option>
+                <option value="false" selected="@(!Model.HostRemoteTraces)" )>No</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-secondary">Save</button>
+    </form>
+</div>

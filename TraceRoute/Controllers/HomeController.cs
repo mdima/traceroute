@@ -43,6 +43,19 @@ namespace TraceRoute.Controllers
             return PartialView();
         }
 
+        [HttpGet("/settings")]
+        public IActionResult Settings()
+        {
+            SettingsViewModel settings = new();
+            settings.CurrentServerURL = Request.Host.Value;
+            settings.ServerID = ConfigurationHelper.GetServerID();
+            settings.HostRemoteTraces = ConfigurationHelper.GetHostRemoteTraces();
+            settings.EnableRemoteTraces = ConfigurationHelper.GetEnableRemoteTraces();
+            settings.RootNode = ConfigurationHelper.GetRootNode();
+
+            return PartialView(settings);
+        }
+
         [HttpGet("/error")]
         public IActionResult Error(int? statusCode = null)
         {

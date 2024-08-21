@@ -37,12 +37,13 @@ namespace TraceRoute.Services
                     if (response == null)
                     {
                         _logger.LogDebug("Asking the IP information for IP: {0}", ipAddress);
+                        if (ipAddress == "127.0.0.1") ipAddress = "";
                         string route = $"{BASE_URL}/json/{ipAddress}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
                         response = await _httpClient.GetFromJsonAsync<IpApiResponse>(route, ct);
                         _logger.LogDebug("Result: {0}", JsonConvert.SerializeObject(response));
                         if (response != null)
                         {
-                            _MemoryCache.Set(cacheName, response, DateTimeOffset.Now.AddMinutes(10));
+                            _MemoryCache.Set(cacheName, response, DateTimeOffset.Now.AddMinutes(ConfigurationHelper.GetCacheMinutes()));
                         }
                     }
                     return response;
@@ -58,6 +59,16 @@ namespace TraceRoute.Services
                 _logger.LogError(ex, "Error getting the IP information for IP: {0}, Err: {1}", ipAddress, ex.Message);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Retrives the current server information
+        /// </summary>
+        /// <param name="ct">The cancellation token for an async operation</param>
+        /// <returns>The current server details</returns>
+        public async Task<IpApiResponse?> GetCurrentServerDetails(CancellationToken ct = default)
+        {
+            return await Get("127.0.0.1", ct);
         }
     }
 }

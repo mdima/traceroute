@@ -19,13 +19,14 @@ using WebMarkupMin.AspNetCore8;
 [assembly: InternalsVisibleTo("UnitTests")]
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseIISIntegration();    //Optional for IIS deployment
 builder.Services.AddControllersWithViews();
 builder.Services.AddMvc();
-builder.WebHost.UseIISIntegration();
 builder.Services.AddHttpClient<IpApiClient>();
 builder.Services.AddSingleton<BogonIPService>();
 builder.Services.AddSingleton<ReverseLookupService>();
 builder.Services.AddMemoryCache(x => { x.TrackStatistics = true; x.TrackLinkedCacheEntries = true; });
+
 //Forward headers configuration for reverse proxy
 builder.Services.Configure<ForwardedHeadersOptions>(options => {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -137,6 +138,17 @@ app.UseStaticFiles(
 app.Lifetime.ApplicationStarted.Register(() => { _logger.Info($"Application started, environment: {builder.Environment.EnvironmentName}"); });
 app.Lifetime.ApplicationStopping.Register(() => { _logger.Info("Application stopping"); });
 app.Lifetime.ApplicationStopped.Register(() => { _logger.Info("Application ended"); });
+
+//I log/set the server ID
+if (string.IsNullOrEmpty(ConfigurationHelper.GetServerID()))
+{
+    ConfigurationHelper.SetServerID();
+    _logger.Info(string.Format("Server ID initialized: {0}", ConfigurationHelper.GetServerID()));
+}
+else
+{
+    _logger.Info(string.Format("Server ID: {0}", ConfigurationHelper.GetServerID()));
+}
 
 //I run the app
 app.Run();

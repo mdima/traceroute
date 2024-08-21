@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http;
+using TraceRoute.Helpers;
 using TraceRoute.Models;
 
 namespace TraceRoute.Services
@@ -46,7 +47,7 @@ namespace TraceRoute.Services
                     else
                         result = "";
 
-                    _MemoryCache.Set(cacheName, result, DateTimeOffset.Now.AddMinutes(10));
+                    _MemoryCache.Set(cacheName, result, DateTimeOffset.Now.AddMinutes(ConfigurationHelper.GetCacheMinutes()));
                 }
                 return result;
             }

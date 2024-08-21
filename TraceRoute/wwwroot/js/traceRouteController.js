@@ -77,6 +77,15 @@
             );
         }
 
+        vm.ShowSettings = function () {
+            $http.get("settings/")
+                .then(
+                    function successFunction(response) {
+                        $("#offcanvasAbout").html(response.data);
+                    }
+                );
+        }
+
         vm.IpDetails = function(ipAddress)
         {
             vm.ipDetail = null;
