@@ -10,9 +10,12 @@
         vm.HostList = [];
         vm.isTracing = false;
         vm.ipDetail = null;
+        vm.hostRemoteTraces = false;
+        vm.enableRemoteTraces = false;
+        vm.ServerLocation = "aaaaaa";
 
         $(function () {
-
+            vm.GetSettings();
         });
 
         vm.TraceRoute = function () {
@@ -68,23 +71,23 @@
             });
         };
 
-        vm.ShowAbout = function () {
-            $http.get("about/")
+        vm.GetSettings = function () {
+            $http.get("api/settings/")
                 .then(
                     function successFunction(response) {
-                        $("#offcanvasAbout").html(response.data);
+                        theResponse = angular.fromJson(response);
+                        vm.hostRemoteTraces = theResponse.data.hostRemoteTraces;
+                        vm.enableRemoteTraces = theResponse.data.enableRemoteTraces;
+                        vm.ServerLocation = theResponse.data.serverLocation;
                     }
-            );
-        }
-
-        vm.ShowSettings = function () {
-            $http.get("settings/")
-                .then(
-                    function successFunction(response) {
-                        $("#offcanvasAbout").html(response.data);
-                    }
-                );
-        }
+                )
+                .catch((err) => {
+                    vm.ErrorDescription = "Could not retrive the settings";
+                    let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
+                    toastError.show();
+                    console.error('An error occurred:', err);
+                });
+        };
 
         vm.IpDetails = function(ipAddress)
         {

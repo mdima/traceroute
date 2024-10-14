@@ -177,5 +177,21 @@ namespace TraceRoute.Controllers
             }
             return result;
         }
+
+        /// <summary>
+        /// Retrives the current configuration
+        /// </summary>
+        [HttpGet("api/settings")]
+        public async Task<SettingsViewModel> GetSettings()
+        {
+            SettingsViewModel result = ConfigurationHelper.GetCurrentSettings(Request);
+            IpApiResponse? currentServerInfo = await _ipApiClient.GetCurrentServerDetails();
+            if (currentServerInfo != null)
+            {
+                result.ServerLocation = string.Format("{0} - {1}", currentServerInfo.city, currentServerInfo.country);
+            }
+
+            return result;
+        }
     }
 }

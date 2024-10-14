@@ -16,13 +16,14 @@ namespace UnitTests
     [TestClass]
     public class ProgramTests
     {
+        //This is still not working because of issues between the VS Unit Tests and the Docker Engine
         //[TestMethod]
         //public void Program()
         //{
         //    var waf = new WebApplicationFactory<Program>()
-        //        .WithWebHostBuilder(builder => builder.UseWebRoot("/mnt/approot/TraceRoute")
-        //        .UseContentRoot("/mnt/approot/TraceRoute/wwwroot"));
-        //    //.WithWebHostBuilder(builder => builder.UseWebRoot("/mnt/approot/UnitTests/bin/Debug/net8.0")
+        //        .WithWebHostBuilder(builder => builder.UseWebRoot("/mnt/approot/UnitTests/bin/Debug/net8.0"));
+        //        //.UseContentRoot("/mnt/approot/UnitTests/bin/Debug/net8.0/wwwroot"));
+        //    //.WithWebHostBuilder(builder => builder.UseWebRoot("/mnt/approot/UnitTests/bin/Debug/net8.0"));
         //    //builder.UseSolutionRelativeContentRoot("TraceRoute/wwwroot")
         //    var server = waf.Server;
         //    Assert.IsNotNull(server);

@@ -7,5 +7,6 @@
         public string ServerID { get; set; } = "";
         public string RootNode { get; set; } = "";
         public string CurrentServerURL { get; set; } = "";
+        public string ServerLocation { get; set; } = "";
     }
 }

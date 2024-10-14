@@ -26,10 +26,10 @@
                         <button ng-click="vm.TraceRoute()" class="btn btn-secondary" type="button" aria-label="Perform the Trace Route">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
-                        <a class="btn btn-secondary justify-content-end" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" ng-click="vm.ShowSettings()">
+                        <a class="btn btn-secondary justify-content-end" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button">
                             <i class="fa-solid fa-gear"></i>
                         </a>
-                        <a class="btn btn-secondary justify-content-end" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" ng-click="vm.ShowAbout()">
+                        <a class="btn btn-secondary justify-content-end" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button">
                             ...
                         </a>
                     </span>
@@ -48,9 +48,14 @@
         </p>
     </footer>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAbout" aria-labelledby="offcanvasRightLabel">
-        <div class="spinner-border spinner-border-lg m-5" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
+        @{
+            await Html.RenderPartialAsync("About");
+        }
+    </div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasRightLabel">
+        @{
+            await Html.RenderPartialAsync("Settings");
+        }
     </div>
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true" id="ToastError">

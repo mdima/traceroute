@@ -46,14 +46,18 @@ namespace TraceRoute.Controllers
         [HttpGet("/settings")]
         public IActionResult Settings()
         {
-            SettingsViewModel settings = new();
-            settings.CurrentServerURL = Request.Host.Value;
-            settings.ServerID = ConfigurationHelper.GetServerID();
-            settings.HostRemoteTraces = ConfigurationHelper.GetHostRemoteTraces();
-            settings.EnableRemoteTraces = ConfigurationHelper.GetEnableRemoteTraces();
-            settings.RootNode = ConfigurationHelper.GetRootNode();
+            return PartialView(ConfigurationHelper.GetCurrentSettings(Request));
+        }
 
-            return PartialView(settings);
+        [HttpPost("/settings")]
+        public bool SaveSettings(SettingsViewModel model)
+        {
+            bool result = false;
+
+            result &= ConfigurationHelper.SetEnableRemoteTraces(model.EnableRemoteTraces);
+            result &= ConfigurationHelper.SetHostRemoteTraces(model.EnableRemoteTraces);
+
+            return result;
         }
 
         [HttpGet("/error")]

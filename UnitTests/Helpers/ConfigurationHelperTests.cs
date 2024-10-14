@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using TraceRoute.Helpers;
+using TraceRoute.Models;
 
 namespace UnitTests.Helpers
 {
@@ -38,6 +39,20 @@ namespace UnitTests.Helpers
             request.Setup(r => r.Host).Returns(new HostString("traceroute.di-maria.it", 443));
 
             Assert.IsTrue(ConfigurationHelper.IsRootNode(request.Object));
+        }
+
+        [TestMethod]
+        public void GetCurrentSettings()
+        {
+            Mock<HttpRequest> request = new Mock<HttpRequest>();
+            request.Setup(r => r.Host).Returns(new HostString("https://traceroute.di-maria.it/", 443));
+
+            SettingsViewModel result = ConfigurationHelper.GetCurrentSettings(request.Object);
+
+            Assert.AreEqual("https://traceroute.di-maria.it/:443", result.CurrentServerURL);
+            Assert.AreEqual(ConfigurationHelper.GetServerID(), result.ServerID);
+            Assert.AreEqual(ConfigurationHelper.GetEnableRemoteTraces(), result.EnableRemoteTraces);
+            Assert.AreEqual(ConfigurationHelper.GetHostRemoteTraces(), result.HostRemoteTraces);
         }
 
         [TestMethod]

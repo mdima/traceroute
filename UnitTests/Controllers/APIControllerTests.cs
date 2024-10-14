@@ -87,5 +87,17 @@ namespace UnitTests.Controllers
             response = await _controller.IPDetails("10.0.0.1");
             Assert.AreEqual("BogonIP", response.status);            
         }
+
+        [TestMethod]
+        public async Task GetSettings()
+        {
+            SettingsViewModel response = await _controller.GetSettings();
+
+            Assert.AreEqual("", response.CurrentServerURL);
+            Assert.AreEqual(ConfigurationHelper.GetServerID(), response.ServerID);
+            Assert.AreEqual(ConfigurationHelper.GetEnableRemoteTraces(), response.EnableRemoteTraces);
+            Assert.AreEqual(ConfigurationHelper.GetHostRemoteTraces(), response.HostRemoteTraces);
+            Assert.IsNotNull(response.ServerLocation);
+        }
     }
 }

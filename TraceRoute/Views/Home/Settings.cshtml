@@ -1,38 +1,44 @@
-﻿@model SettingsViewModel
-
-<div class="offcanvas-header">
+﻿<div class="offcanvas-header">
     <h5 id="offcanvasRightLabel">Settings</h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 </div>
 <div class="offcanvas-body">
-    <h4>Settings</h4>
-    <form method="post">
-        <div class="mb-3">
-            <label for="host" class="form-label">Current node</label>
-            <input type="text" class="form-control" id="host" name="host" value="@Model.CurrentServerURL" required>
+    <form>
+        <div class="mb-5">
+            <label for="EnableRemoteTraces" class="form-label">Enable remote traces<br />
+                <small>If enabled allows this not to perform traceroutes on remote hosts.</small>
+            </label>
+            <select class="form-select" id="EnableRemoteTraces" name="resolveHostnames" required>
+                <option value="true" selected="" )>Yes</option>
+                <option value="false" selected="" )>No</option>
+            </select>
         </div>
-        <div class="mb-3">
-            <label for="maxHops" class="form-label">Root node</label>
-            <input type="number" class="form-control" id="maxHops" name="maxHops" value="@Model.RootNode" required>
-        </div>
-        <div class="mb-3">
-            <label for="timeout" class="form-label">Server IID</label>
-            <input type="number" class="form-control" id="timeout" name="timeout" value="@Model.ServerID" required>
-        </div>
-        <div class="mb-3">
-            <label for="resolveHostnames" class="form-label">Enable remote traces</label>
-            <select class="form-select" id="resolveHostnames" name="resolveHostnames" required>
-                <option value="true" selected="@Model.EnableRemoteTraces")>Yes</option>
-                <option value="false" selected="@(!Model.EnableRemoteTraces)" )>No</option>
+        <div class="mb-5">
+            <label for="HostRemoteTraces" class="form-label">
+                Host remote traces<br />
+                <small>If enabled allows remote hosts to make traceroutes using this host.</small>
+            </label>
+            <select class="form-select" id="HostRemoteTraces" name="HostRemoteTraces" required>
+                <option value="true" selected="" )>Yes</option>
+                <option value="false" selected="" )>No</option>
             </select>
         </div>
         <div class="mb-3">
-            <label for="resolveHostnames" class="form-label">Host remote traces</label>
-            <select class="form-select" id="resolveHostnames" name="resolveHostnames" required>
-                <option value="true" selected="@Model.HostRemoteTraces" )>Yes</option>
-                <option value="false" selected="@(!Model.HostRemoteTraces)" )>No</option>
-            </select>
+            <label for="CurrentServerURL" class="form-label">Current node</label>
+            <input ng-model="vm." type="text" disabled class="form-control small" id="CurrentServerURL" name="host">
         </div>
-        <button type="submit" class="btn btn-secondary">Save</button>
+        <div class="mb-3">
+            <label for="RootNode" class="form-label">Root node</label>
+            <input type="text" disabled class="form-control small" id="RootNode" name="RootNode" required>
+        </div>
+        <div class="mb-3">
+            <label for="ServerID" class="form-label">Server ID</label>
+            <input type="text" disabled class="form-control small" id="ServerID" name="ServerID" required>
+        </div>
+        <div class="mb-3">
+            <label for="ServerID" class="form-label">Server location</label>
+            <input type="text" ng-model="vm.ServerLocation" disabled class="form-control small" id="ServerLocation" name="ServerLocation">
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="SetSettings();">Save</button>
     </form>
 </div>

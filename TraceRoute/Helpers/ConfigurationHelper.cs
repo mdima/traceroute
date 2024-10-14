@@ -9,6 +9,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TraceRoute.Models;
 
 [assembly:InternalsVisibleTo("UnitTests")]
 namespace TraceRoute.Helpers
@@ -54,7 +55,7 @@ namespace TraceRoute.Helpers
             return SetAppSetting<bool>("EnableRemoteTraces", value);
         }
 
-        public static bool GetHostRemoteTraces() { 
+        public static bool GetHostRemoteTraces() {
             return GetAppSetting("HostRemoteTraces", "false").ToLower() == "true";
         }
 
@@ -67,6 +68,20 @@ namespace TraceRoute.Helpers
         {
             Uri rootURL = new Uri(GetRootNode());
             return request.Host.Host == rootURL.Host && request.Host.Port == rootURL.Port;
+        }
+
+        public static SettingsViewModel GetCurrentSettings(HttpRequest request)
+        { 
+            SettingsViewModel settings = new();
+
+            if (request != null)
+                settings.CurrentServerURL = request.Host.Value;
+            settings.ServerID = ConfigurationHelper.GetServerID();
+            settings.HostRemoteTraces = ConfigurationHelper.GetHostRemoteTraces();
+            settings.EnableRemoteTraces = ConfigurationHelper.GetEnableRemoteTraces();
+            settings.RootNode = ConfigurationHelper.GetRootNode();
+
+            return settings;
         }
 
         //Private functions
