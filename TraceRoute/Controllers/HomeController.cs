@@ -43,12 +43,6 @@ namespace TraceRoute.Controllers
             return PartialView();
         }
 
-        [HttpGet("/settings")]
-        public IActionResult Settings()
-        {
-            return PartialView(ConfigurationHelper.GetCurrentSettings(Request));
-        }
-
         [HttpPost("/settings")]
         public bool SaveSettings(SettingsViewModel model)
         {

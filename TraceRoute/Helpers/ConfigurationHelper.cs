@@ -76,7 +76,7 @@ namespace TraceRoute.Helpers
 
             if (request != null)
                 settings.CurrentServerURL = request.Host.Value;
-            settings.ServerID = ConfigurationHelper.GetServerID();
+            settings.ServerId = ConfigurationHelper.GetServerID();
             settings.HostRemoteTraces = ConfigurationHelper.GetHostRemoteTraces();
             settings.EnableRemoteTraces = ConfigurationHelper.GetEnableRemoteTraces();
             settings.RootNode = ConfigurationHelper.GetRootNode();

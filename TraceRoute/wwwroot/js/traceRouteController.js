@@ -10,9 +10,13 @@
         vm.HostList = [];
         vm.isTracing = false;
         vm.ipDetail = null;
+        //Setting
         vm.hostRemoteTraces = false;
         vm.enableRemoteTraces = false;
-        vm.ServerLocation = "aaaaaa";
+        vm.serverId = "";
+        vm.rootNode = "";
+        vm.currentServerURL = "";
+        vm.serverLocation = "";
 
         $(function () {
             vm.GetSettings();
@@ -78,6 +82,9 @@
                         theResponse = angular.fromJson(response);
                         vm.hostRemoteTraces = theResponse.data.hostRemoteTraces;
                         vm.enableRemoteTraces = theResponse.data.enableRemoteTraces;
+                        vm.serverId = theResponse.data.serverId;
+                        vm.rootNode = theResponse.data.rootNode;
+                        vm.currentServerURL = theResponse.data.currentServerURL;
                         vm.ServerLocation = theResponse.data.serverLocation;
                     }
                 )

@@ -25,15 +25,15 @@
         </div>
         <div class="mb-3">
             <label for="CurrentServerURL" class="form-label">Current node</label>
-            <input ng-model="vm." type="text" disabled class="form-control small" id="CurrentServerURL" name="host">
+            <input type="text" ng-model="vm.currentServerURL" disabled class="form-control small" id="CurrentServerURL" name="host">
         </div>
         <div class="mb-3">
             <label for="RootNode" class="form-label">Root node</label>
-            <input type="text" disabled class="form-control small" id="RootNode" name="RootNode" required>
+            <input type="text" ng-model="vm.rootNode" disabled class="form-control small" id="RootNode" name="RootNode" required>
         </div>
         <div class="mb-3">
             <label for="ServerID" class="form-label">Server ID</label>
-            <input type="text" disabled class="form-control small" id="ServerID" name="ServerID" required>
+            <input type="text" ng-model="vm.serverId" disabled class="form-control small" id="ServerID" name="ServerID" required>
         </div>
         <div class="mb-3">
             <label for="ServerID" class="form-label">Server location</label>
