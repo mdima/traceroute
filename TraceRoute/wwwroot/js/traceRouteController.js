@@ -11,12 +11,10 @@
         vm.isTracing = false;
         vm.ipDetail = null;
         //Setting
-        vm.hostRemoteTraces = false;
-        vm.enableRemoteTraces = false;
-        vm.serverId = "";
-        vm.rootNode = "";
-        vm.currentServerURL = "";
-        vm.serverLocation = "";
+        vm.settings = new Settings();
+        //Toast
+        vm.toastMessage = "";
+        vm.toastIsError = false;
 
         $(function () {
             vm.GetSettings();
@@ -25,9 +23,7 @@
         vm.TraceRoute = function () {
             if (!vm.Hostname)
             {
-                vm.ErrorDescription = "Please specify an IP or host to trace";
-                let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-                toastError.show();
+                vm.showToaster("Please specify an IP or host to trace", true);
                 return;
             }
             vm.isTracing = true;
@@ -41,9 +37,7 @@
                         theResponse = angular.fromJson(response);
                         if (theResponse.data.errorDescription)
                         {
-                            vm.ErrorDescription = theResponse.data.errorDescription;
-                            let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-                            toastError.show();
+                            vm.showToaster(theResponse.data.errorDescription, true);                            
                             return;
                         }
                         vm.HostList = theResponse.data.hops;
@@ -68,9 +62,7 @@
                 )
                 .catch((err) => {
                     vm.isTracing = false;
-                    vm.ErrorDescription = "Could not calculate the route";
-                    let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-                    toastError.show();
+                    vm.showToaster("Could not calculate the route", true);
                     console.error('An error occurred:', err);
             });
         };
@@ -80,18 +72,26 @@
                 .then(
                     function successFunction(response) {
                         theResponse = angular.fromJson(response);
-                        vm.hostRemoteTraces = theResponse.data.hostRemoteTraces;
-                        vm.enableRemoteTraces = theResponse.data.enableRemoteTraces;
-                        vm.serverId = theResponse.data.serverId;
-                        vm.rootNode = theResponse.data.rootNode;
-                        vm.currentServerURL = theResponse.data.currentServerURL;
-                        vm.ServerLocation = theResponse.data.serverLocation;
+                        vm.settings = theResponse.data;                        
                     }
                 )
                 .catch((err) => {
-                    vm.ErrorDescription = "Could not retrive the settings";
-                    let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-                    toastError.show();
+                    vm.showToaster("Could not retrive the settings", true);
+                    console.error('An error occurred:', err);
+                });
+        };
+
+        vm.SetSettings = function () {
+            $http.post("api/settings/", vm.settings)
+                .then(
+                    function successFunction(response) {
+                        vm.showToaster("Settings saved", false);
+                        vm.GetSettings();
+                        $('#modalSettings').modal('hide');
+                    }
+                )
+                .catch((err) => {
+                    vm.showToaster("Could not save the settings", true);
                     console.error('An error occurred:', err);
                 });
         };
@@ -105,17 +105,13 @@
                     function successFunction(response) {
                         vm.ipDetail = angular.fromJson(response).data;
                         if (vm.ipDetail.status != "success") {
-                            vm.ErrorDescription = vm.ipDetail.status;
-                            let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-                            toastError.show();
+                            vm.showToaster(vm.ipDetail.status, true);
                             $('#modalIpDetails').modal('hide');
                         }
                     }
                 )
                 .catch((err) => {
-                    vm.ErrorDescription = "Could not retrive the IP information";
-                    let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-                    toastError.show();
+                    vm.showToaster("Could not retrive the IP information", true);
                     console.error('An error occurred:', err);
                 });
         }
@@ -124,5 +120,22 @@
             vm.ipDetail = null;
             $('#modalIpDetails').modal('hide');
         }
+
+        vm.showToaster = function (message, isError) {
+            vm.toastMessage = message;
+            vm.isError = isError;
+
+            let toastDiv = bootstrap.Toast.getOrCreateInstance($("#ToastMessage"));
+            toastDiv.show();
+        }
     };
+
+    class Settings {
+        hostRemoteTraces = false;
+        enableRemoteTraces = false;
+        serverId = "";
+        rootNode = "";
+        currentServerURL = "";
+        serverLocation = "";
+    }
 })();

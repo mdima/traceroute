@@ -94,10 +94,28 @@ namespace UnitTests.Controllers
             SettingsViewModel response = await _controller.GetSettings();
 
             Assert.AreEqual("", response.CurrentServerURL);
-            Assert.AreEqual(ConfigurationHelper.GetServerID(), response.ServerID);
+            Assert.AreEqual(ConfigurationHelper.GetServerID(), response.ServerId);
             Assert.AreEqual(ConfigurationHelper.GetEnableRemoteTraces(), response.EnableRemoteTraces);
             Assert.AreEqual(ConfigurationHelper.GetHostRemoteTraces(), response.HostRemoteTraces);
             Assert.IsNotNull(response.ServerLocation);
+        }
+
+
+        [TestMethod]
+        public async Task SetSettings()
+        {
+            SettingsViewModel response = await _controller.GetSettings();
+
+            response.HostRemoteTraces = !response.HostRemoteTraces;
+            response.EnableRemoteTraces = !response.EnableRemoteTraces;
+
+            bool result = _controller.SetSettings(response);
+            Assert.IsTrue(result);
+
+            SettingsViewModel responseCheck = await _controller.GetSettings();
+
+            Assert.AreEqual(response.HostRemoteTraces, responseCheck.HostRemoteTraces);
+            Assert.AreEqual(response.EnableRemoteTraces, responseCheck.EnableRemoteTraces);
         }
     }
 }

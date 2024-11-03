@@ -50,7 +50,7 @@ namespace UnitTests.Helpers
             SettingsViewModel result = ConfigurationHelper.GetCurrentSettings(request.Object);
 
             Assert.AreEqual("https://traceroute.di-maria.it/:443", result.CurrentServerURL);
-            Assert.AreEqual(ConfigurationHelper.GetServerID(), result.ServerID);
+            Assert.AreEqual(ConfigurationHelper.GetServerID(), result.ServerId);
             Assert.AreEqual(ConfigurationHelper.GetEnableRemoteTraces(), result.EnableRemoteTraces);
             Assert.AreEqual(ConfigurationHelper.GetHostRemoteTraces(), result.HostRemoteTraces);
         }
@@ -122,6 +122,18 @@ namespace UnitTests.Helpers
 
             Assert.IsNotNull(result);
             Assert.AreEqual("https://traceroute.di-maria.it/", result);
+        }
+
+        [TestMethod]
+        public void SetAppSetting()
+        {
+            bool currentValue = ConfigurationHelper.GetEnableRemoteTraces();
+
+            Assert.IsTrue(ConfigurationHelper.SetAppSetting("EnableRemoteTraces", !currentValue));
+            Assert.AreEqual(!currentValue, ConfigurationHelper.GetEnableRemoteTraces());
+
+            Assert.IsTrue(ConfigurationHelper.SetAppSetting("EnableRemoteTraces", currentValue));
+            Assert.AreEqual(currentValue, ConfigurationHelper.GetEnableRemoteTraces());
         }
     }
 }

@@ -50,13 +50,5 @@ namespace UnitTests.Controllers
 
             Assert.IsNotNull(response);
         }
-
-        [TestMethod]
-        public void Settings()
-        {
-            var response = _controller.Settings();
-
-            Assert.IsNotNull(response);
-        }
     }
 }

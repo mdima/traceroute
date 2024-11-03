@@ -92,25 +92,3 @@ function hideKeyboard() {
     document.activeElement.blur();
 	$("input").trigger("blur");
 }
-
-function SetSettings() {
-	var scope = angular.element(document.querySelector("body")).controller();
-	scope.$http.post("api/settings/", { hostRemoteTraces: scope.hostRemoteTraces, enableRemoteTraces: scope.enableRemoteTraces })
-		.then(
-			function successFunction(response) {
-				theResponse = angular.fromJson(response);
-				if (!theResponse) {
-					scope.ErrorDescription = "The settings could not be saved";
-					let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-					toastError.show();
-				}
-				scope.getSettings();
-			}
-		)
-		.catch((err) => {
-			scope.ErrorDescription = "Could not save the settings";
-			let toastError = bootstrap.Toast.getOrCreateInstance($("#ToastError"));
-			toastError.show();
-			console.error('An error occurred:', err);
-		});
-};
