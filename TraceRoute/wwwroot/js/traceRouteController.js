@@ -123,7 +123,7 @@
 
         vm.showToaster = function (message, isError) {
             vm.toastMessage = message;
-            vm.isError = isError;
+            vm.toastIsError = isError;
 
             let toastDiv = bootstrap.Toast.getOrCreateInstance($("#ToastMessage"));
             toastDiv.show();

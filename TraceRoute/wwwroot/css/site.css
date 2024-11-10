@@ -20,7 +20,13 @@ ul {
     margin: 0px
 }
 
-.lightLink { color: #bcbcbc }
+.input-group {
+    min-width: 250px!important;
+}
+
+.lightLink {
+    color: #bcbcbc
+}
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
     display: none !important;
