@@ -4,6 +4,7 @@
   "dependencies": {
     "bootstrap": "5.3.3",
     "jquery": "3.7.1",
-    "font-awesome": "6.5.1"
+    "font-awesome": "6.5.1",
+    "bootstrap-select": "1.14.0-beta3"
   }
 }

@@ -56,5 +56,6 @@
 
   <ItemGroup>
     <Folder Include="config\" />
+    <Folder Include="wwwroot\lib\bootstrap-select\" />
   </ItemGroup>
 </Project>
