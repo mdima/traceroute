@@ -6,10 +6,13 @@
 
     function traceRouteController($http, $timeout, $scope) {
         var vm = this;
-        var theResponse;
-        vm.HostList = [];
+
+        vm.hostList = [];
+        vm.serverList = [];
         vm.isTracing = false;
         vm.ipDetail = null;
+        vm.sourceHost = "";
+        vm.Hostname = "";
         //Setting
         vm.settings = new Settings();
         //Toast
@@ -18,6 +21,10 @@
 
         $(function () {
             vm.GetSettings();
+            vm.GetServerList();
+            $('#TraceSource').on('click', function (e) {
+                vm.GetServerList();
+            });
         });
 
         vm.TraceRoute = function () {
@@ -27,32 +34,32 @@
                 return;
             }
             vm.isTracing = true;
-            vm.HostList = [];
+            vm.hostList = [];
             clearMarkersAndPaths();
-            $http.get("api/trace/" + vm.Hostname)
+            $http.get(vm.sourceHost + "api/trace/" + vm.Hostname)
                 .then(
                     function successFunction(response) {
                         hideKeyboard();
                         vm.isTracing = false;
-                        theResponse = angular.fromJson(response);
+                        var theResponse = angular.fromJson(response);
                         if (theResponse.data.errorDescription)
                         {
                             vm.showToaster(theResponse.data.errorDescription, true);                            
                             return;
                         }
-                        vm.HostList = theResponse.data.hops;
+                        vm.hostList = theResponse.data.hops;
                         $('.popover-dismiss').popover({
                             trigger: 'focus'
                         })
-                        for (let i = 0; i < vm.HostList.length; i++) {
-                            $http.get("api/IPInfo/" + vm.HostList[i].hopAddress)
+                        for (let i = 0; i < vm.hostList.length; i++) {
+                            $http.get("api/IPInfo/" + vm.hostList[i].hopAddress)
                                 .then(
                                     function successDetail(responseDetail) {
                                         var hostDetail = angular.fromJson(responseDetail).data;
-                                        vm.HostList[i].details = hostDetail;
+                                        vm.hostList[i].details = hostDetail;
                                         if (hostDetail.longitude && hostDetail.latitude) {
-                                            addMarker(hostDetail.latitude, hostDetail.longitude, (i + 1).toString(), vm.HostList[i].hopAddress);
-                                            drawPath(vm.HostList);
+                                            addMarker(hostDetail.latitude, hostDetail.longitude, (i + 1).toString(), vm.hostList[i].hopAddress);
+                                            drawPath(vm.hostList);
                                         }
                                         $(window).trigger('resize');
                                     }
@@ -71,12 +78,31 @@
             $http.get("api/settings/")
                 .then(
                     function successFunction(response) {
-                        theResponse = angular.fromJson(response);
-                        vm.settings = theResponse.data;                        
+                        vm.settings = angular.fromJson(response).data;                        
                     }
                 )
                 .catch((err) => {
                     vm.showToaster("Could not retrive the settings", true);
+                    console.error('An error occurred:', err);
+                });
+        };
+
+        vm.GetServerList = function () {
+            console.log("serverlist")
+            $http.get("api/serverlist/")
+                .then(
+                    function successFunction(response) {
+                        vm.serverList = angular.fromJson(response).data;
+                        if (vm.sourceHost == "") {
+                            const localSourceHost = vm.serverList.findIndex(x => x.isLocalHost == true);
+                            if (localSourceHost) {
+                                vm.sourceHost = vm.serverList[localSourceHost].url;
+                            }
+                        }
+                    }
+                )
+                .catch((err) => {
+                    vm.showToaster("Could not retrive the server list", true);
                     console.error('An error occurred:', err);
                 });
         };

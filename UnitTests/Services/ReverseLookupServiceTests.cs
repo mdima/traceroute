@@ -25,13 +25,24 @@ namespace UnitTests.Services
 
         /// <summary>
         ///     This still cannot work because of this issue:
-        ///     https://github.com/docker/for-win/issues/13681
+        ///     https://github.com/docker/for-win/issues/13681.
+        ///     To make it work set the DNS to 8.8.8.8 in the global Docker settings.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
         public async Task GetHostName()
         {
             string result = await _reverseService.GetHostName("192.188.248.215");
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("mail.nt2.it.", result);
+        }
+
+        [TestMethod]
+        public async Task GetHostNameNull()
+        {
+            //Just test a random IP
+            string result = await _reverseService.GetHostName("123.32.321.1");
 
             Assert.IsNotNull(result);
             Assert.AreEqual("", result);

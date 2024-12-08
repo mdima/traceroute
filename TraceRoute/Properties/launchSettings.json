@@ -20,7 +20,8 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "http://+:80"
+        "ASPNETCORE_URLS": "http://+:80",
+        "DOCKER_OPTS": "-dns 8.8.8.8 -dns 8.8.4.4 -g /mnt"
       },
       "publishAllPorts": true
     }

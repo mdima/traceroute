@@ -18,12 +18,13 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace TraceRoute.Controllers
 {
-    public class APIController(ILoggerFactory LoggerFactory, IpApiClient IpApiClient, BogonIPService bogonIPService, ReverseLookupService reverseLookupService) : Controller
+    public class APIController(ILoggerFactory LoggerFactory, IpApiClient IpApiClient, BogonIPService bogonIPService, ReverseLookupService reverseLookupService, ServerListService serverListService) : Controller
     {
         private readonly ILogger _logger = LoggerFactory.CreateLogger<APIController>();
         private readonly IpApiClient _ipApiClient = IpApiClient;
         private readonly BogonIPService _bogonIPService = bogonIPService;
         private readonly ReverseLookupService _reverseLookupService = reverseLookupService;
+        private readonly ServerListService _serverListService = serverListService;
 
         /// <summary>
         /// Performs traceroute on specified hostname.
@@ -212,6 +213,27 @@ namespace TraceRoute.Controllers
                 _logger.LogError(ex, "Error saving the settings");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Receive a Traceroute server information
+        /// </summary>
+        [HttpPost("api/presence")]
+        public bool ReceivePresence([FromBody] ServerEntry server)
+        {
+            _logger.LogInformation("Received presence from: {0}", server.query);
+            server.lastUpdate = DateTime.Now;
+            _serverListService.AddServer(server);
+            return true;
+        }
+
+        /// <summary>
+        /// Returns the server list
+        /// </summary>
+        [HttpGet("api/serverlist")]
+        public List<ServerEntry> GetServerList()
+        {
+            return _serverListService.GetServerList();
         }
     }
 }

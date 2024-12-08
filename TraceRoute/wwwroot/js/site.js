@@ -7,9 +7,7 @@ function initMap() {
 	L.Icon.Default.imagePath = 'lib/leaflet/images/';
 	const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
-		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'		
-	//}).on('tileloadstart', function (event) {
-	//	event.tile.setAttribute('loading', 'lazy')
+		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 	}).addTo(map);
 	L.Map.include({
 		getMarkerById: function (id) {

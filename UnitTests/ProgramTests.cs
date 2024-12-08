@@ -16,8 +16,7 @@ namespace UnitTests
 {
     [TestClass]
     public class ProgramTests
-    {
-        //This is still not working because of issues between the VS Unit Tests and the Docker Engine
+    {        
         [TestMethod]
         public void Program()
         {
@@ -25,12 +24,9 @@ namespace UnitTests
                 .WithWebHostBuilder(builder => builder.UseWebRoot(Environment.CurrentDirectory)
                 .UseContentRoot(Environment.CurrentDirectory + "/wwwroot")
                 .UseSetting("root", Environment.CurrentDirectory)
-                .UseKestrelCore())
-                ;
-            //.UseKestrelCore());
-            //.WithWebHostBuilder(builder => builder.UseWebRoot("/mnt/approot/UnitTests/bin/Debug/net8.0"));
-            //builder.UseSolutionRelativeContentRoot("wwwroot");
+                .UseKestrelCore());
             TestServer? server; 
+
             try
             {
                 server = waf.Server;

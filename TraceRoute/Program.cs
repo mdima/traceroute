@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TraceRoute.Helpers;
 using TraceRoute.Services;
 using WebMarkupMin.AspNetCore8;
@@ -20,12 +22,20 @@ using WebMarkupMin.AspNetCore8;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseIISIntegration();    //Optional for IIS deployment
-builder.Services.AddControllersWithViews();
-builder.Services.AddMvc();
+builder.Services.AddMvc(options =>
+{
+    options.Filters.Add<StoreServerURLFilter>();
+});
+builder.Services.AddSingleton<StoreServerURLFilter>();
 builder.Services.AddHttpClient<IpApiClient>();
+builder.Services.AddHttpClient<TraceRouteApiClient>();
 builder.Services.AddSingleton<BogonIPService>();
 builder.Services.AddSingleton<ReverseLookupService>();
 builder.Services.AddMemoryCache(x => { x.TrackStatistics = true; x.TrackLinkedCacheEntries = true; });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddSingleton<ServerListService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<ServerListService>());
 
 //Forward headers configuration for reverse proxy
 builder.Services.Configure<ForwardedHeadersOptions>(options => {

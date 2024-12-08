@@ -11,8 +11,6 @@
     <link rel="preload" href="~/lib/leaflet/leaflet.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <link rel="preconnect" href="https://tile.openstreetmap.org" />
     <link rel="preload" fetchpriority="high" as="image" href="https://tile.openstreetmap.org/2/1/2.png" />
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="~/lib/bootstrap-select/css/bootstrap-select.min.css">
 </head>
 <body ng-app="traceRouteApp" ng-controller="traceRouteController as vm">
     <nav class="navbar navbar-dark bg-dark navbar-fixed-top ">
@@ -32,17 +30,16 @@
                 </div>
                 <div class="input-group me-1" ng-show="vm.settings.enableRemoteTraces">
                     <label class="input-group-text my-1" for="TraceSource">Source</label>
-                    <select class="form-control my-1 mr-sm-2 selectpicker" id="TraceSource" data-live-search="true">
-                        <option value="1" data-subtext="Heinz">1</option>
-                        <option data-divider="true"></option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
+                    <select 
+                        class="form-control my-1 mr-sm-2"
+                        id="TraceSource"
+                        ng-model="vm.sourceHost">
+                        <option 
+                            value="{{ node.url }}"                            
+                            ng-repeat="node in vm.serverList track by $index"
+                            data-index-value="{{ $index + 1 }}">
+                            {{ node.country }} - {{ node.city }} - {{ node.query }}
+                        </option>
                     </select>
                 </div>
             </form>
@@ -131,7 +128,6 @@
     <script src="~/js/app.js?t=@DateTime.Now.Ticks"></script>
     <script src="~/js/traceRouteController.js?t=@DateTime.Now.Ticks"></script>
     <script src="~/lib/leaflet/leaflet.min.js" async onload="initMap();"></script>
-    <script src="~/lib/bootstrap-select/js/bootstrap-select.min.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
