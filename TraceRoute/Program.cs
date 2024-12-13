@@ -96,7 +96,13 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders =
         ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 });
-
+//Cors allow all (required for remote traces)
+builder.Services.AddCors(o => o.AddPolicy("AllowAll", builder =>
+{
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+}));
 //Logging
 string Log4NetFile = "log4net.config";
 builder.Services.AddLogging(builder => { builder.AddLog4Net(Log4NetFile); });
@@ -104,6 +110,9 @@ ILog _logger = LogManager.GetLogger("Startup");
 
 //I build the app
 var app = builder.Build();
+
+//Cors allow all (required for remote traces)
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment() || true)

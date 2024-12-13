@@ -221,7 +221,7 @@ namespace TraceRoute.Controllers
         [HttpPost("api/presence")]
         public bool ReceivePresence([FromBody] ServerEntry server)
         {
-            _logger.LogInformation("Received presence from: {0}", server.query);
+            _logger.LogInformation("Received presence from: {0}", server.url);
             server.lastUpdate = DateTime.Now;
             _serverListService.AddServer(server);
             return true;

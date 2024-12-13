@@ -51,7 +51,16 @@ namespace TraceRoute.Services
                     };
                     _serverList = [localServer];
                     _logger.LogInformation("Local server information initialized");
-                    await SendPresenceToMainHost();
+                    if (localServer.url != ConfigurationHelper.GetRootNode())
+                    {
+                        // This is a client node
+                        await SendPresenceToMainHost();
+                    }
+                    else
+                    {
+                        // This is the root node
+                        await CleanServerList();
+                    }
                 }
                 else
                 {
@@ -79,7 +88,7 @@ namespace TraceRoute.Services
                 _timerPresence = new Timer(async _ =>
                 {
                     await InitializePresence();
-                }, null, 10000, Timeout.Infinite);
+                }, null, 5000, Timeout.Infinite);
             }
         }
 
@@ -116,10 +125,33 @@ namespace TraceRoute.Services
             _logger.LogDebug("Sending presence to the main host");
             if (_timerPresence != null) await _timerPresence.DisposeAsync();
 
-            if (localServer != null && localServer.url != ConfigurationHelper.GetRootNode())
+            if (localServer != null)
             {
                 // I send the local server info to the root server
                 await _traceRouteApiClient.SendPresence(localServer, _cancelCurrentOperation);
+
+                // I retrieve the server list from the root server
+                _logger.LogDebug("Updating the server list from the main host");
+                List<ServerEntry>? receivedServerList = await _traceRouteApiClient.GetServerList(_cancelCurrentOperation);
+                if (receivedServerList != null)
+                {
+                    List<ServerEntry>? newServerList = new();
+                    foreach (ServerEntry server in receivedServerList)
+                    {
+                        if (server.url != localServer.url)
+                        {
+                            server.isLocalHost = false;
+                            newServerList.Add(server);
+                        }
+                    }
+                    newServerList.Add(localServer);
+                    _serverList = new(newServerList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+                    _logger.LogInformation("Server list updated");
+                }
+                else
+                {
+                    _logger.LogError("Error updating the server list");
+                }
             }
 
             // I set the next execution cycle
@@ -129,17 +161,56 @@ namespace TraceRoute.Services
             }, null, 60000, Timeout.Infinite);
         }
 
+        private async Task CleanServerList()
+        {
+            _logger.LogDebug("Cleaning the server list");
+            if (_timerPresence != null) await _timerPresence.DisposeAsync();
+
+            List<ServerEntry>? newServerList = new();
+            foreach (ServerEntry server in _serverList)
+            {
+                if (server.isLocalHost == false)
+                {
+                    if (server.lastUpdate.AddMinutes(3) < DateTime.Now)
+                    {
+                        _logger.LogInformation("- Server removed: {0}", server.query);
+                    }
+                    else
+                    {
+                        newServerList.Add(server);
+                    }
+                }
+                else
+                {
+                    server.lastUpdate = DateTime.Now;
+                    newServerList.Add(server);
+                }
+            }
+            _serverList = new(newServerList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+            _logger.LogDebug("Server list cleaned");
+
+            // I set the next execution cycle
+            _timerPresence = new Timer(async _ =>
+            {
+                await CleanServerList();
+            }, null, 60000, Timeout.Infinite);
+        }
+
         public bool AddServer(ServerEntry server)
         {
-            if (_serverList.Where(x => x.url == server.url).Count() == 0)
+            ServerEntry? foundServer = _serverList.Where(x => x.url == server.url && !x.isLocalHost).FirstOrDefault();
+            
+            if (foundServer == null)
             {
                 server.isLocalHost = false;
+                server.lastUpdate = DateTime.Now;
                 _serverList.Add(server);
-                _serverList = new( _serverList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+                _serverList = new(_serverList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
                 return true;
             }
             else
             {
+                foundServer.lastUpdate = DateTime.Now;
                 return false;
             }
         }

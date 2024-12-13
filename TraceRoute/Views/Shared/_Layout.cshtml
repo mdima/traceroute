@@ -37,8 +37,8 @@
                         <option 
                             value="{{ node.url }}"                            
                             ng-repeat="node in vm.serverList track by $index"
-                            data-index-value="{{ $index + 1 }}">
-                            {{ node.country }} - {{ node.city }} - {{ node.query }}
+                            data-index-value="{{ $index + 1 }}" >
+                            {{ node.country }} - {{ node.city }} - {{ node.url }}
                         </option>
                     </select>
                 </div>

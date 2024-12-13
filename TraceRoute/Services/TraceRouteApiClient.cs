@@ -31,7 +31,7 @@ namespace TraceRoute.Services
             {
                 _logger.LogDebug("Sending the presence to: {0}", rootNodeBaseAddress);
 
-                string url = $"{rootNodeBaseAddress}/api/presence";
+                string url = $"{rootNodeBaseAddress}api/presence";
                 HttpResponseMessage response = await _httpClient.PostAsJsonAsync<ServerEntry>(url, localServer, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
@@ -65,7 +65,7 @@ namespace TraceRoute.Services
             {
                 _logger.LogDebug("Asking the server list the presence to: {0}", rootNodeBaseAddress);
 
-                string url = $"{rootNodeBaseAddress}/api/serverlist";
+                string url = $"{rootNodeBaseAddress}api/serverlist";
                 HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
