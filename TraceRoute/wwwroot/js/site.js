@@ -66,6 +66,9 @@ function clearMarkersAndPaths() {
 	map.eachLayer((layer) => {
 		if (layer['_latlng'] != undefined || layer['_path'] != undefined)
 			layer.remove();
+		if (layer === polyline) {
+			map.removeLayer(layer);
+		}
 	});
 	markers = [];
 	polyline = undefined;
