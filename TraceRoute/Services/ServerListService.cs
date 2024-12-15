@@ -29,6 +29,7 @@ namespace TraceRoute.Services
         {
             _logger.LogInformation("Starting the ServerListService");
 
+            _serverList = new();
             await InitializePresence();
         }
 
@@ -73,9 +74,10 @@ namespace TraceRoute.Services
                 localServer = new()
                 {
                     lastUpdate = DateTime.Now,
-                    isOnline = true,
+                    isOnline = false,
                     isLocalHost = true,
-                    query = "Localhost"
+                    query = "Localhost",
+                    url = "Localhost"
                 };
                 _serverList = [localServer];
 
@@ -83,7 +85,7 @@ namespace TraceRoute.Services
             }
 
             //I schedule the next initialization if not initialized
-            if (localServer == null || localServer.url == null)
+            if (localServer == null || !localServer.isOnline)
             {
                 _timerPresence = new Timer(async _ =>
                 {
@@ -164,7 +166,7 @@ namespace TraceRoute.Services
         private async Task CleanServerList()
         {
             _logger.LogDebug("Cleaning the server list");
-            if (_timerPresence != null) await _timerPresence.DisposeAsync();
+            if (_timerServerList != null) await _timerServerList.DisposeAsync();
 
             List<ServerEntry>? newServerList = new();
             foreach (ServerEntry server in _serverList)
@@ -190,7 +192,7 @@ namespace TraceRoute.Services
             _logger.LogDebug("Server list cleaned");
 
             // I set the next execution cycle
-            _timerPresence = new Timer(async _ =>
+            _timerServerList = new Timer(async _ =>
             {
                 await CleanServerList();
             }, null, 60000, Timeout.Infinite);

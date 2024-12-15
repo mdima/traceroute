@@ -24,12 +24,7 @@ namespace TraceRoute.Controllers
                     ViewData["ClientIPAddress"] = clientIPAddress;
                 }
             }
-            return View();
-        }
-
-        [HttpGet("/about")]
-        public IActionResult About()
-        {
+            // If the version is not available, set it to "Unknown"
             Version? currentVersion = GetType()?.Assembly?.GetName()?.Version;
             if (currentVersion != null)
             {
@@ -39,19 +34,7 @@ namespace TraceRoute.Controllers
             {
                 ViewData["Version"] = "Unknown";
             }
-
-            return PartialView();
-        }
-
-        [HttpPost("/settings")]
-        public bool SaveSettings(SettingsViewModel model)
-        {
-            bool result = false;
-
-            result &= ConfigurationHelper.SetEnableRemoteTraces(model.EnableRemoteTraces);
-            result &= ConfigurationHelper.SetHostRemoteTraces(model.EnableRemoteTraces);
-
-            return result;
+            return View();
         }
 
         [HttpGet("/error")]

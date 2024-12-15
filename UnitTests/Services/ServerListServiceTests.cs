@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TraceRoute.Controllers;
+using TraceRoute.Helpers;
 using TraceRoute.Models;
 using TraceRoute.Services;
 
@@ -23,6 +25,7 @@ namespace UnitTests.Services
         private StoreServerURLFilter _storeServerURLFilter;
         private IHttpContextAccessor _httpContextAccessor;
         private TraceRouteApiClient _traceRouteApiClient;
+        private HomeController _homeController;
 
         public ServerListServiceTests()
         {
@@ -32,6 +35,9 @@ namespace UnitTests.Services
 
             _ipApiClient = new(httpClient, _loggingFactory.CreateLogger<IpApiClient>(), memoryCache);
             _traceRouteApiClient = new(httpClient, _loggingFactory.CreateLogger<TraceRouteApiClient>());
+
+            BogonIPService bogonIPService = new(_loggingFactory);
+            _homeController = new(bogonIPService, _loggingFactory);
 
             _storeServerURLFilter = new();
             _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost");
@@ -47,15 +53,18 @@ namespace UnitTests.Services
             // Assert first result
             List<ServerEntry> result = serverListService.GetServerList();
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result[0].isLocalHost);
+            Assert.AreEqual("Localhost", result[0].url);
 
             // I set the server URL
             Assert.IsNotNull(_httpContextAccessor.HttpContext);
             ActionContext actionContext = new(_httpContextAccessor.HttpContext, new Microsoft.AspNetCore.Routing.RouteData(), new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor());
             ActionExecutingContext actionExecutingContext = new(actionContext, new List<IFilterMetadata>(), new Dictionary<string, object?>(), serverListService);
 
-            ActionExecutionDelegate actionExecutionDelegate = () => {
-                var ctx = new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), null);
+            ActionExecutionDelegate actionExecutionDelegate = () =>
+            {
+                var ctx = new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), _homeController);
                 return Task.FromResult(ctx);
             };
             await _storeServerURLFilter.OnActionExecutionAsync(actionExecutingContext, actionExecutionDelegate);
@@ -63,8 +72,8 @@ namespace UnitTests.Services
             await ((IHostedService)serverListService).StartAsync(new CancellationToken());
             result = serverListService.GetServerList();
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
-            Assert.IsTrue(result[0].isLocalHost);
+            ServerEntry? serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();            
+            Assert.AreNotEqual("Localhost", result[0].url);
 
             // I stop the service
             await ((IHostedService)serverListService).StopAsync(new CancellationToken());

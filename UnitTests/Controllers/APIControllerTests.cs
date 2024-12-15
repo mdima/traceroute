@@ -25,11 +25,13 @@ namespace UnitTests.Controllers
             HttpClient httpClient = new HttpClient();
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
             BogonIPService bogonIPService = new(factory);
+            StoreServerURLFilter storeServerURLFilter = new();
 
             IpApiClient ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache);
+            TraceRouteApiClient traceRouteApiClient = new(httpClient, factory.CreateLogger<TraceRouteApiClient>());
             ReverseLookupService reverseService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
-
-            _controller = new(factory, ipApiClient, bogonIPService, reverseService);
+            ServerListService serverListService = new(factory.CreateLogger<ServerListService>(), ipApiClient, storeServerURLFilter, traceRouteApiClient);
+            _controller = new(factory, ipApiClient, bogonIPService, reverseService, serverListService);
         }
 
         [TestMethod]
@@ -93,29 +95,11 @@ namespace UnitTests.Controllers
         {
             SettingsViewModel response = await _controller.GetSettings();
 
-            Assert.AreEqual("", response.CurrentServerURL);
-            Assert.AreEqual(ConfigurationHelper.GetServerID(), response.ServerId);
+            Assert.AreEqual("", response.CurrentServerURL);            
             Assert.AreEqual(ConfigurationHelper.GetEnableRemoteTraces(), response.EnableRemoteTraces);
             Assert.AreEqual(ConfigurationHelper.GetHostRemoteTraces(), response.HostRemoteTraces);
             Assert.IsNotNull(response.ServerLocation);
         }
 
-
-        [TestMethod]
-        public async Task SetSettings()
-        {
-            SettingsViewModel response = await _controller.GetSettings();
-
-            response.HostRemoteTraces = !response.HostRemoteTraces;
-            response.EnableRemoteTraces = !response.EnableRemoteTraces;
-
-            bool result = _controller.SetSettings(response);
-            Assert.IsTrue(result);
-
-            SettingsViewModel responseCheck = await _controller.GetSettings();
-
-            Assert.AreEqual(response.HostRemoteTraces, responseCheck.HostRemoteTraces);
-            Assert.AreEqual(response.EnableRemoteTraces, responseCheck.EnableRemoteTraces);
-        }
     }
 }

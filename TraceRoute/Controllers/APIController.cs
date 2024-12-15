@@ -196,26 +196,6 @@ namespace TraceRoute.Controllers
         }
 
         /// <summary>
-        /// Saves the settings in the current configuration
-        /// </summary>
-        [HttpPost("api/settings")]
-        public bool SetSettings([FromBody] SettingsViewModel settings)
-        {
-            bool result = true;
-            try
-            {
-                result = result & ConfigurationHelper.SetAppSetting("EnableRemoteTraces", settings.EnableRemoteTraces);
-                result = result & ConfigurationHelper.SetAppSetting("HostRemoteTraces", settings.HostRemoteTraces);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving the settings");
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Receive a Traceroute server information
         /// </summary>
         [HttpPost("api/presence")]

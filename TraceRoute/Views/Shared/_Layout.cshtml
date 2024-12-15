@@ -33,7 +33,8 @@
                     <select 
                         class="form-control my-1 mr-sm-2"
                         id="TraceSource"
-                        ng-model="vm.sourceHost">
+                        ng-model="vm.sourceHost"
+                        placeholder="Select the source of the traceroute">
                         <option 
                             value="{{ node.url }}"                            
                             ng-repeat="node in vm.serverList track by $index"

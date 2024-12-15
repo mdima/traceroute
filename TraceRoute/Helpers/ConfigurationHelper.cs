@@ -34,34 +34,32 @@ namespace TraceRoute.Helpers
             return GetAppSetting("RootNode");
         }
 
-        public static string GetServerID()
-        {
-            return GetAppSetting("ServerID");
-        }
-
-        public static bool SetServerID()
-        {
-            Guid guid = Guid.NewGuid();
-            return SetAppSetting("ServerID", guid.ToString());
-        }
-
         public static bool GetEnableRemoteTraces()
         {
-            return GetAppSetting("EnableRemoteTraces", "true").ToLower() == "true";
-        }
+            string? environmentValue = Environment.GetEnvironmentVariable("TRACEROUTE_ENABLEREMOTETRACES");
 
-        public static bool SetEnableRemoteTraces(bool value)
-        {
-            return SetAppSetting<bool>("EnableRemoteTraces", value);
+            if (environmentValue != null)
+            {
+                return environmentValue.ToLower() == "true";
+            }
+            else
+            {
+                return GetAppSetting("EnableRemoteTraces", "true").ToLower() == "true";
+            }
         }
 
         public static bool GetHostRemoteTraces() {
-            return GetAppSetting("HostRemoteTraces", "false").ToLower() == "true";
-        }
 
-        public static bool SetHostRemoteTraces(bool value)
-        {
-            return SetAppSetting<bool>("HostRemoteTraces", value);
+            string? environmentValue = Environment.GetEnvironmentVariable("TRACEROUTE_HOSTREMOTETRACES");
+
+            if (environmentValue != null)
+            {
+                return environmentValue.ToLower() == "true";
+            }
+            else
+            {
+                return GetAppSetting("HostRemoteTraces", "true").ToLower() == "true";
+            }            
         }
 
         public static bool IsRootNode(HttpRequest request)
@@ -75,8 +73,7 @@ namespace TraceRoute.Helpers
             SettingsViewModel settings = new();
 
             if (request != null)
-                settings.CurrentServerURL = request.Host.Value;
-            settings.ServerId = ConfigurationHelper.GetServerID();
+                settings.CurrentServerURL = request.Host.Value;            
             settings.HostRemoteTraces = ConfigurationHelper.GetHostRemoteTraces();
             settings.EnableRemoteTraces = ConfigurationHelper.GetEnableRemoteTraces();
             settings.RootNode = ConfigurationHelper.GetRootNode();
@@ -110,33 +107,6 @@ namespace TraceRoute.Helpers
             else
             {
                 return DefaultValue;
-            }
-        }
-
-        public static bool SetAppSetting<T>(string key, T value)
-        {
-            try
-            {
-                if (value == null) return false;
-
-                var configJson = File.ReadAllText("./config/appsettings.json");
-                var attribs = File.GetAttributes("./config/appsettings.json");
-                dynamic? currentConfig = JsonConvert.DeserializeObject(configJson);
-                if (currentConfig == null) return false;
-                if (currentConfig["AppSettings"] == null) return false;
-
-                currentConfig["AppSettings"][key] = value;
-
-                var updatedConfigJson = JsonConvert.SerializeObject(currentConfig, Formatting.Indented);
-                File.WriteAllText("./config/appsettings.json", updatedConfigJson);
-                configuration.Reload();
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error writing app settings | {0}", ex.Message);
-                return false;
             }
         }
     }

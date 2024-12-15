@@ -11,7 +11,7 @@
         vm.serverList = [];
         vm.isTracing = false;
         vm.ipDetail = null;
-        vm.sourceHost = "";
+        vm.sourceHost = null;
         vm.Hostname = "";
         //Setting
         vm.settings = new Settings();
@@ -93,9 +93,9 @@
                 .then(
                     function successFunction(response) {
                         vm.serverList = angular.fromJson(response).data;
-                        if (vm.sourceHost == "") {
+                        if (vm.sourceHost == null) {
                             const localSourceHost = vm.serverList.findIndex(x => x.isLocalHost == true);
-                            if (localSourceHost) {
+                            if (localSourceHost >= 0) {                                
                                 vm.sourceHost = vm.serverList[localSourceHost].url;
                             }
                         }
@@ -103,21 +103,6 @@
                 )
                 .catch((err) => {
                     vm.showToaster("Could not retrive the server list", true);
-                    console.error('An error occurred:', err);
-                });
-        };
-
-        vm.SetSettings = function () {
-            $http.post("api/settings/", vm.settings)
-                .then(
-                    function successFunction(response) {
-                        vm.showToaster("Settings saved", false);
-                        vm.GetSettings();
-                        $('#modalSettings').modal('hide');
-                    }
-                )
-                .catch((err) => {
-                    vm.showToaster("Could not save the settings", true);
                     console.error('An error occurred:', err);
                 });
         };
@@ -157,9 +142,8 @@
     };
 
     class Settings {
-        hostRemoteTraces = false;
-        enableRemoteTraces = false;
-        serverId = "";
+        hostRemoteTraces = true;
+        enableRemoteTraces = true;
         rootNode = "";
         currentServerURL = "";
         serverLocation = "";

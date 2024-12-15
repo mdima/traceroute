@@ -49,18 +49,9 @@ namespace UnitTests.Helpers
 
             SettingsViewModel result = ConfigurationHelper.GetCurrentSettings(request.Object);
 
-            Assert.AreEqual("https://traceroute.di-maria.it/:443", result.CurrentServerURL);
-            Assert.AreEqual(ConfigurationHelper.GetServerID(), result.ServerId);
+            Assert.AreEqual("https://traceroute.di-maria.it/:443", result.CurrentServerURL);            
             Assert.AreEqual(ConfigurationHelper.GetEnableRemoteTraces(), result.EnableRemoteTraces);
             Assert.AreEqual(ConfigurationHelper.GetHostRemoteTraces(), result.HostRemoteTraces);
-        }
-
-        [TestMethod]
-        public void GetSetServerID()
-        {
-            Assert.IsTrue(ConfigurationHelper.SetServerID());
-            string serverID = ConfigurationHelper.GetServerID();
-            Assert.AreNotEqual("", serverID);
         }
 
         [TestMethod]

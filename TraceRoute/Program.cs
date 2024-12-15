@@ -158,16 +158,5 @@ app.Lifetime.ApplicationStarted.Register(() => { _logger.Info($"Application star
 app.Lifetime.ApplicationStopping.Register(() => { _logger.Info("Application stopping"); });
 app.Lifetime.ApplicationStopped.Register(() => { _logger.Info("Application ended"); });
 
-//I log/set the server ID
-if (string.IsNullOrEmpty(ConfigurationHelper.GetServerID()))
-{
-    ConfigurationHelper.SetServerID();
-    _logger.Info(string.Format("Server ID initialized: {0}", ConfigurationHelper.GetServerID()));
-}
-else
-{
-    _logger.Info(string.Format("Server ID: {0}", ConfigurationHelper.GetServerID()));
-}
-
 //I run the app
 app.Run();

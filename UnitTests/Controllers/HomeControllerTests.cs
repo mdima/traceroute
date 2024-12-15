@@ -36,14 +36,6 @@ namespace UnitTests.Controllers
         }
 
         [TestMethod]
-        public void About()
-        {
-            var response = _controller.About();
-
-            Assert.IsNotNull(response);
-        }
-
-        [TestMethod]
         public void Error()
         {
             var response = _controller.Error(500);

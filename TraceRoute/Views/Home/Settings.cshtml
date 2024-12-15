@@ -1,44 +1,40 @@
 ﻿<div class="offcanvas-header">
     <h5 id="offcanvasRightLabel">Settings</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>    
 </div>
 <div class="offcanvas-body">
-    <form>
-        <div class="mb-5">
-            <label for="EnableRemoteTraces" class="form-label">Enable remote traces<br />
-                <small>If enabled allows this not to perform traceroutes on remote hosts.</small>
-            </label>
-            <select class="form-select" id="EnableRemoteTraces" ng-model="vm.settings.enableRemoteTraces" required>
-                <option ng-value="true">Yes</option>
-                <option ng-value="false">No</option>
-            </select>
-        </div>
-        <div class="mb-5">
-            <label for="HostRemoteTraces" class="form-label">
-                Host remote traces<br />
-                <small>If enabled allows remote hosts to make traceroutes using this host.</small>
-            </label>
-            <select class="form-select" id="HostRemoteTraces" ng-model="vm.settings.hostRemoteTraces" required>
-                <option ng-value="true" selected="" )>Yes</option>
-                <option ng-value="false" selected="" )>No</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="CurrentServerURL" class="form-label">Current node</label>
-            <input type="text" ng-model="vm.settings.currentServerURL" disabled class="form-control small" id="CurrentServerURL" name="host">
-        </div>
-        <div class="mb-3">
-            <label for="RootNode" class="form-label">Root node</label>
-            <input type="text" ng-model="vm.settings.rootNode" disabled class="form-control small" id="RootNode" name="RootNode" required>
-        </div>
-        <div class="mb-3">
-            <label for="ServerID" class="form-label">Server ID</label>
-            <input type="text" ng-model="vm.settings.serverId" disabled class="form-control small" id="ServerID" name="ServerID" required>
-        </div>
-        <div class="mb-3">
-            <label for="ServerID" class="form-label">Server location</label>
-            <input type="text" ng-model="vm.settings.serverLocation" disabled class="form-control small" id="ServerLocation" name="ServerLocation">
-        </div>
-        <button type="button" class="btn btn-secondary" ng-click="vm.SetSettings()">Save</button>
-    </form>
+    <div class="mb-5">
+        <small>The settings can be set in the appsettings.json file or by the ENV variables.</small>
+    </div>
+    <div class="mb-5">
+        <label for="EnableRemoteTraces" class="form-label">Enable remote traces<br />
+            <small>If enabled allows this not to perform traceroutes on remote hosts.</small>
+        </label>
+        <select class="form-select" id="EnableRemoteTraces" ng-model="vm.settings.enableRemoteTraces" disabled>
+            <option ng-value="true">Yes</option>
+            <option ng-value="false">No</option>
+        </select>
+    </div>
+    <div class="mb-5">
+        <label for="HostRemoteTraces" class="form-label">
+            Host remote traces<br />
+            <small>If enabled allows remote hosts to make traceroutes using this host.</small>
+        </label>
+        <select class="form-select" id="HostRemoteTraces" ng-model="vm.settings.hostRemoteTraces" disabled>
+            <option ng-value="true" selected="" )>Yes</option>
+            <option ng-value="false" selected="" )>No</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="CurrentServerURL" class="form-label">Current node</label>
+        <input type="text" ng-model="vm.settings.currentServerURL" disabled class="form-control small" id="CurrentServerURL" name="host">
+    </div>
+    <div class="mb-3">
+        <label for="RootNode" class="form-label">Root node</label>
+        <input type="text" ng-model="vm.settings.rootNode" disabled class="form-control small" id="RootNode" name="RootNode" required>
+    </div>
+    <div class="mb-3">
+        <label for="ServerID" class="form-label">Server location</label>
+        <input type="text" ng-model="vm.settings.serverLocation" disabled class="form-control small" id="ServerLocation" name="ServerLocation">
+    </div>
 </div>
