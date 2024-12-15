@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
@@ -18,6 +19,7 @@ namespace UnitTests.Controllers
     public class APIControllerTests
     {
         private APIController _controller;
+        private ServerListService _serverListService;
 
         public APIControllerTests()
         {
@@ -30,8 +32,8 @@ namespace UnitTests.Controllers
             IpApiClient ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache);
             TraceRouteApiClient traceRouteApiClient = new(httpClient, factory.CreateLogger<TraceRouteApiClient>());
             ReverseLookupService reverseService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
-            ServerListService serverListService = new(factory.CreateLogger<ServerListService>(), ipApiClient, storeServerURLFilter, traceRouteApiClient);
-            _controller = new(factory, ipApiClient, bogonIPService, reverseService, serverListService);
+            _serverListService = new(factory.CreateLogger<ServerListService>(), ipApiClient, storeServerURLFilter, traceRouteApiClient);
+            _controller = new(factory, ipApiClient, bogonIPService, reverseService, _serverListService);
         }
 
         [TestMethod]
@@ -45,6 +47,9 @@ namespace UnitTests.Controllers
             response = await _controller.TraceRoute("127.0.0.1");
             Assert.AreEqual("", response.ErrorDescription);
             Assert.IsTrue(response.Hops.Count >= 1);
+
+            TraceHop hop = response.Hops.First();
+            Assert.AreEqual("127.0.0.1", hop.HopAddress);
         }
 
         [TestMethod]
@@ -101,5 +106,47 @@ namespace UnitTests.Controllers
             Assert.IsNotNull(response.ServerLocation);
         }
 
+        [TestMethod]
+        public async Task ReceivePresence()
+        {
+            ServerEntry server = new();
+            server.url = ConfigurationHelper.GetRootNode();
+
+            bool result = await _controller.ReceivePresence(server);
+
+            Assert.IsFalse(result);
+
+            ServerEntry? rootServer = await _serverListService.GetRemoteServerInfo(server);
+            Assert.IsNotNull(rootServer);
+            Assert.AreEqual(server.url, rootServer.url);
+            result = await _controller.ReceivePresence(rootServer);
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task GetServerList()
+        {
+            await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
+            ServerEntry? server = _serverListService.GetCurrentServerInfo();
+            Assert.IsNotNull(server);
+
+            List<ServerEntry> serverList = _controller.GetServerList();
+            Assert.IsNotNull(serverList);
+
+            Assert.IsTrue(serverList.Contains(server));
+        }
+
+        [TestMethod]
+        public async Task GetServerInfo()
+        {
+            await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
+            ServerEntry? server = _serverListService.GetCurrentServerInfo();
+            Assert.IsNotNull(server);
+
+            ServerEntry? serverInfo = _controller.GetServerInfo();
+            Assert.IsNotNull(serverInfo);
+
+            Assert.AreEqual(server, serverInfo);
+        }
     }
 }

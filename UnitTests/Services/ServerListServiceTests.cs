@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TraceRoute.Controllers;
@@ -26,6 +27,7 @@ namespace UnitTests.Services
         private IHttpContextAccessor _httpContextAccessor;
         private TraceRouteApiClient _traceRouteApiClient;
         private HomeController _homeController;
+        private ServerListService _serverListService;
 
         public ServerListServiceTests()
         {
@@ -41,17 +43,18 @@ namespace UnitTests.Services
 
             _storeServerURLFilter = new();
             _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost");
+
+            _serverListService = new(_loggingFactory.CreateLogger<ServerListService>(), _ipApiClient, _storeServerURLFilter, _traceRouteApiClient);
         }
 
         [TestMethod("Can start and stop the service")]
         public async Task StartAndStopAsync()
-        {
-            ServerListService serverListService = new(_loggingFactory.CreateLogger<ServerListService>(), _ipApiClient, _storeServerURLFilter, _traceRouteApiClient);
+        {            
 
-            await ((IHostedService)serverListService).StartAsync(new CancellationToken());
+            await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
             
             // Assert first result
-            List<ServerEntry> result = serverListService.GetServerList();
+            List<ServerEntry> result = _serverListService.GetServerList();
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Count);
             Assert.IsTrue(result[0].isLocalHost);
@@ -60,7 +63,7 @@ namespace UnitTests.Services
             // I set the server URL
             Assert.IsNotNull(_httpContextAccessor.HttpContext);
             ActionContext actionContext = new(_httpContextAccessor.HttpContext, new Microsoft.AspNetCore.Routing.RouteData(), new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor());
-            ActionExecutingContext actionExecutingContext = new(actionContext, new List<IFilterMetadata>(), new Dictionary<string, object?>(), serverListService);
+            ActionExecutingContext actionExecutingContext = new(actionContext, new List<IFilterMetadata>(), new Dictionary<string, object?>(), _serverListService);
 
             ActionExecutionDelegate actionExecutionDelegate = () =>
             {
@@ -69,17 +72,44 @@ namespace UnitTests.Services
             };
             await _storeServerURLFilter.OnActionExecutionAsync(actionExecutingContext, actionExecutionDelegate);
 
-            await ((IHostedService)serverListService).StartAsync(new CancellationToken());
-            result = serverListService.GetServerList();
+            await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
+            result = _serverListService.GetServerList();
             Assert.IsNotNull(result);
             ServerEntry? serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();            
             Assert.AreNotEqual("Localhost", result[0].url);
 
             // I stop the service
-            await ((IHostedService)serverListService).StopAsync(new CancellationToken());
-            result = serverListService.GetServerList();
+            await ((IHostedService)_serverListService).StopAsync(new CancellationToken());
+            result = _serverListService.GetServerList();
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.Count);
         }
+
+        [TestMethod("Can clean the server list")]
+        public async Task CleanServerList()
+        {
+            await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
+            List<ServerEntry> result = _serverListService.GetServerList();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count);
+
+            // I add an expired server
+            ServerEntry serverEntry = new()
+            {
+                lastUpdate = DateTime.Now.AddMinutes(-10),
+                url = "http://localhost:5000"
+            };
+            _serverListService.AddServer(serverEntry);
+            List<ServerEntry> secondResult = _serverListService.GetServerList();
+
+            Assert.IsTrue(secondResult.Count == result.Count + 1);
+
+            // I clean the server list
+            await _serverListService.CleanServerList();
+
+            List<ServerEntry> thirdResult = _serverListService.GetServerList();
+            Assert.AreEqual(result.Count, result.Count);
+        }
+
     }
 }

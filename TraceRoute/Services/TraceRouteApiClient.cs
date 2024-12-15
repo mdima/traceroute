@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using TraceRoute.Helpers;
 using TraceRoute.Models;
 
@@ -93,5 +95,44 @@ namespace TraceRoute.Services
             }
         }
 
+        /// <summary>
+        /// Retrives the server information from a given server
+        /// </summary>
+        /// <param name="serverEntry">The server to get the information from</param>
+        /// <returns></returns>
+        public async Task<ServerEntry?> GetServerInfo(ServerEntry serverEntry)
+        {
+
+            try
+            {
+                _logger.LogDebug("Asking the server info the presence to: {0}", serverEntry.url);
+
+                string url = $"{serverEntry.url}api/serverInfo";
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    ServerEntry? result = await response.Content.ReadFromJsonAsync<ServerEntry>();
+                    if (result == null)
+                    {
+                        _logger.LogDebug("No server info received from {0}", serverEntry.url);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("Successfully received the information from {0}", serverEntry.url);
+                    }
+                    return result;
+                }
+                else
+                {
+                    _logger.LogError("Error asking the server info from the server: {0}, {1}, {2}", serverEntry.url, response.StatusCode, response.ReasonPhrase);
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error asking the server info from the server: {0}, {1}", serverEntry.url, ex.Message);
+                return null;
+            }
+        }
     }
 }

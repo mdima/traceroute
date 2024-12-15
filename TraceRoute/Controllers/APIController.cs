@@ -199,12 +199,25 @@ namespace TraceRoute.Controllers
         /// Receive a Traceroute server information
         /// </summary>
         [HttpPost("api/presence")]
-        public bool ReceivePresence([FromBody] ServerEntry server)
+        public async Task<bool> ReceivePresence([FromBody] ServerEntry server)
         {
             _logger.LogInformation("Received presence from: {0}", server.url);
-            server.lastUpdate = DateTime.Now;
-            _serverListService.AddServer(server);
-            return true;
+
+            ServerEntry? checkInfo = await _serverListService.GetRemoteServerInfo(server);
+            if (checkInfo != null && checkInfo.Equals(server))
+            {
+                checkInfo.lastUpdate = DateTime.Now;
+                checkInfo.isOnline = true;
+                server.lastUpdate = DateTime.Now;
+                _serverListService.AddServer(server);
+                return true;
+            }
+            else
+            {
+                server.lastUpdate = DateTime.Now;
+                _serverListService.AddServer(server);
+                return false;
+            }
         }
 
         /// <summary>
@@ -214,6 +227,15 @@ namespace TraceRoute.Controllers
         public List<ServerEntry> GetServerList()
         {
             return _serverListService.GetServerList();
+        }
+
+        /// <summary>
+        /// Returns the current server information
+        /// </summary>
+        [HttpGet("api/serverInfo")]
+        public ServerEntry? GetServerInfo()
+        {
+            return _serverListService.GetCurrentServerInfo();
         }
     }
 }

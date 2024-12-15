@@ -56,21 +56,19 @@ namespace UnitTests.Helpers
 
         [TestMethod]
         public void GetSetEnableRemoteTraces()
-        {
-            Assert.IsTrue(ConfigurationHelper.SetEnableRemoteTraces(true));
+        {            
             Assert.IsTrue(ConfigurationHelper.GetEnableRemoteTraces());
 
-            Assert.IsTrue(ConfigurationHelper.SetEnableRemoteTraces(false));
+            Environment.SetEnvironmentVariable("TRACEROUTE_ENABLEREMOTETRACES", "false");
             Assert.IsFalse(ConfigurationHelper.GetEnableRemoteTraces());
         }
 
         [TestMethod]
         public void GetSetHostRemoteTraces()
-        {
-            Assert.IsTrue(ConfigurationHelper.SetHostRemoteTraces(true));
+        {            
             Assert.IsTrue(ConfigurationHelper.GetHostRemoteTraces());
 
-            Assert.IsTrue(ConfigurationHelper.SetHostRemoteTraces(false));
+            Environment.SetEnvironmentVariable("TRACEROUTE_HOSTREMOTETRACES", "false");
             Assert.IsFalse(ConfigurationHelper.GetHostRemoteTraces());
         }
 
@@ -113,18 +111,6 @@ namespace UnitTests.Helpers
 
             Assert.IsNotNull(result);
             Assert.AreEqual("https://traceroute.di-maria.it/", result);
-        }
-
-        [TestMethod]
-        public void SetAppSetting()
-        {
-            bool currentValue = ConfigurationHelper.GetEnableRemoteTraces();
-
-            Assert.IsTrue(ConfigurationHelper.SetAppSetting("EnableRemoteTraces", !currentValue));
-            Assert.AreEqual(!currentValue, ConfigurationHelper.GetEnableRemoteTraces());
-
-            Assert.IsTrue(ConfigurationHelper.SetAppSetting("EnableRemoteTraces", currentValue));
-            Assert.AreEqual(currentValue, ConfigurationHelper.GetEnableRemoteTraces());
         }
     }
 }

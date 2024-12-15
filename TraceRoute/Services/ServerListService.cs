@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Concurrent;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using TraceRoute.Helpers;
 using TraceRoute.Models;
 
+[assembly: InternalsVisibleTo("UnitTests")]
 namespace TraceRoute.Services
 {
     /// <summary>
@@ -12,7 +15,7 @@ namespace TraceRoute.Services
     /// <param name="logger">The Logger service</param>
     /// <param name="ipApiClient">The IpApiClient service</param>
     /// <param name="storeServerURLFilter">The StoreServerURLFilter filter</param>
-    /// <param name="TraceRouteApiClient">The TraceRouteApiClient service</param>
+    /// <param name="TraceRouteApiClient">The TraceRouteApiClient service</param>    
     public class ServerListService(ILogger<ServerListService> logger, IpApiClient ipApiClient, StoreServerURLFilter storeServerURLFilter, TraceRouteApiClient TraceRouteApiClient) : IHostedService
     {
         private readonly ILogger _logger = logger;
@@ -163,7 +166,7 @@ namespace TraceRoute.Services
             }, null, 60000, Timeout.Infinite);
         }
 
-        private async Task CleanServerList()
+        internal async Task CleanServerList()
         {
             _logger.LogDebug("Cleaning the server list");
             if (_timerServerList != null) await _timerServerList.DisposeAsync();
@@ -215,6 +218,16 @@ namespace TraceRoute.Services
                 foundServer.lastUpdate = DateTime.Now;
                 return false;
             }
+        }
+
+        public ServerEntry? GetCurrentServerInfo()
+        {
+            return localServer;
+        }
+
+        public async Task<ServerEntry?> GetRemoteServerInfo(ServerEntry serverEntry)
+        {
+            return await _traceRouteApiClient.GetServerInfo(serverEntry);
         }
     }
 }

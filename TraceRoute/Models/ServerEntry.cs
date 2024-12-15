@@ -1,4 +1,6 @@
-﻿namespace TraceRoute.Models
+﻿using Newtonsoft.Json;
+
+namespace TraceRoute.Models
 {
     /// <summary>
     /// Extends the IpApiResponse with additional properties needed for the server list.
@@ -38,5 +40,13 @@
         public bool isOnline { get; set; }
         public string? url { get; set; }
         public bool isLocalHost { get; set; }
+
+        public bool Equals(ServerEntry sampleToCompare)
+        {
+            string myself = JsonConvert.SerializeObject(this);
+            string other = JsonConvert.SerializeObject(sampleToCompare);
+
+            return myself == other;
+        }
     }
 }

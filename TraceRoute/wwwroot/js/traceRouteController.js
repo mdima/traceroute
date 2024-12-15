@@ -36,7 +36,7 @@
             vm.isTracing = true;
             vm.hostList = [];
             clearMarkersAndPaths();
-            $http.get(vm.sourceHost + "api/trace/" + vm.Hostname)
+            $http.get(vm.sourceHost.replace("Localhost", "") + "api/trace/" + vm.Hostname)
                 .then(
                     function successFunction(response) {
                         hideKeyboard();
@@ -88,7 +88,6 @@
         };
 
         vm.GetServerList = function () {
-            console.log("serverlist")
             $http.get("api/serverlist/")
                 .then(
                     function successFunction(response) {
