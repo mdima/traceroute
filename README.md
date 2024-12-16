@@ -22,13 +22,15 @@ You can use the following image to run Visual Trace Route locally:
 michele73/traceroute:2.0.0
 
 Example:
+```
 docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:2.0.0
+```
 
 The image repository is here: https://hub.docker.com/r/michele73/traceroute
 
 ### Environment variables
-TRACEROUTE_ENABLEREMOTETRACES (default true): Allows the user to choose the source of the traceroute. 
-TRACEROUTE_HOSTREMOTETRACES (default true): Allows the host to be used as a source for the traceroute from other users.
+* TRACEROUTE_ENABLEREMOTETRACES (default true): Allows the user to choose the source of the traceroute. 
+* TRACEROUTE_HOSTREMOTETRACES (default true): Allows the host to be used as a source for the traceroute from other users.
 
 ### Live Demo
 You can view a live demo of the Trace Route application here: https://traceroute.di-maria.it/
