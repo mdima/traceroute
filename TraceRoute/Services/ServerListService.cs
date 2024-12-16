@@ -58,12 +58,26 @@ namespace TraceRoute.Services
                     if (localServer.url != ConfigurationHelper.GetRootNode())
                     {
                         // This is a client node
-                        await SendPresenceToMainHost();
+                        if (ConfigurationHelper.GetHostRemoteTraces())
+                        {
+                            await SendPresenceToMainHost();
+                        }
+                        else
+                        {                            
+                            _logger.LogDebug("Hosting of remote traces are disabled");
+                        }
                     }
                     else
                     {
                         // This is the root node
-                        await CleanServerList();
+                        if (ConfigurationHelper.GetEnableRemoteTraces())
+                        {
+                            await CleanServerList();
+                        }
+                        else
+                        {
+                            _logger.LogDebug("Remote traces are disabled");
+                        }
                     }
                 }
                 else
