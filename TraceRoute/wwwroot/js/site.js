@@ -41,6 +41,7 @@ function ipDetailsJS(ipAddress) {
 	var scope = angular.element(document.querySelector("body")).controller();
 	scope.IpDetails(ipAddress);
 }
+
 function hilightHopTable() {
 	var tooltip = this.getTooltip();
 	var hopRowID = ".tr_hop_" + tooltip.getContent();

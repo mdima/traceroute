@@ -138,6 +138,15 @@
             let toastDiv = bootstrap.Toast.getOrCreateInstance($("#ToastMessage"));
             toastDiv.show();
         }
+
+        vm.showOption = function (serverEntry) {
+            if (serverEntry.country && serverEntry.city) {
+                return serverEntry.country + " - " + serverEntry.city + " - " + serverEntry.url;
+            }
+            else {
+                return serverEntry.url;
+            }
+        }
     };
 
     class Settings {
