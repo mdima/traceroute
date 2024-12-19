@@ -13,5 +13,12 @@
                 <strong>Request ID:</strong> <code>@Model.RequestId</code>
             </p>
         }
+
+        @if (!String.IsNullOrEmpty(Model.OriginalPath))
+        {
+            <p>
+                <strong>Path:</strong> <code>@Model.OriginalPath</code>
+            </p>
+        }
     </div>
 </div>

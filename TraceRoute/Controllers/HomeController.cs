@@ -40,16 +40,23 @@ namespace TraceRoute.Controllers
         [HttpGet("/error")]
         public IActionResult Error(int? statusCode = null)
         {
-            if (HttpContext != null)
-            { 
-                IExceptionHandlerPathFeature? exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-                if (exceptionHandlerPathFeature != null)
-                    _logger.LogError(exceptionHandlerPathFeature?.Error, "Error");
-                else
-                    _logger.LogError("Error code: {0}", statusCode);
-            }
             string? RequestID = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
             ErrorViewModel result = new() { RequestId = RequestID ?? "" };
+
+            if (HttpContext != null)
+            {
+                IStatusCodeReExecuteFeature? exceptionHandlerPathFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+                if (exceptionHandlerPathFeature != null)
+                {
+                    _logger.LogError("Error code: {0}, path: {1}, querystring: {2}", statusCode, exceptionHandlerPathFeature.OriginalPath, exceptionHandlerPathFeature.OriginalQueryString);
+                    result.OriginalPath = exceptionHandlerPathFeature.OriginalPath;
+                }
+                else
+                {
+                    _logger.LogError("Error code: {0}", statusCode);
+                }
+            }
+            
             if (statusCode != null) { result.StatusCode = statusCode.Value; }
 
             return View(result);

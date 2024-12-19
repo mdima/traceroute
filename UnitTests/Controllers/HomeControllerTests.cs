@@ -13,6 +13,7 @@ using TraceRoute.Models;
 using TraceRoute.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace UnitTests.Controllers
 {
@@ -54,6 +55,14 @@ namespace UnitTests.Controllers
 
             ErrorViewModel? model = (ErrorViewModel)((ViewResult)response).Model!;
             Assert.IsTrue(model.ShowRequestId);
+
+            //Error 404
+            IStatusCodeReExecuteFeature statusCodeReExecuteFeature = new StatusCodeReExecuteFeature();
+            statusCodeReExecuteFeature.OriginalPath = "/nonExistingResource";
+            _controller.ControllerContext.HttpContext.Features.Set(statusCodeReExecuteFeature);
+            response = _controller.Error(404);
+            model = (ErrorViewModel)((ViewResult)response).Model!;
+            Assert.AreEqual("/nonExistingResource", model.OriginalPath);
         }
     }
 }
