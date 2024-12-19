@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		SupportFiles\Lighthouse Reports.xlsx = SupportFiles\Lighthouse Reports.xlsx
 		README.md = README.md
 		screenshot.png = screenshot.png
+		testEnvironments.json = testEnvironments.json
 	EndProjectSection
 EndProject
 Global

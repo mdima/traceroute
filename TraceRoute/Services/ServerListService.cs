@@ -192,7 +192,7 @@ namespace TraceRoute.Services
                 {
                     if (server.lastUpdate.AddMinutes(3) < DateTime.Now)
                     {
-                        _logger.LogInformation("- Server removed: {0}", server.query);
+                        _logger.LogInformation("- Server removed as expired: {0}", server.url);
                     }
                     else
                     {
