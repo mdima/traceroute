@@ -207,15 +207,12 @@ namespace TraceRoute.Controllers
             if (checkInfo != null && checkInfo.Equals(server))
             {
                 checkInfo.lastUpdate = DateTime.Now;
-                checkInfo.isOnline = true;
-                server.lastUpdate = DateTime.Now;
-                _serverListService.AddServer(server);
+                checkInfo.isOnline = true;                
+                _serverListService.AddServer(checkInfo);
                 return true;
             }
             else
             {
-                server.lastUpdate = DateTime.Now;
-                _serverListService.AddServer(server);
                 return false;
             }
         }

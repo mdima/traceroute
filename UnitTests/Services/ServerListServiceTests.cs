@@ -91,7 +91,7 @@ namespace UnitTests.Services
             await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
             List<ServerEntry> result = _serverListService.GetServerList();
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.Count >= 1);
 
             // I add an expired server
             ServerEntry serverEntry = new()

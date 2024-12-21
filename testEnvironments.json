@@ -2,7 +2,7 @@
   "version": "1",
   "environments": [
     {
-      "name": "linux container",
+      "name": "Linux container",
       "type": "docker",
       "dockerFile": "./UnitTests/Dockerfile"
     }

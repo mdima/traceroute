@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TraceRoute.Helpers;
 using TraceRoute.Services;
-using WebMarkupMin.AspNetCore8;
+using WebMarkupMin.AspNetCoreLatest;
 
 [assembly: InternalsVisibleTo("UnitTests")]
 
