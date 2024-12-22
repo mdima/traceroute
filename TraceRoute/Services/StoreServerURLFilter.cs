@@ -16,6 +16,7 @@ namespace TraceRoute.Services
                 if (Uri.TryCreate(uriString, UriKind.Absolute, out var location))
                 {
                     ServerURL = location.AbsoluteUri;
+                    _logger.Info("Local server URI set to: " + ServerURL);
                 }
                 else
                 {

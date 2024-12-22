@@ -8,3 +8,10 @@ ENV TRACEROUTE_HOSTREMOTETRACES=true
 
 RUN apt-get update \
     && apt-get install -y curl traceroute dnsutils
+
+### Add a new user "traceroute" with user id 8877
+#RUN useradd -r traceroute
+### I change the log folder ownership
+#RUN mkdir logs && chown -R traceroute:traceroute logs
+### Change to non-root user
+#USER traceroute
