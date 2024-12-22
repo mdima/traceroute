@@ -10,6 +10,8 @@ RUN apt-get update \
 RUN useradd -r traceroute
 ## I change the log folder ownership
 RUN mkdir logs && chown -R traceroute:traceroute logs
+## Change to non-root user
+USER traceroute
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -23,9 +25,6 @@ RUN dotnet build "./TraceRoute.csproj" -c $BUILD_CONFIGURATION -o /app/build
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./TraceRoute.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-## Change to non-root user
-USER traceroute
 
 FROM base AS final
 WORKDIR /app
