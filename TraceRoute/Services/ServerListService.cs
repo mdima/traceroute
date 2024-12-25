@@ -50,7 +50,7 @@ namespace TraceRoute.Services
                         lastUpdate = DateTime.Now,
                         isOnline = true,
                         isLocalHost = true,
-                        query = "Localhost",
+                        // query = "Localhost",
                         url = _storeServerURLFilter.getServerURL()
                     };
                     _serverList = [localServer];

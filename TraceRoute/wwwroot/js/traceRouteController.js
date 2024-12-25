@@ -126,6 +126,15 @@
                 });
         }
 
+        vm.ServerDetails = function (url) {
+            vm.ipDetail = null;
+            var selectedServer = vm.serverList.find(x => x.url == url);            
+            if (selectedServer) {
+                vm.ipDetail = selectedServer;                
+                $('#modalIpDetails').modal('show');
+            }
+        }
+
         vm.closeModalIpDetails = function (ipAddress) {
             vm.ipDetail = null;
             $('#modalIpDetails').modal('hide');

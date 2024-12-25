@@ -1,0 +1,1 @@
+{"TokenProviders":[{"Path":"/usr/share/dotnet/dotnet","Arguments":["--roll-forward", "Major", "/VSTools/TokenService.Proxy/TokenService.Proxy.dll", "--client"],"Preference":0}]}

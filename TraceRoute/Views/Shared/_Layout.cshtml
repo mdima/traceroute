@@ -22,16 +22,13 @@
             <form class="form-inline d-md-flex ms-auto" role="search" ng-submit="vm.TraceRoute()" data-ng-init="vm.Hostname='@ViewData["ClientIPAddress"]'">
                 <div class="input-group me-2">
                     <input type="text" ng-model="vm.Hostname" class="form-control my-1" placeholder="IP address or hostname" autocapitalize="off" spellcheck="false">
-                    <span class="input-group-append my-1">
-                        <button ng-click="vm.TraceRoute()" class="btn btn-secondary" type="button" aria-label="Perform the Trace Route">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                    </span>
+                    <button ng-click="vm.TraceRoute()" class="btn btn-secondary my-1" type="button" aria-label="Perform the Trace Route">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
                 </div>
                 <div class="input-group me-1" ng-show="vm.settings.enableRemoteTraces">
                     <label class="input-group-text my-1" for="TraceSource">Source</label>
-                    <select 
-                        class="form-control my-1 mr-sm-2"
+                    <select class="form-select my-1 mr-sm-2"
                         id="TraceSource"
                         ng-model="vm.sourceHost"
                         placeholder="Select the source of the traceroute">
@@ -42,6 +39,9 @@
                             {{ vm.showOption(node) }}                            
                         </option>
                     </select>
+                    <button ng-click="vm.ServerDetails(vm.sourceHost); $event.preventDefault()" class="btn btn-secondary my-1" type="button" aria-label="Perform the Trace Route">
+                        <i class="fa-solid fa-info"></i>
+                    </button>
                 </div>
             </form>
             <ul class="navbar-nav">
@@ -50,7 +50,7 @@
                         <i class="fa-solid fa-gear"></i>
                     </a>
                     <a class="btn btn-secondary ms-1" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" title="About...">
-                        <i class="fa-solid fa-circle-info"></i>
+                        <i class="fa-solid">...</i>
                     </a>
                 </li>
             </ul>
@@ -87,7 +87,10 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">IP details for: <strong>{{vm.ipDetail.query}}</strong></h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        IP details for: <strong>{{vm.ipDetail.query}}</strong>
+                        <span class="small" ng-show="vm.ipDetail.url"><br />URL: <strong>{{vm.ipDetail.url}}</strong></span>
+                    </h5>
                 </div>
                 <div class="modal-body">
                     <div class="spinner-border spinner-border-lg m-5" role="status" ng-show="vm.ipDetail == null">
