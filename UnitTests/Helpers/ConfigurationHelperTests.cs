@@ -81,8 +81,15 @@ namespace UnitTests.Helpers
                 "aaaa", 991
             };            
             int? result = (int?)method.Invoke(null, parameterValues);
-
             Assert.AreEqual(991, result);
+
+            parameterValues = new object[]
+            {
+                "AppSettings:CacheMinutes", 100
+            };
+            result = (int?)method.Invoke(null, parameterValues);
+
+            Assert.AreEqual(60, result);
         }
 
         [TestMethod]
@@ -108,9 +115,16 @@ namespace UnitTests.Helpers
                 "RootNode", "https://traceroute.di-maria.it/"
             };
             string? result = (string?)method.Invoke(null, parameterValues);
-
             Assert.IsNotNull(result);
             Assert.AreEqual("https://traceroute.di-maria.it/", result);
+
+            parameterValues = new object[]
+            {
+                "RootNodeNotExisting", "1234"
+            };
+            result = (string?)method.Invoke(null, parameterValues);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("1234", result);
         }
     }
 }

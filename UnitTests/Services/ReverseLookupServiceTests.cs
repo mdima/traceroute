@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using TraceRoute.Models;
@@ -34,6 +35,16 @@ namespace UnitTests.Services
         {
             string result = await _reverseService.GetHostName("192.188.248.215");
 
+            Assert.IsNotNull(result);
+            Assert.AreEqual("mail.nt2.it.", result);
+
+            IPAddress iPAddress = IPAddress.Parse("192.188.248.215");
+
+            result = await _reverseService.GetHostNameWindows(iPAddress);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("mail.nt2.it", result);
+
+            result = await _reverseService.GetHostNameLinux(iPAddress);
             Assert.IsNotNull(result);
             Assert.AreEqual("mail.nt2.it.", result);
         }
