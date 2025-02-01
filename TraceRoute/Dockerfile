@@ -3,6 +3,16 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+LABEL org.opencontainers.image.title="TraceRoute"
+LABEL org.opencontainers.image.description="C# ASP.NET Core 9.0 Visual Trace Route Web Application"
+LABEL org.opencontainers.image.authors="Michele Di Maria"
+LABEL org.opencontainers.image.url="https://github.com/mdima/traceroute"
+LABEL org.opencontainers.image.source="https://github.com/mdima/traceroute"
+LABEL org.opencontainers.image.version="2.0.3"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL com.docker.desktop.extension.icon="https://github.com/mdima/traceroute/blob/3035a90f9890dd1c2aaa469cf664107cf2713f29/SupportFiles/logo.png?raw=true"
+LABEL com.docker.extension.screenshots="[{'alt':'Main program screenshot', 'url':'https://github.com/mdima/traceroute/blob/3035a90f9890dd1c2aaa469cf664107cf2713f29/SupportFiles/screenshot.png?raw=true'}]"
+
 RUN apt-get update \
     && apt-get install -y curl traceroute dnsutils 
 
@@ -29,14 +39,5 @@ RUN dotnet publish "./TraceRoute.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:80
-LABEL org.opencontainers.image.title="TraceRoute"
-LABEL org.opencontainers.image.description="C# ASP.NET Core 9.0 Visual Trace Route Web Application"
-LABEL org.opencontainers.image.authors="Michele Di Maria"
-LABEL org.opencontainers.image.url="https://github.com/mdima/traceroute"
-LABEL org.opencontainers.image.source="https://github.com/mdima/traceroute"
-LABEL org.opencontainers.image.version="2.0.2"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL com.docker.desktop.extension.icon="https://github.com/mdima/traceroute/blob/9d1d9f90d9c24ea459b3ca3fd4a233703c931f84/SupportFiles/logo.png"
-LABEL com.docker.extension.screenshots=[{"alt":"Main program screenshot", "url":"https://github.com/mdima/traceroute/blob/9d1d9f90d9c24ea459b3ca3fd4a233703c931f84/SupportFiles/screenshot.png?raw=true"}]
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TraceRoute.dll"]
