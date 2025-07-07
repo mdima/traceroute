@@ -40,7 +40,7 @@ namespace TraceRoute.Services
         {
             if (_timerPresence != null) await _timerPresence.DisposeAsync();
 
-            if (!String.IsNullOrEmpty(_storeServerURLFilter.getServerURL()))
+            if (!String.IsNullOrEmpty(_storeServerURLFilter.GetServerURL()))
             {                
                 IpApiResponse? localHostInfo = await _ipApiClient.GetCurrentServerDetails();
                 if (localHostInfo != null)
@@ -51,7 +51,7 @@ namespace TraceRoute.Services
                         isOnline = true,
                         isLocalHost = true,
                         // query = "Localhost",
-                        url = _storeServerURLFilter.getServerURL()
+                        url = _storeServerURLFilter.GetServerURL()
                     };
                     _serverList = [localServer];
                     _logger.LogInformation("Local server information initialized");

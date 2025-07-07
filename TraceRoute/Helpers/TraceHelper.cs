@@ -32,7 +32,7 @@ namespace TraceRoute.Helpers
             var ping = new Ping();
 
             // Result holder.
-            PingReply result = null;
+            PingReply result;
 
             do
             {

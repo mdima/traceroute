@@ -3,16 +3,21 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace TraceRoute.Services
 {
-    public class StoreServerURLFilter : IAsyncActionFilter
+    public class StoreServerURLFilter : IMiddleware
     {
         protected static string ServerURL = "";
         ILog _logger = LogManager.GetLogger("StoreServerURLFilter");
 
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public string GetServerURL()
+        {
+            return ServerURL;
+        }
+
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             if (string.IsNullOrEmpty(ServerURL))
             {
-                string uriString = $"{context.HttpContext.Request.Scheme}://{context.HttpContext.Request.Host}/";
+                string uriString = $"{context.Request.Scheme}://{context.Request.Host}/";
                 if (Uri.TryCreate(uriString, UriKind.Absolute, out var location))
                 {
                     ServerURL = location.AbsoluteUri;
@@ -23,12 +28,7 @@ namespace TraceRoute.Services
                     _logger.Warn("Cannot process the local server URI: " + uriString);
                 }
             }
-            await next();
-        }
-
-        public string getServerURL()
-        {
-            return ServerURL;
+            await next(context);
         }
     }
 }

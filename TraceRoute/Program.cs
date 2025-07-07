@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
+﻿using System.IO.Compression;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using log4net;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using TraceRoute.Components;
 using TraceRoute.Helpers;
 using TraceRoute.Services;
 using WebMarkupMin.AspNetCoreLatest;
@@ -22,10 +12,13 @@ using WebMarkupMin.AspNetCoreLatest;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseIISIntegration();    //Optional for IIS deployment
-builder.Services.AddMvc(options =>
-{
-    options.Filters.Add<StoreServerURLFilter>();
-});
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; }); ;
+builder.Services.AddRazorPages();
+
+//builder.Services.AddRazorPages();
+builder.Services.AddControllersWithViews();
+
 builder.Services.AddSingleton<StoreServerURLFilter>();
 builder.Services.AddHttpClient<IpApiClient>();
 builder.Services.AddHttpClient<TraceRouteApiClient>();
@@ -90,11 +83,11 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 {
     options.Level = CompressionLevel.Optimal;
 });
+
 //Forwardedfor
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.ForwardedHeaders =
-        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 });
 //Cors allow all (required for remote traces)
 builder.Services.AddCors(o => o.AddPolicy("AllowAll", builder =>
@@ -110,6 +103,13 @@ ILog _logger = LogManager.GetLogger("Startup");
 
 //I build the app
 var app = builder.Build();
+app.UseRouting();
+app.UseAntiforgery();
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+app.MapRazorPages();
+// app.MapBlazorHub();
+
+app.UseMiddleware<StoreServerURLFilter>();
 
 //Cors allow all (required for remote traces)
 app.UseCors("AllowAll");
@@ -121,9 +121,6 @@ if (!app.Environment.IsDevelopment() || true)
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 //Proxy Forwarding IP Address
 var forwardingOptions = new ForwardedHeadersOptions()

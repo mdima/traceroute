@@ -20,11 +20,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\HomeController.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Views\Shared\Error.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-    <PackageReference Include="IPNetwork2" Version="3.0.712" />
-    <PackageReference Include="log4net" Version="3.0.3" />
+    <PackageReference Include="IPNetwork2" Version="3.1.764" />
+    <PackageReference Include="log4net" Version="3.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="WebMarkupMin.AspNetCoreLatest" Version="2.18.1" />
@@ -58,5 +66,9 @@
 
   <ItemGroup>
     <Folder Include="config\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Controllers\HomeController.cs" />
   </ItemGroup>
 </Project>

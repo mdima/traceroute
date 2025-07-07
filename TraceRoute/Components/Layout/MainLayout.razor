@@ -1,0 +1,120 @@
+﻿@using TraceRoute.Components.Pages
+@using TraceRoute.Helpers
+@using TraceRoute.Models
+@inherits LayoutComponentBase
+
+<nav class="navbar navbar-dark bg-dark navbar-fixed-top ">
+    <div class="container-fluid">
+        <a class="navbar-brand ms-3" href="/">TraceRoute</a>
+        <div class="spinner-border d-flex text-light ms-auto @(isTracing ? "d-show" : "d-none")" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <form class="form-inline d-md-flex ms-auto" role="search" @onsubmit="BeginTraceRoute">
+            <div class="input-group me-2">
+                <input type="text" @bind-value="hostToTrace" class="form-control my-1" placeholder="IP address or hostname" autocapitalize="off" spellcheck="false">
+                <button @onclick="BeginTraceRoute" class="btn btn-secondary my-1" title="Perform the Trace Route" type="button">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+            <div class="input-group me-1" hidden="@(!ConfigurationHelper.GetEnableRemoteTraces())">
+                <label class="input-group-text my-1" for="TraceSource">Source</label>
+                <select class="form-select my-1 mr-sm-2"
+                        id="TraceSource"
+                        @bind="selectedServerUrl"
+                        @onclick="RefreshServerList"
+                        placeholder="Select the source of the traceroute">
+                    @foreach (ServerEntry server in serverList)
+                    {
+                        <option value="@server.url">@ShowServerEntry(server)</option>
+                    })
+                </select>
+                <button ng-click="vm.ServerDetails(vm.sourceHost); $event.preventDefault()" class="btn btn-secondary my-1" type="button" aria-label="Show server info">
+                    <i class="fa-solid fa-info"></i>
+                </button>
+            </div>
+        </form>
+        <ul class="navbar-nav">
+            <li class="nav-item me-2">
+                <a class="btn btn-secondary ms-1" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button" title="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </a>
+                <a class="btn btn-secondary ms-1" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" title="About...">
+                    <i class="fa-solid">...</i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<main role="main" class="container-fluid p-0">
+    <Home @ref="homePage" />
+</main>
+<footer class="footer fixed-bottom navbar-dark bg-dark">
+    <p class="navbar-brand ms-3">
+        &copy; @DateTime.Now.Year - TraceRoute -
+        <i class="fa-brands fa-github lightLink"></i> <a class="lightLink" href="https://github.com/mdima/traceroute" target="_blank">GitHub</a> -
+        <i class="fa-brands fa-docker lightLink"></i> <a class="lightLink" href="https://hub.docker.com/r/michele73/traceroute" target="_blank">Docker</a>
+    </p>
+</footer>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAbout" aria-labelledby="offcanvasRightLabel">
+    <About />
+</div>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasRightLabel">
+    <Settings />
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast align-items-center text-white {{ vm.toastIsError ? 'bg-danger' : 'bg-success' }} border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true" id="ToastMessage">
+        <div class="toast-body">
+            {{vm.toastMessage}}
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalIpDetails" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">
+                    IP details for: <strong>@currentHop?.HopAddress</strong>                    
+                </h5>
+            </div>
+            <div class="modal-body">
+                @if (currentHop == null)
+                {
+                    <div class="spinner-border spinner-border-lg m-5" role="status" hidden="@(currentHop != null)">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                }
+                else
+                { 
+                    <div class="row" hidden="@(currentHop == null)">
+                        <div class="col-12 text-muted" hidden="@(currentHop.Details.Continent == null)">
+                            <label class="text-muted">Continent</label>
+                            @currentHop.Details.Continent
+                        </div>
+
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Country</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.country}} ({{vm.ipDetail.countryCode}})</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Region</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.regionName}} ({{vm.ipDetail.region}})</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">City</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.city}} <span ng-show="vm.ipDetail.district"> ({{vm.ipDetail.district}}) </span>- {{vm.ipDetail.zip}}</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">ISP</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.isp}}</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Organization</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.org}}</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">AS</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.as}} ({{vm.ipDetail.asname}})</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Is mobile</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.mobile}}</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Is proxy</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.proxy}}</div>
+                        <div class="col-3 text-muted" ng-show="vm.ipDetail != null">Is hosting</div>
+                        <div class="col-9" ng-show="vm.ipDetail != null">{{vm.ipDetail.hosting}}</div>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" ng-click="vm.closeModalIpDetails()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

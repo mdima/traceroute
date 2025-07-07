@@ -38,8 +38,8 @@ function addMarker(lat, long, text, ipAddress) {
 }
 
 function ipDetailsJS(ipAddress) {
-	var scope = angular.element(document.querySelector("body")).controller();
-	scope.IpDetails(ipAddress);
+	//var scope = angular.element(document.querySelector("body")).controller();
+	//scope.IpDetails(ipAddress);
 }
 
 function hilightHopTable() {

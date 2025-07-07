@@ -32,55 +32,20 @@ namespace TraceRoute.Controllers
         /// <returns>JSON array of hops and the round trip time.</returns>
         /// <param name="destination">Hostname IP / URL</param>
         [HttpGet("api/trace/{destination}")]
-        public async Task<TraceResultViewModel> TraceRoute(string destination)
+        public async Task<List<string>?> TraceRoute(string destination)
         {
-            TraceResultViewModel response = new();
+            List<string>? result = null;
 
             try
             {
-                _logger.LogInformation("Requested Trace to: {0}", destination);
-                List<string> hops = await TraceHelper.TraceRoute(destination);
-
-                if (hops.Count() == 0)
-                {
-                    response.ErrorDescription = "Bad request";
-                    return response;
-                }
-
-                foreach (string hop in hops)
-                {
-                    var hopData = hop.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToList();
-                    if (!hopData[1].Contains("*"))
-                    {
-                        TraceHop t = new()
-                        {
-                            HopAddress = hopData[1],
-                            TripTime = float.Parse(hopData[2]),
-                            Details = new() { 
-                                IsBogonIP = _bogonIPService.IsBogonIP(hopData[1]) 
-                            }
-                        };
-                        response.Hops.Add(t);
-                    }
-                }
-#if DEBUG
-                //In case of a debug I some fake hop
-                response.Hops.Add(new TraceHop() { HopAddress = "15.161.156.80", TripTime = 10});
-                response.Hops.Add(new TraceHop() { HopAddress = "213.205.32.10", TripTime = 11 });
-                response.Hops.Add(new TraceHop() { HopAddress = "62.101.124.129", TripTime = 12 });
-                response.Hops.Add(new TraceHop() { HopAddress = "93.63.100.249", TripTime = 13 });
-                response.Hops.Add(new TraceHop() { HopAddress = "4.14.49.2", TripTime = 14 });
-                response.Hops.Add(new TraceHop() { HopAddress = "66.219.34.194", TripTime = 15 });
-                response.Hops.Add(new TraceHop() { HopAddress = "208.123.73.4", TripTime = 16 });
-                response.Hops.Add(new TraceHop() { HopAddress = "208.123.73.68", TripTime = 17 });
-#endif
+                _logger.LogInformation("Requested Trace from remote to: {0}", destination);
+                result = await TraceHelper.TraceRoute(destination);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error tracing to the IP Address: {0}", destination);
-                response.ErrorDescription = "Error while tracing";                
+                _logger.LogError(ex, "Error tracing to the IP Address from remote: {0}", destination);                
             }
-            return response;
+            return result;
         }
 
         /// <summary>
