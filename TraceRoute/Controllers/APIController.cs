@@ -69,6 +69,9 @@ namespace TraceRoute.Controllers
                     {
                         result.City = ipInfo.city;
                         result.Country = ipInfo.country;
+                        result.CountryCode = ipInfo.countryCode;
+                        result.Region = ipInfo.region;
+                        result.RegionName = ipInfo.regionName;
                         result.ErrorDescription = "";
                         result.ISP = ipInfo.isp;
                         result.Latitude = ipInfo.lat;

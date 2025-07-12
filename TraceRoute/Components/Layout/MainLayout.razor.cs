@@ -1,4 +1,7 @@
-﻿using Microsoft.JSInterop;
+﻿using Blazored.Toast;
+using Blazored.Toast.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System.Net;
 using System.Runtime;
 using System.Threading.Tasks;
@@ -11,24 +14,31 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace TraceRoute.Components.Layout
 {
-    public partial class MainLayout(ServerListService serverListService, BogonIPService bogonIPService, IHttpContextAccessor contextAccessor, IJSRuntime jSRuntime, ILoggerFactory LoggerFactory, IpApiClient IpApiClient, ReverseLookupService reverseLookupService)
+    public partial class MainLayout(ServerListService serverListService, BogonIPService bogonIPService, IHttpContextAccessor contextAccessor, IJSRuntime jSRuntime, TracerouteService tracerouteService)
     {
-        private readonly ILogger _logger = LoggerFactory.CreateLogger<APIController>();
+
+        [Inject]
+        private IpApiClient _ipApiClient { get; set; } = default!;
+
+        [Inject]
+        private ReverseLookupService _reverseLookupService { get; set; } = default!;
+
+        [Inject]
+        private IToastService _toastService { get; set; } = default!;
+
         private readonly ServerListService _serverListService = serverListService;
         private readonly BogonIPService _bogonIPService = bogonIPService;
         private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
         private readonly IJSRuntime _jSRuntime = jSRuntime;
-        private readonly IpApiClient _ipApiClient = IpApiClient;
-        private readonly ReverseLookupService _reverseLookupService = reverseLookupService;
+        private readonly TracerouteService _tracerouteService = tracerouteService;
 
         private List<ServerEntry> serverList = new();
         private String selectedServerUrl = "";
         private Boolean isTracing = false;
         private string hostToTrace = "";
 
-        private TraceHop? currentHop = null;
-
-        Home? homePage;
+        private TraceResultViewModel? traceResult;
+        private TraceHop? currentHop;
 
         protected override void OnInitialized()
         {
@@ -49,7 +59,6 @@ namespace TraceRoute.Components.Layout
         {            
             if (firstRender)
             {
-                homePage.OnShowIpDetails += ShowIpDetails;
                 await _jSRuntime.InvokeVoidAsync("initMap");
             }
         }
@@ -75,72 +84,13 @@ namespace TraceRoute.Components.Layout
         {            
             isTracing = true;
 
-            TraceResultViewModel traceResult = new();
-
-            try
-            {
-                _logger.LogInformation("Requested Trace to: {0}", hostToTrace);
-                List<string> hops = await TraceHelper.TraceRoute(hostToTrace);
-
-                if (hops.Count == 0)
-                {
-                    traceResult.ErrorDescription = "Bad request";                    
-                }
-                else
-                {
-                    foreach (string hop in hops)
-                    {
-                        var hopData = hop.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToList();
-                        if (!hopData[1].Contains('*'))
-                        {
-                            TraceHop t = new()
-                            {
-                                HopAddress = hopData[1],
-                                TripTime = float.Parse(hopData[2]),
-                                Details = new()
-                                {
-                                    IsBogonIP = _bogonIPService.IsBogonIP(hopData[1])
-                                }
-                            };
-                            traceResult.Hops.Add(t);
-                        }
-                    }
-#if DEBUG
-                    //In case of a debug I some fake hop
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "15.161.156.80", TripTime = Random.Shared.NextSingle() * 10 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "213.205.32.10", TripTime = Random.Shared.NextSingle() * 10 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "62.101.124.129", TripTime = Random.Shared.NextSingle() * 10 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "93.63.100.249", TripTime = Random.Shared.NextSingle() * 10 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "4.14.49.2", TripTime = Random.Shared.NextSingle() * 10 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "66.219.34.194", TripTime = Random.Shared.NextSingle() * 10 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "208.123.73.4", TripTime = Random.Shared.NextSingle() * 10 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "208.123.73.68", TripTime = Random.Shared.NextSingle() * 10 });
-#endif
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error tracing to the IP Address: {0}", hostToTrace);
-                traceResult.ErrorDescription = "Error while tracing";
-            }
+            traceResult = await _tracerouteService.Trace(hostToTrace);            
 
             if (traceResult.ErrorDescription != String.Empty)
             {
-                await _jSRuntime.InvokeVoidAsync("showError", traceResult.ErrorDescription);
+                _toastService.ShowError(traceResult.ErrorDescription);
             }
             else
-            {
-                foreach (var item in traceResult.Hops)
-                {
-                    item.Index = traceResult.Hops.IndexOf(item) + 1;
-                }
-                homePage.setHops(traceResult.Hops);
-            }            
-
-            isTracing = false;
-
-            // I start to get the information about the found IP addresses
-            if (traceResult.ErrorDescription == String.Empty)
             {
                 foreach (TraceHop item in traceResult.Hops)
                 {
@@ -154,10 +104,16 @@ namespace TraceRoute.Components.Layout
                         IpApiResponse? response = await _ipApiClient.Get(item.HopAddress, new CancellationToken());
                         if (response != null && response.status != "fail")
                         {
+                            item.Details.Continent = response.continent;
                             item.Details.City = response.city;
+                            item.Details.District = response.district;
                             item.Details.Country = response.country;
+                            item.Details.CountryCode = response.countryCode;
+                            item.Details.Region = response.region;
+                            item.Details.RegionName = response.regionName;
                             item.Details.ErrorDescription = "";
                             item.Details.ISP = response.isp;
+                            item.Details.Organization = response.org;
                             item.Details.Latitude = response.lat;
                             item.Details.Longitude = response.lon;
                             item.Details.HostName = await _reverseLookupService.GetHostName(item.HopAddress);
@@ -169,19 +125,18 @@ namespace TraceRoute.Components.Layout
                             item.Details.AsName = response.asname;
                             item.Details.Url = response.query;
                             item.Details.Query = response.query;
+                            StateHasChanged();
                         }
                     }
-                    homePage.setHops(traceResult.Hops);
-                }          
+                }
             }
+            isTracing = false;
         }
 
-        public void ShowIpDetails(object? sender, TraceHop hop)
+        private async Task ShowIpDetails(TraceHop hop)
         {
-            Console.WriteLine("OnShowIpDetails" + hop.Details.HostName);
             currentHop = hop;
-            _jSRuntime.InvokeVoidAsync("$('#modalIpDetails').modal('show');alert('here')").GetAwaiter().GetResult();
-            StateHasChanged();
+            await _jSRuntime.InvokeVoidAsync("showModalDetails");
         }
     }
 }

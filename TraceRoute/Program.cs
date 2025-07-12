@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using System.Runtime.CompilerServices;
+using Blazored.Toast;
 using log4net;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -18,17 +19,18 @@ builder.Services.AddRazorPages();
 
 //builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
-
 builder.Services.AddSingleton<StoreServerURLFilter>();
 builder.Services.AddHttpClient<IpApiClient>();
 builder.Services.AddHttpClient<TraceRouteApiClient>();
 builder.Services.AddSingleton<BogonIPService>();
 builder.Services.AddSingleton<ReverseLookupService>();
+builder.Services.AddSingleton<TracerouteService>();
 builder.Services.AddMemoryCache(x => { x.TrackStatistics = true; x.TrackLinkedCacheEntries = true; });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<ServerListService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<ServerListService>());
+builder.Services.AddBlazoredToast();
 
 //Forward headers configuration for reverse proxy
 builder.Services.Configure<ForwardedHeadersOptions>(options => {

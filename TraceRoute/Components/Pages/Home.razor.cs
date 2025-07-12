@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Razor;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using static TraceRoute.Models.TraceResultViewModel;
 
@@ -6,18 +7,18 @@ namespace TraceRoute.Components.Pages
 {
     public partial class Home 
     {
-        private List<TraceHop> Hops = new();
-        public event EventHandler<TraceHop>? OnShowIpDetails;
+        [Parameter]
+        public EventCallback<TraceHop> OnShowIpDetails { get; set; }
 
-        public void setHops(List<TraceHop> hops)
-        {
-            Hops = hops;
-            StateHasChanged();
-        }
+        [Parameter]
+        public List<TraceHop> Hops { get; set; } = new();
 
-        public void IpDetails(TraceHop hop)
+        public async Task IpDetails(TraceHop hop)
         {
-            OnShowIpDetails?.Invoke(this, hop);
+            if (OnShowIpDetails.HasDelegate)
+            {
+                await OnShowIpDetails.InvokeAsync(hop);
+            }
         }
     }
 }

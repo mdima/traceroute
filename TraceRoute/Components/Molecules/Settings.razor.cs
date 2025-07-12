@@ -3,7 +3,7 @@ using TraceRoute.Helpers;
 using TraceRoute.Models;
 using TraceRoute.Services;
 
-namespace TraceRoute.Components.Layout
+namespace TraceRoute.Components.Molecules
 {
 
     public partial class Settings(IHttpContextAccessor _context, IpApiClient _ipApiClient)

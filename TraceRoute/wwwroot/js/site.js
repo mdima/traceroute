@@ -94,3 +94,7 @@ function hideKeyboard() {
     document.activeElement.blur();
 	$("input").trigger("blur");
 }
+
+function showModalDetails() {
+	$("#modalIpDetails").modal("show");
+}

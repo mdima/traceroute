@@ -1,0 +1,60 @@
+﻿@using static TraceRoute.Models.TraceResultViewModel
+<div class="modal fade" id="modalIpDetails" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">
+                    IP details for: <strong>@currentHop?.HopAddress</strong>
+                </h5>
+            </div>
+            <div class="modal-body">
+                @if (currentHop == null)
+                {
+                    <div class="spinner-border spinner-border-lg m-5" role="status" hidden="@(currentHop != null)">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-12 text-muted" hidden="@(currentHop.Details.Continent == null)">
+                            <label class="text-muted">Continent</label>
+                            @currentHop.Details.Continent
+                        </div>
+
+                        <div class="col-3 text-muted">Country</div>
+                        <div class="col-9">@currentHop.Details.Country (@currentHop.Details.CountryCode)</div>
+                        <div class="col-3 text-muted">Region</div>
+                        <div class="col-9">@currentHop.Details.RegionName (@currentHop.Details.Region)</div>
+                        <div class="col-3 text-muted">City</div>
+                        <div class="col-9">
+                            @currentHop.Details.City
+                            <span hidden="@(currentHop.Details.District != null)"> (@currentHop.Details.District) </span> -
+                            @currentHop.Details.Zip
+                        </div>
+                        <div class="col-3 text-muted">ISP</div>
+                        <div class="col-9">@currentHop.Details.ISP</div>
+                        <div class="col-3 text-muted">Organization</div>
+                        <div class="col-9">@currentHop.Details.Organization</div>
+                        <div class="col-3 text-muted">AS</div>
+                        <div class="col-9">@currentHop.Details.As (@currentHop.Details.AsName)</div>
+                        <div class="col-3 text-muted">Is mobile</div>
+                        <div class="col-9">@currentHop.Details.IsMobile</div>
+                        <div class="col-3 text-muted">Is proxy</div>
+                        <div class="col-9">@currentHop.Details.IsProxy</div>
+                        <div class="col-3 text-muted">Is hosting</div>
+                        <div class="col-9">@currentHop.Details.IsHosting</div>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="$('#modalIpDetails').modal('hide');">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] 
+    public TraceHop? currentHop { get; set; }
+}

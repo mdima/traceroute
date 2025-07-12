@@ -1,8 +1,4 @@
-﻿@code
-{
-    Version? currentVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName()?.Version;
-}
-<div class="offcanvas-header">
+﻿<div class="offcanvas-header">
     <h5 id="offcanvasRightLabel">About</h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 </div>
@@ -35,3 +31,8 @@
         </strong>
     </p>
 </div>
+
+@code
+{
+    Version? currentVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName()?.Version;
+}

@@ -1,8 +1,6 @@
 ﻿@page "/"
 @using static TraceRoute.Models.TraceResultViewModel
 
-<PageTitle>Visual Trace Route</PageTitle>
-
 <div class="row m-0 p-0 fullHeight">
     <div class="col-12 col-md-7 m-0 p-0 mobile-50">
         <div id="map" class="tr-map"></div>
@@ -20,43 +18,46 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (TraceHop hop in Hops)
+                @if (Hops != null)
                 {
-                    <tr class="tr_hop_@(hop.Index)" data-index-value="@(hop.Index)" onmouseover="hilightTooltip(this)">
-                        <td class="ps-2 tr_hop_@(hop.Index)">@hop.Index</td>
-                        <td class="tr_hop_@(hop.Index)">
-                            @if (!hop.Details.IsBogonIP)
-                            {
-                                <a href="#" class="link-secondary" @onclick="() => IpDetails(hop)">@hop.HopAddress</a>
-                            }
-                            else
-                            {
-                                @hop.HopAddress
-                            }
-                            @if (hop.Details.HostName != null)
-                            {
-                                <small class="small text-muted">
-                                    <br />@hop.Details.HostName
-                                </small>
-                            }
-                        </td>
-                        <td class="small text-end text-nowrap tr_hop_@(hop.Index)">@String.Format("{0:0.000}", hop.TripTime) ms</td>
-                        <td hidden="@(!String.IsNullOrEmpty(hop.Details.ISP) || hop.Details.IsBogonIP)" class="small tr_hop_@hop.Index">
-                            <div class="spinner-border spinner-border-sm" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </td>
-                        <td class="small text-break tr_hop_@hop.Index">
-                            <span hidden="@(hop.Details.Country == null)">
-                                @hop.Details.Country - @hop.Details.City
-                            </span>                            
-                        </td>
-                        <td class="small text-break tr_hop_@hop.Index d-xl-table-cell">
-                            <span hidden="@(hop.Details.ISP == null)">
-                                @hop.Details.ISP
-                            </span>
-                        </td>
-                    </tr>
+                    foreach (TraceHop hop in Hops)
+                    {
+                        <tr class="tr_hop_@(hop.Index)" data-index-value="@(hop.Index)" onmouseover="hilightTooltip(this)">
+                            <td class="ps-2 tr_hop_@(hop.Index)">@hop.Index</td>
+                            <td class="tr_hop_@(hop.Index)">
+                                @if (!hop.Details.IsBogonIP)
+                                {
+                                    <a href="#" class="link-secondary" @onclick="() => IpDetails(hop)">@hop.HopAddress</a>
+                                }
+                                else
+                                {
+                                    @hop.HopAddress
+                                }
+                                @if (hop.Details.HostName != null)
+                                {
+                                    <small class="small text-muted">
+                                        <br />@hop.Details.HostName
+                                    </small>
+                                }
+                            </td>
+                            <td class="small text-end text-nowrap tr_hop_@(hop.Index)">@String.Format("{0:0.000}", hop.TripTime) ms</td>
+                            <td hidden="@(!String.IsNullOrEmpty(hop.Details.ISP) || hop.Details.IsBogonIP)" class="small tr_hop_@hop.Index">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                            <td class="small text-break tr_hop_@hop.Index">
+                                <span hidden="@(hop.Details.Country == null)">
+                                    @hop.Details.Country - @hop.Details.City
+                                </span>                            
+                            </td>
+                            <td class="small text-break tr_hop_@hop.Index d-xl-table-cell">
+                                <span hidden="@(hop.Details.ISP == null)">
+                                    @hop.Details.ISP
+                                </span>
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
