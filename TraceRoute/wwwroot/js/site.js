@@ -25,7 +25,7 @@ function initMap() {
 }
 
 function addMarker(lat, long, text, ipAddress) {
-	var marker = L.marker([lat, long], {id: 'marker_' + text})
+	var marker = L.marker([lat, long], { id: 'marker_' + text })
 		.bindTooltip(text,
 			{
 				permanent: true,
@@ -34,12 +34,11 @@ function addMarker(lat, long, text, ipAddress) {
 		.on('mouseover', hilightHopTable)
 		.on('click', function (evt) { ipDetailsJS(ipAddress); })
 		.addTo(map);
-	markers.push[marker];
+	markers.push(marker);
 }
 
 function ipDetailsJS(ipAddress) {
-	//var scope = angular.element(document.querySelector("body")).controller();
-	//scope.IpDetails(ipAddress);
+	alert(ipAddress);
 }
 
 function hilightHopTable() {
@@ -87,7 +86,6 @@ function drawPath(HostList) {
 		}
 	}
 	polyline = L.polyline(latlngs, { color: 'red' }).addTo(map);
-	map.fitBounds(polyline.getBounds());
 }
 
 function hideKeyboard() {

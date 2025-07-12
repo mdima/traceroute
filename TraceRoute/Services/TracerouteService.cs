@@ -40,6 +40,7 @@ namespace TraceRoute.Services
                         {
                             TraceHop t = new()
                             {
+                                Index = traceResult.Hops.Count + 1,
                                 HopAddress = hopData[1],
                                 TripTime = float.Parse(hopData[2]),
                                 Details = new()

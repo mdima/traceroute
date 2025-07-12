@@ -83,6 +83,7 @@ namespace TraceRoute.Components.Layout
         public async Task BeginTraceRoute()
         {            
             isTracing = true;
+            await _jSRuntime.InvokeVoidAsync("clearMarkersAndPaths");
 
             traceResult = await _tracerouteService.Trace(hostToTrace);            
 
@@ -125,9 +126,11 @@ namespace TraceRoute.Components.Layout
                             item.Details.AsName = response.asname;
                             item.Details.Url = response.query;
                             item.Details.Query = response.query;
+                            await _jSRuntime.InvokeVoidAsync("addMarker", new Object[] { response.lat!, response.lon!, item.Index.ToString(), item.HopAddress } );
                             StateHasChanged();
                         }
                     }
+                    await _jSRuntime.InvokeVoidAsync("drawPath", new[] { traceResult.Hops });
                 }
             }
             isTracing = false;
