@@ -31,7 +31,7 @@
                         <option value="@server.url">@ShowServerEntry(server)</option>
                     })
                 </select>
-                <button ng-click="vm.ServerDetails(vm.sourceHost); $event.preventDefault()" class="btn btn-secondary my-1" type="button" aria-label="Show server info">
+                <button @onclick="//ShowServeDetails(selectedServerUrl)" class="btn btn-secondary my-1" type="button" aria-label="Show server info">
                     <i class="fa-solid fa-info"></i>
                 </button>
             </div>
@@ -49,7 +49,7 @@
     </div>
 </nav>
 <main role="main" class="container-fluid p-0">
-    <Home OnShowIpDetails="ShowIpDetails" 
+    <Home OnShowHopDetails="OnShowHopDetails"
           Hops="traceResult?.Hops" />
 </main>
 <footer class="footer fixed-bottom navbar-dark bg-dark">

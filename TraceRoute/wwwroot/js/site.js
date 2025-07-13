@@ -32,13 +32,13 @@ function addMarker(lat, long, text, ipAddress) {
 				direction: 'right'
 			})
 		.on('mouseover', hilightHopTable)
-		.on('click', function (evt) { ipDetailsJS(ipAddress); })
+		.on('click', function (evt) { DotNetHelper.invokeMethodAsync("OnShowIpDetails", ipAddress); })
 		.addTo(map);
 	markers.push(marker);
 }
 
-function ipDetailsJS(ipAddress) {
-	alert(ipAddress);
+function setDotNetHelper(helper) {
+	window.DotNetHelper = helper;
 }
 
 function hilightHopTable() {

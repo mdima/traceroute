@@ -8,16 +8,16 @@ namespace TraceRoute.Components.Pages
     public partial class Home 
     {
         [Parameter]
-        public EventCallback<TraceHop> OnShowIpDetails { get; set; }
+        public EventCallback<TraceHop> OnShowHopDetails { get; set; }
 
         [Parameter]
         public List<TraceHop> Hops { get; set; } = new();
 
         public async Task IpDetails(TraceHop hop)
         {
-            if (OnShowIpDetails.HasDelegate)
+            if (OnShowHopDetails.HasDelegate)
             {
-                await OnShowIpDetails.InvokeAsync(hop);
+                await OnShowHopDetails.InvokeAsync(hop);
             }
         }
     }
