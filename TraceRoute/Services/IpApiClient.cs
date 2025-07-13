@@ -13,6 +13,7 @@ namespace TraceRoute.Services
     /// <param name="httpClient">The HttpClient to use</param>
     /// <param name="logger">The Logger service</param>
     /// <param name="MemoryCache">The Memory Cache service</param>
+    /// <param name="reverseLookupService">The ReverseLookupService service</param>
     public class IpApiClient(HttpClient httpClient, ILogger<IpApiClient> logger, IMemoryCache MemoryCache, ReverseLookupService reverseLookupService)
     {
         private const string BASE_URL = "http://ip-api.com";
@@ -66,11 +67,10 @@ namespace TraceRoute.Services
         /// <summary>
         /// Retrives the current server information
         /// </summary>
-        /// <param name="ct">The cancellation token for an async operation</param>
         /// <returns>The current server details</returns>
-        public async Task<IpApiResponse?> GetCurrentServerDetails(CancellationToken ct = default)
+        public async Task<IpDetails?> GetCurrentServerDetails()
         {
-            return await Get("127.0.0.1", ct);
+            return await GetTraceHopDetails("127.0.0.1");
         }
 
         /// <summary>
@@ -78,13 +78,13 @@ namespace TraceRoute.Services
         /// </summary>
         /// <param name="ipAddress">The IP address to query</param>
         /// <returns>TraceHopDetails object containing the information about the IP address</returns>
-        public async Task<TraceHopDetails?> GetTraceHopDetails(string? ipAddress)
+        public async Task<IpDetails?> GetTraceHopDetails(string? ipAddress)
         {
             IpApiResponse? response = await Get(ipAddress, new CancellationToken());
 
             if (response != null && response.status != "fail")
             {
-                TraceHopDetails result = new();
+                IpDetails result = new();
 
                 result.Continent = response.continent;
                 result.City = response.city;
@@ -98,7 +98,7 @@ namespace TraceRoute.Services
                 result.Organization = response.org;
                 result.Latitude = response.lat;
                 result.Longitude = response.lon;
-                result.HostName = await _reverseLookupService.GetHostName(ipAddress);
+                result.HostName = await _reverseLookupService.GetHostName(ipAddress!);
                 result.IsBogonIP = false;
                 result.IsHosting = response.hosting ?? false;
                 result.IsMobile = response.mobile ?? false;

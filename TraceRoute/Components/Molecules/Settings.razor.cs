@@ -16,10 +16,10 @@ namespace TraceRoute.Components.Molecules
             await base.OnInitializedAsync();
 
             settings = ConfigurationHelper.GetCurrentSettings(_context.HttpContext!.Request);
-            IpApiResponse? currentServerInfo = await _ipApiClient.GetCurrentServerDetails();
+            IpDetails? currentServerInfo = await _ipApiClient.GetCurrentServerDetails();
             if (currentServerInfo != null)
             {
-                settings.ServerLocation = string.Format("{0} - {1}", currentServerInfo.city, currentServerInfo.country);
+                settings.ServerLocation = string.Format("{0} - {1}", currentServerInfo.Country, currentServerInfo.City);
             }
         }
     }

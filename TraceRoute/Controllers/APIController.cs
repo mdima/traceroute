@@ -54,9 +54,9 @@ namespace TraceRoute.Controllers
         /// <param name="ipAddress">The IP address to request</param>
         /// <returns>The IP information</returns>
         [HttpGet("api/ipinfo/{ipAddress}")]
-        public async Task<TraceHopDetails> IPInfo(string ipAddress)
+        public async Task<IpDetails> IPInfo(string ipAddress)
         {
-            TraceHopDetails result = new();
+            IpDetails result = new();
 
             try
             {
@@ -135,22 +135,6 @@ namespace TraceRoute.Controllers
                 _logger.LogError(ex, "Error getting the IP details: {0}", ipAddress);
                 result.status = "Error";
             }
-            return result;
-        }
-
-        /// <summary>
-        /// Retrives the current configuration
-        /// </summary>
-        [HttpGet("api/settings")]
-        public async Task<SettingsViewModel> GetSettings()
-        {
-            SettingsViewModel result = ConfigurationHelper.GetCurrentSettings(Request);
-            IpApiResponse? currentServerInfo = await _ipApiClient.GetCurrentServerDetails();
-            if (currentServerInfo != null)
-            {
-                result.ServerLocation = string.Format("{0} - {1}", currentServerInfo.city, currentServerInfo.country);
-            }
-
             return result;
         }
 

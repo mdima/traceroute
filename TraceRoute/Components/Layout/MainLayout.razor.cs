@@ -5,6 +5,8 @@ using Microsoft.JSInterop;
 using System.Net;
 using System.Runtime;
 using System.Threading.Tasks;
+using System.Xml.Schema;
+using TraceRoute.Components.Molecules;
 using TraceRoute.Components.Pages;
 using TraceRoute.Controllers;
 using TraceRoute.Helpers;
@@ -44,7 +46,9 @@ namespace TraceRoute.Components.Layout
         protected override void OnInitialized()
         {
             base.OnInitialized();
+            _serverListService.ServiceInitialized += RefreshServerList;
             serverList = _serverListService.GetServerList();
+            selectedServerUrl = serverList.Where(x => x.isLocalHost).First().url;
 
             if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.Connection.RemoteIpAddress != null)
             {
@@ -59,7 +63,7 @@ namespace TraceRoute.Components.Layout
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {            
             if (firstRender)
-            {
+            {                
                 await _jSRuntime.InvokeVoidAsync("initMap");
                 await _jSRuntime.InvokeVoidAsync("setDotNetHelper", _componentReference);
             }
@@ -67,9 +71,9 @@ namespace TraceRoute.Components.Layout
 
         private String? ShowServerEntry(ServerEntry serverEntry)
         {
-            if (serverEntry.country != null && serverEntry.city != null)
+            if (serverEntry.Details.Country != null && serverEntry.Details.City != null)
             {
-                return serverEntry.country + " - " + serverEntry.city + " - " + serverEntry.url;
+                return serverEntry.Details.Country + " - " + serverEntry.Details.City + " - " + serverEntry.url;
             }
             else
             {
@@ -80,6 +84,10 @@ namespace TraceRoute.Components.Layout
         private void RefreshServerList()
         {
             serverList = _serverListService.GetServerList();
+            if (!serverList.Where(x => x.url == selectedServerUrl).Any())
+            {
+                selectedServerUrl = serverList.Where(x => x.isLocalHost).First().url;
+            }
         }
 
         public async Task BeginTraceRoute()
@@ -104,7 +112,7 @@ namespace TraceRoute.Components.Layout
                     }
                     else
                     {
-                        TraceHopDetails? details = await _ipApiClient.GetTraceHopDetails(item.HopAddress);
+                        IpDetails? details = await _ipApiClient.GetTraceHopDetails(item.HopAddress);
                         if (details != null)
                         {
                             item.Details = details;
@@ -127,7 +135,7 @@ namespace TraceRoute.Components.Layout
         [JSInvokable("OnShowIpDetails")]
         public async Task OnShowIpDetails(String iPAddress)
         {
-            TraceHopDetails? details = await _ipApiClient.GetTraceHopDetails(iPAddress);
+            IpDetails? details = await _ipApiClient.GetTraceHopDetails(iPAddress);
 
             if (details == null)
             {
@@ -145,12 +153,17 @@ namespace TraceRoute.Components.Layout
             }            
         }
 
-        private async Task ShowServeDetails(String serverUrl)
+        private async Task ShowServeDetails()
         {
-            ServerEntry? selectedServer = serverList.FirstOrDefault(x => x.url == serverUrl);
+            ServerEntry? selectedServer = serverList.FirstOrDefault(x => x.url == selectedServerUrl);
             if (selectedServer != null)
             {
-                OnShowHopDetails((TraceHop)selectedServer);
+                TraceHop traceHop = new()
+                {
+                    Details = selectedServer.Details,
+                    HopAddress = selectedServer.url!,
+                };
+                await OnShowHopDetails(traceHop);
             }
         }
     }

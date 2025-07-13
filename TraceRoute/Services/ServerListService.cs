@@ -27,6 +27,7 @@ namespace TraceRoute.Services
         private readonly TraceRouteApiClient _traceRouteApiClient = TraceRouteApiClient;
         ServerEntry? localServer;
         private ConcurrentBag<ServerEntry> _serverList = new();
+        public Action? ServiceInitialized;
 
         async Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
@@ -42,19 +43,20 @@ namespace TraceRoute.Services
 
             if (!String.IsNullOrEmpty(_storeServerURLFilter.GetServerURL()))
             {                
-                IpApiResponse? localHostInfo = await _ipApiClient.GetCurrentServerDetails();
+                IpDetails? localHostInfo = await _ipApiClient.GetCurrentServerDetails();
                 if (localHostInfo != null)
                 {
-                    localServer = new(localHostInfo)
+                    localServer = new()
                     {
                         lastUpdate = DateTime.Now,
                         isOnline = true,
-                        isLocalHost = true,
-                        // query = "Localhost",
-                        url = _storeServerURLFilter.GetServerURL()
+                        isLocalHost = true,                        
+                        url = _storeServerURLFilter.GetServerURL(),
+                        Details = localHostInfo,
                     };
                     _serverList = [localServer];
                     _logger.LogInformation("Local server information initialized");
+                    ServiceInitialized?.Invoke();
                     if (localServer.url != ConfigurationHelper.GetRootNode())
                     {
                         // This is a client node
@@ -93,7 +95,6 @@ namespace TraceRoute.Services
                     lastUpdate = DateTime.Now,
                     isOnline = false,
                     isLocalHost = true,
-                    query = "Localhost",
                     url = "Localhost"
                 };
                 _serverList = [localServer];
@@ -164,7 +165,7 @@ namespace TraceRoute.Services
                         }
                     }
                     newServerList.Add(localServer);
-                    _serverList = new(newServerList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+                    _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
                     _logger.LogInformation("Server list updated");
                 }
                 else
@@ -205,7 +206,7 @@ namespace TraceRoute.Services
                     newServerList.Add(server);
                 }
             }
-            _serverList = new(newServerList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+            _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
             _logger.LogDebug("Server list cleaned");
 
             // I set the next execution cycle
@@ -224,7 +225,7 @@ namespace TraceRoute.Services
                 server.isLocalHost = false;
                 server.lastUpdate = DateTime.Now;
                 _serverList.Add(server);
-                _serverList = new(_serverList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+                _serverList = new(_serverList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
                 return true;
             }
             else

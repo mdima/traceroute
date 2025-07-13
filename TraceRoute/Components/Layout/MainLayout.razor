@@ -31,7 +31,7 @@
                         <option value="@server.url">@ShowServerEntry(server)</option>
                     })
                 </select>
-                <button @onclick="//ShowServeDetails(selectedServerUrl)" class="btn btn-secondary my-1" type="button" aria-label="Show server info">
+                <button @onclick="ShowServeDetails" class="btn btn-secondary my-1" type="button" aria-label="Show server info">
                     <i class="fa-solid fa-info"></i>
                 </button>
             </div>
@@ -72,4 +72,4 @@
                 MaxToastCount="5"
                 PauseProgressOnHover="true"
                 />
-<IpDetails currentHop="currentHop" />
+<IpDetailsComponent currentHop="currentHop" />
