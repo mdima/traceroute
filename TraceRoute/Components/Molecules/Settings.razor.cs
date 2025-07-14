@@ -13,8 +13,6 @@ namespace TraceRoute.Components.Molecules
 
         protected override async Task OnInitializedAsync()
         {
-            await base.OnInitializedAsync();
-
             settings = ConfigurationHelper.GetCurrentSettings(_context.HttpContext!.Request);
             IpDetails? currentServerInfo = await _ipApiClient.GetCurrentServerDetails();
             if (currentServerInfo != null)

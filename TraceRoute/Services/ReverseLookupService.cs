@@ -59,6 +59,11 @@ namespace TraceRoute.Services
             }
         }
 
+        /// <summary>
+        /// Low level reverse lookup for Linux systems.
+        /// </summary>
+        /// <param name="address">The address to process</param>
+        /// <returns>The result of the operation</returns>
         internal async Task<string> GetHostNameLinux(IPAddress address)
         {
             string result;
@@ -79,6 +84,11 @@ namespace TraceRoute.Services
             return result;
         }
 
+        /// <summary>
+        /// Low level reverse lookup for Windows systems.
+        /// </summary>
+        /// <param name="address">The address to process</param>
+        /// <returns>The result of the operation</returns>
         internal async Task<string> GetHostNameWindows(IPAddress address)
         {
             try

@@ -10,9 +10,10 @@
         <label for="EnableRemoteTraces" class="form-label">Enable remote traces<br />
             <small>If enabled allows this not to perform traceroutes on remote hosts.</small>
         </label>
-        <select class="form-select" id="EnableRemoteTraces" @bind="settings.EnableRemoteTraces" disabled>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
+        @settings.EnableRemoteTraces.ToString()
+        <select class="form-select" id="EnableRemoteTraces" value="@settings.EnableRemoteTraces.ToString()" disabled>
+            <option value="True">Yes</option>
+            <option value="False">No</option>
         </select>
     </div>
     <div class="mb-5">
@@ -20,9 +21,10 @@
             Host remote traces<br />
             <small>If enabled allows remote hosts to make traceroutes using this host.</small>
         </label>
-        <select class="form-select" id="HostRemoteTraces" ng-model="setting.HostRemoteTraces" disabled>
-            <option value="true" selected="">Yes</option>
-            <option value="false" selected="">No</option>
+        @settings.HostRemoteTraces
+        <select class="form-select" id="HostRemoteTraces" value="@settings.HostRemoteTraces.ToString()" disabled>
+            <option value="True">Yes</option>
+            <option value="False">No</option>
         </select>
     </div>
     <div class="mb-3">
@@ -34,7 +36,7 @@
         <input type="text" value="@settings.RootNode" disabled class="form-control small" id="RootNode" name="RootNode">
     </div>
     <div class="mb-3">
-        <label for="ServerID" class="form-label">Server location</label>
+        <label for="ServerLocation" class="form-label">Server location</label>
         <input type="text" value="@settings.ServerLocation" disabled class="form-control small" id="ServerLocation" name="ServerLocation">
     </div>
 </div>

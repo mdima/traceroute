@@ -3,6 +3,9 @@ using System.Configuration;
 
 namespace TraceRoute.Models
 {
+    /// <summary>
+    /// The result of a Trace operation.
+    /// </summary>
     public class TraceResultViewModel
     {
         public string ErrorDescription { get; set; } = string.Empty;

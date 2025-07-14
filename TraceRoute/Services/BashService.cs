@@ -5,7 +5,7 @@ namespace TraceRoute.Services
 {
     /// <summary>
     /// Static class to abstract away the complexity of making Bash Command
-    /// calls from ASP.NET Core 8.0.
+    /// calls from ASP.NET Core 9.0.
     /// </summary>
     public static class BashService
     {

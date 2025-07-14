@@ -11,6 +11,9 @@ using static TraceRoute.Models.TraceResultViewModel;
 [assembly: InternalsVisibleTo("UnitTests")]
 namespace TraceRoute.Services
 {
+    /// <summary>
+    /// Provide the logic of the Traceroute operations.
+    /// </summary>
     public class TracerouteService
     {
         private readonly BogonIPService _bogonIPService;
@@ -23,7 +26,7 @@ namespace TraceRoute.Services
         }
 
         /// <summary>
-        /// Returns the full trace result for the given host.
+        /// Returns the full trace result for the given host (IP Address and full Hop information).
         /// </summary>
         /// <param name="hostToTrace">The host to trace</param>
         /// <returns>The full result of the trace operation</returns>
@@ -147,6 +150,5 @@ namespace TraceRoute.Services
 
             return hops;
         }
-
     }
 }

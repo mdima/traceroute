@@ -3,7 +3,7 @@
 namespace TraceRoute.Models
 {
     /// <summary>
-    /// Extends the IpApiResponse with additional properties needed for the server list.
+    /// The information about a TraceRoute server.
     /// </summary>
     public class ServerEntry
     {

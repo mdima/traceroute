@@ -29,6 +29,11 @@ namespace TraceRoute.Services
         private ConcurrentBag<ServerEntry> _serverList = new();
         public Action? ServiceInitialized;
 
+        /// <summary>
+        /// Start the service
+        /// </summary>
+        /// <param name="cancellationToken">The CancellationToken</param>
+        /// <returns></returns>
         async Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting the ServerListService");
@@ -112,6 +117,11 @@ namespace TraceRoute.Services
             }
         }
 
+        /// <summary>
+        /// Stops the service and cleans up resources.
+        /// </summary>
+        /// <param name="cancellationToken">The CancellationToken</param>
+        /// <returns></returns>
         Task IHostedService.StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Stopping the ServerListService");
@@ -135,14 +145,22 @@ namespace TraceRoute.Services
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Returns the list of servers.
+        /// </summary>
+        /// <returns>The list of srevers</returns>
         public List<ServerEntry> GetServerList()
         {
             return _serverList.ToList();
         }
 
+        /// <summary>
+        /// Sends the presence of the current server to the root host and retrieves the server list from it.
+        /// </summary>
+        /// <returns></returns>
         private async Task SendPresenceToMainHost()
         {
-            _logger.LogDebug("Sending presence to the main host");
+            _logger.LogDebug("Sending presence to the root host");
             if (_timerPresence != null) await _timerPresence.DisposeAsync();
 
             if (localServer != null)
@@ -151,7 +169,7 @@ namespace TraceRoute.Services
                 await _traceRouteApiClient.SendPresence(localServer, _cancelCurrentOperation);
 
                 // I retrieve the server list from the root server
-                _logger.LogDebug("Updating the server list from the main host");
+                _logger.LogDebug("Updating the server list from the root host");
                 List<ServerEntry>? receivedServerList = await _traceRouteApiClient.GetServerList(_cancelCurrentOperation);
                 if (receivedServerList != null)
                 {
@@ -181,6 +199,10 @@ namespace TraceRoute.Services
             }, null, 60000, Timeout.Infinite);
         }
 
+        /// <summary>
+        /// Re initialize the server list by removing expired servers.
+        /// </summary>
+        /// <returns></returns>
         internal async Task CleanServerList()
         {
             _logger.LogDebug("Cleaning the server list");
@@ -216,6 +238,11 @@ namespace TraceRoute.Services
             }, null, 60000, Timeout.Infinite);
         }
 
+        /// <summary>
+        /// Adds a new server to the server list if it does not already exist.
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
         public bool AddServer(ServerEntry server)
         {
             ServerEntry? foundServer = _serverList.Where(x => x.url == server.url && !x.isLocalHost).FirstOrDefault();
@@ -235,11 +262,21 @@ namespace TraceRoute.Services
             }
         }
 
+        /// <summary>
+        /// Returns the current server information.
+        /// </summary>
+        /// <returns>The current server information</returns>
         public ServerEntry? GetCurrentServerInfo()
         {
             return localServer;
         }
 
+        /// <summary>
+        /// Retrives the remote server information based on the provided server entry.
+        /// Used to double check the server information after an add request.
+        /// </summary>
+        /// <param name="serverEntry">The server to check</param>
+        /// <returns>The retrived information</returns>
         public async Task<ServerEntry?> GetRemoteServerInfo(ServerEntry serverEntry)
         {
             return await _traceRouteApiClient.GetServerInfo(serverEntry);

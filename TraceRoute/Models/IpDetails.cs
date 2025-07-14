@@ -1,5 +1,8 @@
 ﻿namespace TraceRoute.Models
 {
+    /// <summary>
+    /// The details of a given IP address, used for Hops or Server Entries.
+    /// </summary>
     public class IpDetails
     {
         public bool IsBogonIP { get; set; }
