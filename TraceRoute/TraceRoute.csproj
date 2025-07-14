@@ -20,10 +20,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\HomeController.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Views\Shared\Error.html" />
   </ItemGroup>
 
@@ -67,10 +63,6 @@
 
   <ItemGroup>
     <Folder Include="config\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Controllers\HomeController.cs" />
   </ItemGroup>
 
   <PropertyGroup>

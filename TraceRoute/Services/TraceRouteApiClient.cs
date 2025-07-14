@@ -134,5 +134,58 @@ namespace TraceRoute.Services
                 return null;
             }
         }
+
+        /// <summary>
+        /// Retrives the server information from a given server
+        /// </summary>
+        /// <param name="HostToTrace">The IP to trace</param>
+        /// <param name="RemoteServerUrl">The remote TraceRoute server</param>
+        /// <returns>The result of the traceroute</returns>
+        public async Task<TraceResultViewModel> RemoteTrace(string HostToTrace, string RemoteServerUrl)
+        {
+            TraceResultViewModel? result = new();
+            string traceError = "";
+
+            try
+            {
+                _logger.LogDebug("Asking to trace the IP {0} to the server {1}", HostToTrace, RemoteServerUrl);
+                
+                string url = $"{RemoteServerUrl}api/trace/{HostToTrace}";
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    result = await response.Content.ReadFromJsonAsync<TraceResultViewModel>();
+                    if (result == null)
+                    {
+                        traceError = String.Format("No traceroute received from {0}", RemoteServerUrl);
+                        _logger.LogDebug(traceError);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("Successfully received the traceroute from {0}", RemoteServerUrl);
+                    }
+                }
+                else
+                {
+                    traceError = String.Format("Error asking the trace result from the server: {0}, {1}, {2}", RemoteServerUrl, response.StatusCode, response.ReasonPhrase);
+                    _logger.LogError(traceError);
+                }
+            }
+            catch (Exception ex)
+            {
+                traceError = String.Format("Error asking the trace result from the server: {0}, {1}", RemoteServerUrl, ex.Message);
+                _logger.LogError(ex, traceError);
+            }
+
+            if (traceError != "")
+            {
+                result = new TraceResultViewModel()
+                {
+                    ErrorDescription = traceError
+                };
+            }
+
+            return result!;
+        }
     }
 }

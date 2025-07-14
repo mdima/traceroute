@@ -16,7 +16,8 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace TraceRoute.Components.Layout
 {
-    public partial class MainLayout(ServerListService serverListService, BogonIPService bogonIPService, IHttpContextAccessor contextAccessor, IJSRuntime jSRuntime, TracerouteService tracerouteService)
+    public partial class MainLayout(ServerListService serverListService, BogonIPService bogonIPService, IHttpContextAccessor contextAccessor, IJSRuntime jSRuntime, 
+        TracerouteService tracerouteService, TraceRouteApiClient traceRouteApiClient)
     {
 
         [Inject]
@@ -33,6 +34,7 @@ namespace TraceRoute.Components.Layout
         private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
         private readonly IJSRuntime _jSRuntime = jSRuntime;
         private readonly TracerouteService _tracerouteService = tracerouteService;
+        private readonly TraceRouteApiClient _traceRouteApiClient = traceRouteApiClient;
         private DotNetObjectReference<MainLayout> _componentReference => DotNetObjectReference.Create(this);
 
         private List<ServerEntry> serverList = new();
@@ -81,13 +83,16 @@ namespace TraceRoute.Components.Layout
             }
         }
 
-        private void RefreshServerList()
+        private async void RefreshServerList()
         {
             serverList = _serverListService.GetServerList();
             if (!serverList.Where(x => x.url == selectedServerUrl).Any())
             {
                 selectedServerUrl = serverList.Where(x => x.isLocalHost).First().url;
             }
+            await InvokeAsync(() => {
+                StateHasChanged();
+            });
         }
 
         public async Task BeginTraceRoute()
@@ -95,7 +100,22 @@ namespace TraceRoute.Components.Layout
             isTracing = true;
             await _jSRuntime.InvokeVoidAsync("clearMarkersAndPaths");
 
-            traceResult = await _tracerouteService.Trace(hostToTrace);            
+            ServerEntry? selectedServer = serverList.FirstOrDefault(x => x.url == selectedServerUrl);
+            if (selectedServer == null)
+            {
+                _toastService.ShowError("Please select a server to trace.");
+                isTracing = false;
+                return;
+            }
+
+            if (selectedServer.isLocalHost)
+            {
+                traceResult = await _tracerouteService.TraceRouteFull(hostToTrace);
+            }
+            else
+            {
+                traceResult = await _traceRouteApiClient.RemoteTrace(hostToTrace, selectedServer.url!);
+            }
 
             if (traceResult.ErrorDescription != String.Empty)
             {
@@ -135,7 +155,9 @@ namespace TraceRoute.Components.Layout
         [JSInvokable("OnShowIpDetails")]
         public async Task OnShowIpDetails(String iPAddress)
         {
-            IpDetails? details = await _ipApiClient.GetTraceHopDetails(iPAddress);
+            if (traceResult == null) return;
+
+            TraceHop? details = traceResult.Hops.Where(x => x.HopAddress == iPAddress).FirstOrDefault();
 
             if (details == null)
             {
@@ -143,11 +165,7 @@ namespace TraceRoute.Components.Layout
             }
             else
             {
-                currentHop = new TraceHop
-                {
-                    HopAddress = iPAddress,
-                    Details = details
-                };
+                currentHop = details;
                 StateHasChanged();
                 await _jSRuntime.InvokeVoidAsync("showModalDetails");
             }            

@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System.Net.NetworkInformation;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using TraceRoute.Controllers;
 using TraceRoute.Helpers;
 using TraceRoute.Models;
 using static TraceRoute.Models.TraceResultViewModel;
 
+[assembly: InternalsVisibleTo("UnitTests")]
 namespace TraceRoute.Services
 {
     public class TracerouteService
@@ -18,14 +22,19 @@ namespace TraceRoute.Services
             _bogonIPService = bogonIPService;
         }
 
-        public async Task<TraceResultViewModel> Trace(string hostToTrace)
+        /// <summary>
+        /// Returns the full trace result for the given host.
+        /// </summary>
+        /// <param name="hostToTrace">The host to trace</param>
+        /// <returns>The full result of the trace operation</returns>
+        public async Task<TraceResultViewModel> TraceRouteFull(string hostToTrace)
         {
             TraceResultViewModel traceResult = new();
 
             try
             {
                 _logger.LogInformation("Requested Trace to: {0}", hostToTrace);
-                List<string> hops = await TraceHelper.TraceRoute(hostToTrace);
+                List<string> hops = await TraceRoute(hostToTrace);
 
                 if (hops.Count == 0)
                 {
@@ -71,6 +80,73 @@ namespace TraceRoute.Services
             }
 
             return traceResult;
-        }        
+        }
+
+        /// <summary>
+        /// Returns only the array of hops for the given host.
+        /// </summary>
+        /// <param name="destination">The destination of the Trace operation</param>
+        /// <returns>The hop list</returns>
+        public async Task<List<string>> TraceRoute(string destination)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return TraceRouteWindows(destination).ToList();
+            }
+            else
+            {
+                return await TraceRouteLinux(destination);
+            }
+        }
+
+        /// <summary>
+        /// Performs a traceroute on the given destination using Windows Ping.
+        /// </summary>
+        /// <param name="destination">The destination of the Trace operation</param>
+        /// <returns>The hop list</returns>
+        internal IEnumerable<string> TraceRouteWindows(string destination)
+        {
+            // Initial variables
+            var limit = 1000;
+            var buffer = new byte[32];
+            var pingOpts = new PingOptions(1, true);
+            var ping = new Ping();
+
+            // Result holder.
+            PingReply result;
+
+            do
+            {
+                result = ping.Send(destination, 4000, buffer, pingOpts);
+                pingOpts = new PingOptions(pingOpts.Ttl + 1, pingOpts.DontFragment);
+
+                if (result.Status != IPStatus.TimedOut)
+                {
+                    yield return string.Format("{0} {1} {2} ms", pingOpts.Ttl, result.Address.ToString(), result.RoundtripTime);
+                }
+            }
+            while (result.Status != IPStatus.Success && pingOpts.Ttl < limit);
+        }
+
+        /// <summary>
+        /// Performs a traceroute on the given destination using Linux traceroute command.
+        /// </summary>
+        /// <param name="destination">The destination of the Trace operation</param>
+        /// <returns>The hop list</returns>
+        internal async Task<List<string>> TraceRouteLinux(string destination)
+        {
+            string trace = "traceroute -n -m 30 -w1 -I -q 1 " + destination;
+            var traceResult = await trace.Bash();
+
+            List<string> hops = traceResult.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            if (hops[0].Contains("traceroute"))
+            {
+                hops.RemoveAt(0);
+            }
+
+            return hops;
+        }
+
     }
 }
