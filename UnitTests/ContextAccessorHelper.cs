@@ -10,12 +10,16 @@ namespace UnitTests
 {
     public static class ContextAccessorHelper
     {
-        public static IHttpContextAccessor GetContext(string UrlRequest, string HostName)
+        public static IHttpContextAccessor GetContext(string UrlRequest, string HostName, String? RemoteIpAddress = null)
         {
             var context = new DefaultHttpContext();
             context.Request.Path = UrlRequest;
             context.Request.Host = new HostString(HostName);
             context.Request.Scheme = "http";
+            if (RemoteIpAddress != null)
+            {
+                context.Connection.RemoteIpAddress = System.Net.IPAddress.Parse(RemoteIpAddress);
+            }
 
             HttpContextAccessor obj = new()
             {

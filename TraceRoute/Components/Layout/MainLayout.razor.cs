@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Net;
 using System.Runtime;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml.Schema;
 using TraceRoute.Components.Molecules;
@@ -14,6 +15,7 @@ using TraceRoute.Models;
 using TraceRoute.Services;
 using static TraceRoute.Models.TraceResultViewModel;
 
+[assembly: InternalsVisibleTo("UnitTests")]
 namespace TraceRoute.Components.Layout
 {
     public partial class MainLayout(ServerListService serverListService, BogonIPService bogonIPService, IHttpContextAccessor contextAccessor, IJSRuntime jSRuntime, 
@@ -37,10 +39,10 @@ namespace TraceRoute.Components.Layout
         private readonly TraceRouteApiClient _traceRouteApiClient = traceRouteApiClient;
         private DotNetObjectReference<MainLayout> _componentReference => DotNetObjectReference.Create(this);
 
-        private List<ServerEntry> serverList = new();
-        private String selectedServerUrl = "";
+        internal List<ServerEntry> serverList = new();
+        internal String selectedServerUrl = "";
         private Boolean isTracing = false;
-        private string hostToTrace = "";
+        internal string hostToTrace = "";
 
         private TraceResultViewModel? traceResult;
         private TraceHop? currentHop;
@@ -71,7 +73,7 @@ namespace TraceRoute.Components.Layout
             }
         }
 
-        private String? ShowServerEntry(ServerEntry serverEntry)
+        internal String? ShowServerEntry(ServerEntry serverEntry)
         {
             if (serverEntry.Details.Country != null && serverEntry.Details.City != null)
             {
@@ -83,7 +85,7 @@ namespace TraceRoute.Components.Layout
             }
         }
 
-        private async void RefreshServerList()
+        internal async void RefreshServerList()
         {
             serverList = _serverListService.GetServerList();
             if (!serverList.Where(x => x.url == selectedServerUrl).Any())
@@ -95,7 +97,7 @@ namespace TraceRoute.Components.Layout
             });
         }
 
-        public async Task BeginTraceRoute()
+        internal async Task BeginTraceRoute()
         {            
             isTracing = true;
             await _jSRuntime.InvokeVoidAsync("clearMarkersAndPaths");

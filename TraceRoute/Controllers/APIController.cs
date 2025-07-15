@@ -69,6 +69,15 @@ namespace TraceRoute.Controllers
         }
 
         /// <summary>
+        /// Returns the server list
+        /// </summary>
+        [HttpGet("api/serverlist")]
+        public List<ServerEntry> GetServerList()
+        {
+            return _serverListService.GetServerList();
+        }
+
+        /// <summary>
         /// Returns the current server information
         /// </summary>
         [HttpGet("api/serverInfo")]

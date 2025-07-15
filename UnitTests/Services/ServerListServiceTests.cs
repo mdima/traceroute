@@ -26,7 +26,6 @@ namespace UnitTests.Services
         private StoreServerURLFilter _storeServerURLFilter;
         private IHttpContextAccessor _httpContextAccessor;
         private TraceRouteApiClient _traceRouteApiClient;
-        private HomeController _homeController;
         private ServerListService _serverListService;
 
         public ServerListServiceTests()
@@ -34,12 +33,12 @@ namespace UnitTests.Services
             _loggingFactory = new();
             HttpClient httpClient = new HttpClient();
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
+            ReverseLookupService reverseLookupService = new(_loggingFactory.CreateLogger<ReverseLookupService>(), memoryCache);
 
-            _ipApiClient = new(httpClient, _loggingFactory.CreateLogger<IpApiClient>(), memoryCache);
+            _ipApiClient = new(httpClient, _loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
             _traceRouteApiClient = new(httpClient, _loggingFactory.CreateLogger<TraceRouteApiClient>());
 
             BogonIPService bogonIPService = new(_loggingFactory);
-            _homeController = new(bogonIPService, _loggingFactory);
 
             _storeServerURLFilter = new();
             _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost");
@@ -65,12 +64,12 @@ namespace UnitTests.Services
             ActionContext actionContext = new(_httpContextAccessor.HttpContext, new Microsoft.AspNetCore.Routing.RouteData(), new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor());
             ActionExecutingContext actionExecutingContext = new(actionContext, new List<IFilterMetadata>(), new Dictionary<string, object?>(), _serverListService);
 
-            ActionExecutionDelegate actionExecutionDelegate = () =>
-            {
-                var ctx = new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), _homeController);
-                return Task.FromResult(ctx);
-            };
-            await _storeServerURLFilter.OnActionExecutionAsync(actionExecutingContext, actionExecutionDelegate);
+            //ActionExecutionDelegate actionExecutionDelegate = () =>
+            //{
+            //    var ctx = new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), _homeController);
+            //    return Task.FromResult(ctx);
+            //};
+            //await _storeServerURLFilter.OnActionExecutionAsync(actionExecutingContext, actionExecutionDelegate);
 
             await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
             result = _serverListService.GetServerList();
