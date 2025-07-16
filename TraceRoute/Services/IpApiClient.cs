@@ -16,7 +16,7 @@ namespace TraceRoute.Services
     /// <param name="reverseLookupService">The ReverseLookupService service</param>
     public class IpApiClient(HttpClient httpClient, ILogger<IpApiClient> logger, IMemoryCache MemoryCache, ReverseLookupService reverseLookupService)
     {
-        private const string BASE_URL = "http://ip-api.com";
+        internal static string BASE_URL = "http://ip-api.com";
         private readonly HttpClient _httpClient = httpClient;
         private readonly IMemoryCache _MemoryCache = MemoryCache;
         private readonly ReverseLookupService _reverseLookupService = reverseLookupService;

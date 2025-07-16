@@ -44,8 +44,8 @@ namespace TraceRoute.Components.Layout
         private Boolean isTracing = false;
         internal string hostToTrace = "";
 
-        private TraceResultViewModel? traceResult;
-        private TraceHop? currentHop;
+        internal TraceResultViewModel? traceResult;
+        internal TraceHop? currentHop;
 
         protected override void OnInitialized()
         {
@@ -148,7 +148,7 @@ namespace TraceRoute.Components.Layout
             isTracing = false;
         }
 
-        private async Task OnShowHopDetails(TraceHop hop)
+        internal async Task OnShowHopDetails(TraceHop hop)
         {
             currentHop = hop;
             await _jSRuntime.InvokeVoidAsync("showModalDetails");
@@ -173,7 +173,7 @@ namespace TraceRoute.Components.Layout
             }            
         }
 
-        private async Task ShowServeDetails()
+        internal async Task ShowServerDetails()
         {
             ServerEntry? selectedServer = serverList.FirstOrDefault(x => x.url == selectedServerUrl);
             if (selectedServer != null)

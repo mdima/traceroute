@@ -34,5 +34,5 @@
 
 @code
 {
-    Version? currentVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName()?.Version;
+    internal Version? currentVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
 }

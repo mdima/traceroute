@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using TraceRoute.Helpers;
 using TraceRoute.Models;
 using TraceRoute.Services;
+using static TraceRoute.Models.TraceResultViewModel;
 
 namespace UnitTests.Components.Layout
 {
@@ -22,18 +23,19 @@ namespace UnitTests.Components.Layout
     public class MainLayoutTests : Bunit.TestContext
     {
         private Boolean toastFired = false;
+        IHttpContextAccessor httpContextAccessor;
+        MemoryCache memoryCache;
 
         public MainLayoutTests()
         {
             // Initialize the test context for Bunit
             NullLoggerFactory loggingFactory = new();
             HttpClient httpClient = new HttpClient();
-            MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
+            memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
             ReverseLookupService reverseLookupService = new(loggingFactory.CreateLogger<ReverseLookupService>(), memoryCache);
             Services.AddSingleton(reverseLookupService);
 
-            IpApiClient ipApiClient;
-            ipApiClient = new(httpClient, loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            IpApiClient ipApiClient = new(httpClient, loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
             Services.AddHttpClient<IpApiClient>();
 
             TraceRouteApiClient _traceRouteApiClient;
@@ -47,7 +49,6 @@ namespace UnitTests.Components.Layout
             storeServerURLFilter = new();
             Services.AddSingleton(storeServerURLFilter);
 
-            IHttpContextAccessor httpContextAccessor;
             httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost");
             Services.AddSingleton<IHttpContextAccessor>(httpContextAccessor);
             Services.AddHttpContextAccessor();
@@ -90,7 +91,7 @@ namespace UnitTests.Components.Layout
         public void TestInitialHost()
         {
             // I reset the default http context
-            var context = new DefaultHttpContext();            
+            var context = new DefaultHttpContext();
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
             // Check the hostToTrace as empty
             Assert.IsEmpty(cut.Instance.hostToTrace);
@@ -103,6 +104,13 @@ namespace UnitTests.Components.Layout
             cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
             Assert.IsNotEmpty(cut.Instance.hostToTrace);
             Assert.AreEqual("8.8.8.8", cut.Instance.hostToTrace);
+
+            // I empty the context
+            httpContextAccessor = new HttpContextAccessor() { HttpContext = null };
+            cut.Instance.hostToTrace = "";
+            cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            Assert.IsEmpty(cut.Instance.hostToTrace);
+            httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost");
         }
 
         [TestMethod]
@@ -164,6 +172,112 @@ namespace UnitTests.Components.Layout
             cut.Instance.selectedServerUrl = cut.Instance.serverList.First().url;
             await cut.InvokeAsync(cut.Instance.BeginTraceRoute);
             Assert.IsFalse(toastFired);
+            cut.WaitForAssertion(() =>
+            {
+                Assert.IsNotNull(cut.Instance.traceResult);
+                Assert.IsTrue(cut.Instance.traceResult.Hops.Count > 0);
+            });
+            Assert.IsTrue(cut.Instance.traceResult!.Hops.First().Details.IsBogonIP);
+            Assert.IsFalse(cut.Instance.traceResult!.Hops.Last().Details.IsBogonIP);
+
+            // remote server selected
+            cut.Instance.serverList.Add(new ServerEntry
+            {
+                url = "https://traceroute.di-maria.it/",
+                isLocalHost = false,
+                isOnline = true,
+                Details = new IpDetails
+                {
+                    Country = "Italy",
+                    City = "Milan",                    
+                }
+            });
+            cut.Instance.selectedServerUrl = "https://traceroute.di-maria.it/";
+            await cut.InvokeAsync(cut.Instance.BeginTraceRoute);
+            Assert.IsFalse(toastFired);
+
+            // I generate a trace error
+            toastFired = false;
+            cut.Instance.selectedServerUrl = cut.Instance.serverList.First().url;
+            cut.Instance.hostToTrace = Guid.NewGuid().ToString();
+            await cut.InvokeAsync(cut.Instance.BeginTraceRoute);
+            Assert.IsTrue(toastFired);
+
+            // I make sure I cannot get the trace hop details
+            IpApiClient.BASE_URL = "aaaa";
+            cut.Instance.hostToTrace = "8.8.8.8";
+            memoryCache.Clear();    // I need to empty the memory cache
+            await cut.InvokeAsync(cut.Instance.BeginTraceRoute);          
+            Assert.IsNull(cut.Instance.traceResult.Hops.Where(x => x.HopAddress == "8.8.8.8").First().Details.Country);
+            IpApiClient.BASE_URL = "http://ip-api.com";
+        }
+
+        [TestMethod]
+        public async Task TestOnShowHopDetails()
+        {
+            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+
+            cut.Instance.traceResult = new TraceResultViewModel();
+            TraceHop hop = new()
+            {
+                HopAddress = Guid.NewGuid().ToString(),
+                Details = new IpDetails
+                {
+                    Country = "Country",
+                    City = "City",
+                }
+            };
+            await cut.InvokeAsync(() => cut.Instance.OnShowHopDetails(hop));
+            Assert.AreEqual(hop, cut.Instance.currentHop);
+        }
+
+        [TestMethod]
+        public async Task TestOnShowIpDetails()
+        {
+            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+
+            // Null result
+            cut.Instance.traceResult = null;
+            await cut.InvokeAsync(() => cut.Instance.OnShowIpDetails("asdf"));
+
+            // Empty result
+            toastFired = false;
+            cut.Instance.traceResult = new TraceResultViewModel();
+            await cut.InvokeAsync(() => cut.Instance.OnShowIpDetails("asdf"));
+            Assert.IsTrue(toastFired);
+
+            // Valid result
+            toastFired = false;
+            cut.Instance.traceResult.Hops.Add(new TraceHop()
+            {
+                HopAddress = "127.0.0.1",
+                Details = new IpDetails
+                {
+                    Country = "Country",
+                    City = "City",
+                }
+            });
+            await cut.InvokeAsync(() => cut.Instance.OnShowIpDetails("127.0.0.1"));
+            Assert.IsFalse(toastFired);
+            Assert.AreEqual(cut.Instance.traceResult.Hops.First(), cut.Instance.currentHop);
+        }
+
+        [TestMethod]
+        public async Task TestShowServerDetails()
+        {
+            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+
+            // Non existing server
+            cut.Instance.currentHop = null;
+            cut.Instance.selectedServerUrl = Guid.NewGuid().ToString();
+            await cut.InvokeAsync(() => cut.Instance.ShowServerDetails());
+            Assert.IsNull(cut.Instance.currentHop);
+
+            // Existing server
+            cut.Instance.selectedServerUrl = cut.Instance.serverList.First().url;
+            await cut.InvokeAsync(() => cut.Instance.ShowServerDetails());
+            Assert.IsNotNull(cut.Instance.currentHop);
+            Assert.AreEqual(cut.Instance.selectedServerUrl, cut.Instance.currentHop.HopAddress);
         }
     }
 }
