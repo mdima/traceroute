@@ -30,7 +30,7 @@ namespace TraceRoute.Services
         {
             if (string.IsNullOrEmpty(ServerURL))
             {
-                string uriString = $"{context.Request.Scheme}://{context.Request.Host}/";
+                string uriString = $"https://{context.Request.Host}/";  //I assume we are in the production environment
                 if (Uri.TryCreate(uriString, UriKind.Absolute, out var location))
                 {
                     ServerURL = location.AbsoluteUri;
