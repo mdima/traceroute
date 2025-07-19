@@ -26,8 +26,14 @@ namespace TraceRoute.Services
         private readonly StoreServerURLFilter _storeServerURLFilter = storeServerURLFilter;
         private readonly TraceRouteApiClient _traceRouteApiClient = TraceRouteApiClient;
         ServerEntry? localServer;
-        private ConcurrentBag<ServerEntry> _serverList = new();
+        internal ConcurrentBag<ServerEntry> _serverList = new();
+        public Action? ServiceInitialized;
 
+        /// <summary>
+        /// Start the service
+        /// </summary>
+        /// <param name="cancellationToken">The CancellationToken</param>
+        /// <returns></returns>
         async Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting the ServerListService");
@@ -36,25 +42,26 @@ namespace TraceRoute.Services
             await InitializePresence();
         }
 
-        private async Task InitializePresence()
+        internal async Task InitializePresence()
         {
             if (_timerPresence != null) await _timerPresence.DisposeAsync();
 
-            if (!String.IsNullOrEmpty(_storeServerURLFilter.getServerURL()))
+            if (!String.IsNullOrEmpty(_storeServerURLFilter.GetServerURL()))
             {                
-                IpApiResponse? localHostInfo = await _ipApiClient.GetCurrentServerDetails();
+                IpDetails? localHostInfo = await _ipApiClient.GetCurrentServerDetails();
                 if (localHostInfo != null)
                 {
-                    localServer = new(localHostInfo)
+                    localServer = new()
                     {
                         lastUpdate = DateTime.Now,
                         isOnline = true,
-                        isLocalHost = true,
-                        // query = "Localhost",
-                        url = _storeServerURLFilter.getServerURL()
+                        isLocalHost = true,                        
+                        url = _storeServerURLFilter.GetServerURL(),
+                        Details = localHostInfo,
                     };
                     _serverList = [localServer];
                     _logger.LogInformation("Local server information initialized");
+                    ServiceInitialized?.Invoke();
                     if (localServer.url != ConfigurationHelper.GetRootNode())
                     {
                         // This is a client node
@@ -72,6 +79,7 @@ namespace TraceRoute.Services
                         // This is the root node
                         if (ConfigurationHelper.GetEnableRemoteTraces())
                         {
+                            // I start the clean server list function with its own timer
                             await CleanServerList();
                         }
                         else
@@ -93,7 +101,6 @@ namespace TraceRoute.Services
                     lastUpdate = DateTime.Now,
                     isOnline = false,
                     isLocalHost = true,
-                    query = "Localhost",
                     url = "Localhost"
                 };
                 _serverList = [localServer];
@@ -107,10 +114,15 @@ namespace TraceRoute.Services
                 _timerPresence = new Timer(async _ =>
                 {
                     await InitializePresence();
-                }, null, 5000, Timeout.Infinite);
+                }, null, 3000, Timeout.Infinite);
             }
         }
 
+        /// <summary>
+        /// Stops the service and cleans up resources.
+        /// </summary>
+        /// <param name="cancellationToken">The CancellationToken</param>
+        /// <returns></returns>
         Task IHostedService.StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Stopping the ServerListService");
@@ -134,14 +146,22 @@ namespace TraceRoute.Services
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Returns the list of servers.
+        /// </summary>
+        /// <returns>The list of srevers</returns>
         public List<ServerEntry> GetServerList()
         {
             return _serverList.ToList();
         }
 
-        private async Task SendPresenceToMainHost()
+        /// <summary>
+        /// Sends the presence of the current server to the root host and retrieves the server list from it.
+        /// </summary>
+        /// <returns></returns>
+        internal async Task SendPresenceToMainHost()
         {
-            _logger.LogDebug("Sending presence to the main host");
+            _logger.LogDebug("Sending presence to the root host");
             if (_timerPresence != null) await _timerPresence.DisposeAsync();
 
             if (localServer != null)
@@ -150,7 +170,7 @@ namespace TraceRoute.Services
                 await _traceRouteApiClient.SendPresence(localServer, _cancelCurrentOperation);
 
                 // I retrieve the server list from the root server
-                _logger.LogDebug("Updating the server list from the main host");
+                _logger.LogDebug("Updating the server list from the root host");
                 List<ServerEntry>? receivedServerList = await _traceRouteApiClient.GetServerList(_cancelCurrentOperation);
                 if (receivedServerList != null)
                 {
@@ -164,7 +184,7 @@ namespace TraceRoute.Services
                         }
                     }
                     newServerList.Add(localServer);
-                    _serverList = new(newServerList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+                    _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
                     _logger.LogInformation("Server list updated");
                 }
                 else
@@ -180,6 +200,10 @@ namespace TraceRoute.Services
             }, null, 60000, Timeout.Infinite);
         }
 
+        /// <summary>
+        /// Re initialize the server list by removing expired servers.
+        /// </summary>
+        /// <returns></returns>
         internal async Task CleanServerList()
         {
             _logger.LogDebug("Cleaning the server list");
@@ -205,7 +229,7 @@ namespace TraceRoute.Services
                     newServerList.Add(server);
                 }
             }
-            _serverList = new(newServerList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+            _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
             _logger.LogDebug("Server list cleaned");
 
             // I set the next execution cycle
@@ -215,6 +239,11 @@ namespace TraceRoute.Services
             }, null, 60000, Timeout.Infinite);
         }
 
+        /// <summary>
+        /// Adds a new server to the server list if it does not already exist.
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
         public bool AddServer(ServerEntry server)
         {
             ServerEntry? foundServer = _serverList.Where(x => x.url == server.url && !x.isLocalHost).FirstOrDefault();
@@ -224,7 +253,7 @@ namespace TraceRoute.Services
                 server.isLocalHost = false;
                 server.lastUpdate = DateTime.Now;
                 _serverList.Add(server);
-                _serverList = new(_serverList.OrderBy(x => x.country).ThenBy(y => y.city).ToList());
+                _serverList = new(_serverList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
                 return true;
             }
             else
@@ -234,11 +263,21 @@ namespace TraceRoute.Services
             }
         }
 
+        /// <summary>
+        /// Returns the current server information.
+        /// </summary>
+        /// <returns>The current server information</returns>
         public ServerEntry? GetCurrentServerInfo()
         {
             return localServer;
         }
 
+        /// <summary>
+        /// Retrives the remote server information based on the provided server entry.
+        /// Used to double check the server information after an add request.
+        /// </summary>
+        /// <param name="serverEntry">The server to check</param>
+        /// <returns>The retrived information</returns>
         public async Task<ServerEntry?> GetRemoteServerInfo(ServerEntry serverEntry)
         {
             return await _traceRouteApiClient.GetServerInfo(serverEntry);

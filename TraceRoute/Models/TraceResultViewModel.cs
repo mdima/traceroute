@@ -1,7 +1,11 @@
 ﻿using Newtonsoft.Json;
+using System.Configuration;
 
 namespace TraceRoute.Models
 {
+    /// <summary>
+    /// The result of a Trace operation.
+    /// </summary>
     public class TraceResultViewModel
     {
         public string ErrorDescription { get; set; } = string.Empty;
@@ -10,21 +14,10 @@ namespace TraceRoute.Models
 
         public class TraceHop
         {
+            public int Index { get; set; } = 0;
             public string HopAddress { get; set; } = string.Empty;
             public float TripTime { get; set; } = 0;
-            public TraceHopDetails Details { get; set; } = new();
-        }
-
-        public class TraceHopDetails
-        {
-            public bool IsBogonIP { get; set; } 
-            public string ErrorDescription { get; set; } = string.Empty;
-            public double? Latitude { get; set; }
-            public double? Longitude { get; set; }
-            public string? Country { get; set; }
-            public string? City { get; set; }
-            public string? ISP { get; set; }
-            public string? HostName { get; set; }
+            public IpDetails Details { get; set; } = new();
         }
     }
 }

@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="This utility provides a Trace Route functionality with a nice layout" />
+    <title>TODO: TITLE - TraceRoute</title>
+    <link rel="stylesheet" href="@Assets["lib/twitter-bootstrap/css/bootstrap.min.css"]" />
+    <link rel="stylesheet" href="@Assets["css/site.css"]?t=@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="TraceRoute.styles.css">
+    <link rel="preload" href="@Assets["lib/font-awesome/css/all.min.css"]" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" href="@Assets["lib/leaflet/leaflet.min.css"]" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preconnect" href="https://tile.openstreetmap.org" />
+    <ImportMap />
+    <link rel="preload" fetchpriority="high" as="image" href="https://tile.openstreetmap.org/2/1/2.png" />
+    <HeadOutlet />
+</head>
+<body>    
+    <Routes @rendermode=RenderMode.InteractiveServer/>
+    <script src="@Assets["lib/jquery/jquery.slim.min.js"]" asp-append-version="true"></script>
+    <script src="@Assets["lib/twitter-bootstrap/js/bootstrap.bundle.min.js"]"></script>
+    <script src="@Assets["js/site.min.js"]?t=@DateTime.Now.Ticks"></script>
+    <script src="@Assets["lib/leaflet/leaflet.min.js"]" async></script>
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>

@@ -6,12 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>2.0.2</Version>
+    <Version>3.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1591;CS1591</NoWarn>
-    <DebugType>full</DebugType>
+    <DebugType>Portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
@@ -20,14 +20,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazored.Toast" Version="4.2.1" />
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-    <PackageReference Include="IPNetwork2" Version="3.0.712" />
-    <PackageReference Include="log4net" Version="3.0.3" />
+    <PackageReference Include="IPNetwork2" Version="3.1.764" />
+    <PackageReference Include="log4net" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
-    <PackageReference Include="WebMarkupMin.AspNetCoreLatest" Version="2.18.1" />
+    <PackageReference Include="WebMarkupMin.AspNetCoreLatest" Version="2.19.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,4 +60,10 @@
   <ItemGroup>
     <Folder Include="config\" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <PrepareForBuildDependsOn>
+      BundleMinify;
+    </PrepareForBuildDependsOn>
+  </PropertyGroup>
 </Project>

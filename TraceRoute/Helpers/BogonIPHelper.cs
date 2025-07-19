@@ -12,6 +12,10 @@ namespace TraceRoute.Helpers
         private readonly List<IPNetwork2> _BogonNetworks;
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// Initialize the Bogon Networks
+        /// </summary>
+        /// <param name="LoggerFactory"></param>
         public BogonIPService(ILoggerFactory LoggerFactory)
         {
             _logger = LoggerFactory.CreateLogger<APIController>();
@@ -78,30 +82,25 @@ namespace TraceRoute.Helpers
             ];
         }
 
+        /// <summary>
+        /// Provides a method to check if the given IP Address is a Bogon (private) network address.
+        /// </summary>
+        /// <param name="iPAddress">The IP address to check</param>
+        /// <returns>TRUE if it is a Bogon IP address</returns>
         public bool IsBogonIP(string iPAddress)
         {
-            try
-            {
-                if (IPAddress.TryParse(iPAddress, out IPAddress? parsedIPAddress)) {
-                    foreach (IPNetwork2 network in _BogonNetworks)
-                    {
-                        if (network.Contains(parsedIPAddress)) return true;
-                    }
-                    return false;
+            if (IPAddress.TryParse(iPAddress, out IPAddress? parsedIPAddress)) {
+                foreach (IPNetwork2 network in _BogonNetworks)
+                {
+                    if (network.Contains(parsedIPAddress)) return true;
                 }
-                else
-                { 
-                    _logger.LogWarning("Cannot parse the IP Adderss {0}", iPAddress);
-                    return false;
-                }
+                return false;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in BogonIPService.IsBogonIP for the IP {0}", iPAddress);
+            else
+            { 
+                _logger.LogWarning("Cannot parse the IP Adderss {0}", iPAddress);
                 return false;
             }
         }
-
     }
-
 }

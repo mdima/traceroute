@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,14 +21,13 @@ using TraceRoute.Services;
 namespace UnitTests.Services
 {
     [TestClass]
-    public class ServerListServiceTests
+    public class ServerListServiceTests : Bunit.TestContext
     {
         private IpApiClient _ipApiClient;
         private NullLoggerFactory _loggingFactory;
         private StoreServerURLFilter _storeServerURLFilter;
         private IHttpContextAccessor _httpContextAccessor;
         private TraceRouteApiClient _traceRouteApiClient;
-        private HomeController _homeController;
         private ServerListService _serverListService;
 
         public ServerListServiceTests()
@@ -34,17 +35,20 @@ namespace UnitTests.Services
             _loggingFactory = new();
             HttpClient httpClient = new HttpClient();
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
+            ReverseLookupService reverseLookupService = new(_loggingFactory.CreateLogger<ReverseLookupService>(), memoryCache);
 
-            _ipApiClient = new(httpClient, _loggingFactory.CreateLogger<IpApiClient>(), memoryCache);
+            _ipApiClient = new(httpClient, _loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
             _traceRouteApiClient = new(httpClient, _loggingFactory.CreateLogger<TraceRouteApiClient>());
 
             BogonIPService bogonIPService = new(_loggingFactory);
-            _homeController = new(bogonIPService, _loggingFactory);
 
             _storeServerURLFilter = new();
-            _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost");
+            _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
+            Services.AddSingleton<IHttpContextAccessor>(_httpContextAccessor);
 
             _serverListService = new(_loggingFactory.CreateLogger<ServerListService>(), _ipApiClient, _storeServerURLFilter, _traceRouteApiClient);
+
+            IpApiClient.BASE_URL = "http://ip-api.com";
         }
 
         [TestMethod("Can start and stop the service")]
@@ -65,21 +69,47 @@ namespace UnitTests.Services
             ActionContext actionContext = new(_httpContextAccessor.HttpContext, new Microsoft.AspNetCore.Routing.RouteData(), new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor());
             ActionExecutingContext actionExecutingContext = new(actionContext, new List<IFilterMetadata>(), new Dictionary<string, object?>(), _serverListService);
 
-            ActionExecutionDelegate actionExecutionDelegate = () =>
-            {
-                var ctx = new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), _homeController);
-                return Task.FromResult(ctx);
-            };
-            await _storeServerURLFilter.OnActionExecutionAsync(actionExecutingContext, actionExecutionDelegate);
-
             await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
             result = _serverListService.GetServerList();
             Assert.IsNotNull(result);
-            ServerEntry? serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();            
-            Assert.AreNotEqual("Localhost", result[0].url);
+            ServerEntry? serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();
+            Assert.AreEqual("Localhost", result[0].url);
+
+            // I force an error to simulate a bad response from the IPApiClient
+            IpApiClient.BASE_URL = "asdf";
+            StoreServerURLFilter.ServerURL = "http://localhost:5000";
+            Thread.Sleep(4000);
+            Assert.IsNotNull(result);
+            serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();
+            Assert.AreEqual("Localhost", result[0].url);
+
+            // I set the server URL to the root node
+            IpApiClient.BASE_URL = "http://ip-api.com";
+            StoreServerURLFilter.ServerURL = ConfigurationHelper.GetRootNode();
+            Thread.Sleep(4000);
+            result = _serverListService.GetServerList();
+            Assert.IsTrue(result.Count >= 1);
+
+            // I force the server URL and wait for 5 seconds to attempt a retry
+            IpApiClient.BASE_URL = "http://ip-api.com";
+            StoreServerURLFilter.ServerURL = "http://localhost:5000";
+            _serverListService._serverList.Clear();
+            await _serverListService.InitializePresence();
+            result = _serverListService.GetServerList();
+            Assert.IsTrue(result.Count >= 1);    // I assume the root node is running
 
             // I stop the service
             await ((IHostedService)_serverListService).StopAsync(new CancellationToken());
+            result = _serverListService.GetServerList();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Count);
+
+            // I stop the service again with a valid cancellationToken
+            var cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+            Assert.IsTrue(token.CanBeCanceled);
+
+            await ((IHostedService)_serverListService).StopAsync(token);
             result = _serverListService.GetServerList();
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.Count);
@@ -99,17 +129,59 @@ namespace UnitTests.Services
                 lastUpdate = DateTime.Now.AddMinutes(-10),
                 url = "http://localhost:5000"
             };
-            _serverListService.AddServer(serverEntry);
+            ServerEntry serverEntry2 = new()
+            {
+                lastUpdate = DateTime.Now,
+                url = "http://localhost:5001"
+            };
+            _serverListService._serverList.Add(serverEntry);
+            _serverListService._serverList.Add(serverEntry2);
             List<ServerEntry> secondResult = _serverListService.GetServerList();
 
-            Assert.IsTrue(secondResult.Count == result.Count + 1);
+            Assert.IsTrue(secondResult.Count == result.Count + 2);
 
             // I clean the server list
             await _serverListService.CleanServerList();
 
+            // I check if the expired server is no longer there
             List<ServerEntry> thirdResult = _serverListService.GetServerList();
-            Assert.AreEqual(result.Count, result.Count);
+            Assert.IsEmpty(thirdResult.Where(x => x.url == "http://localhost:5000"));
         }
 
+        [TestMethod]
+        public async Task SendPresenceToMainHost()
+        {
+            // Good result
+            await _serverListService.InitializePresence();
+            await _serverListService.SendPresenceToMainHost();
+
+            List<ServerEntry> result = _serverListService.GetServerList();
+            Assert.IsNotNull(result.Where(x => x.url == ConfigurationHelper.GetRootNode()).FirstOrDefault());
+
+            // I make sure that the service cannot update the server list
+            _traceRouteApiClient.rootNodeBaseAddress = "http://localhost:5000";
+            await _serverListService.SendPresenceToMainHost();
+            List<ServerEntry> result2 = _serverListService.GetServerList();
+            _traceRouteApiClient.rootNodeBaseAddress = ConfigurationHelper.GetRootNode();
+            Assert.AreEqual(result.Count, result2.Count);
+        }
+
+        [TestMethod]
+        public void AddServer()
+        {
+            ServerEntry serverEntry = new()
+            {
+                lastUpdate = DateTime.Now.AddMinutes(-10),
+                url = "http://localhost:5014"
+            };
+            Assert.IsTrue(_serverListService.AddServer(serverEntry));
+            List<ServerEntry> result = _serverListService.GetServerList();
+            Assert.IsNotNull(result.Where(x => x.url == serverEntry.url).FirstOrDefault());
+
+            // I try to add the same server again
+            Assert.IsFalse(_serverListService.AddServer(serverEntry));
+            result = _serverListService.GetServerList();
+            Assert.AreEqual(1, result.Where(x => x.url == serverEntry.url).Count());
+        }
     }
 }

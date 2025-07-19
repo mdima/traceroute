@@ -2,6 +2,9 @@
 
 namespace TraceRoute.Models
 {
+    /// <summary>
+    /// This is the model from IPApi.com
+    /// </summary>
     public class IpApiResponse
     {
         public string? query { get; set; }

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Net;
 using TraceRoute.Helpers;
 using TraceRoute.Models;
+using static TraceRoute.Models.TraceResultViewModel;
 
 namespace TraceRoute.Services
 {
@@ -12,11 +13,13 @@ namespace TraceRoute.Services
     /// <param name="httpClient">The HttpClient to use</param>
     /// <param name="logger">The Logger service</param>
     /// <param name="MemoryCache">The Memory Cache service</param>
-    public class IpApiClient(HttpClient httpClient, ILogger<IpApiClient> logger, IMemoryCache MemoryCache)
+    /// <param name="reverseLookupService">The ReverseLookupService service</param>
+    public class IpApiClient(HttpClient httpClient, ILogger<IpApiClient> logger, IMemoryCache MemoryCache, ReverseLookupService reverseLookupService)
     {
-        private const string BASE_URL = "http://ip-api.com";
+        internal static string BASE_URL = "http://ip-api.com";
         private readonly HttpClient _httpClient = httpClient;
         private readonly IMemoryCache _MemoryCache = MemoryCache;
+        private readonly ReverseLookupService _reverseLookupService = reverseLookupService;
         private readonly ILogger _logger = logger;
         
         /// <summary>
@@ -64,11 +67,53 @@ namespace TraceRoute.Services
         /// <summary>
         /// Retrives the current server information
         /// </summary>
-        /// <param name="ct">The cancellation token for an async operation</param>
         /// <returns>The current server details</returns>
-        public async Task<IpApiResponse?> GetCurrentServerDetails(CancellationToken ct = default)
+        public async Task<IpDetails?> GetCurrentServerDetails()
         {
-            return await Get("127.0.0.1", ct);
+            return await GetTraceHopDetails("127.0.0.1");
+        }
+
+        /// <summary>
+        /// Returns the trace hop details for the given IP address as TraceHopDetails object.
+        /// </summary>
+        /// <param name="ipAddress">The IP address to query</param>
+        /// <returns>TraceHopDetails object containing the information about the IP address</returns>
+        public async Task<IpDetails?> GetTraceHopDetails(string? ipAddress)
+        {
+            IpApiResponse? response = await Get(ipAddress, new CancellationToken());
+
+            if (response != null && response.status != "fail")
+            {
+                IpDetails result = new();
+
+                result.Continent = response.continent;
+                result.City = response.city;
+                result.District = response.district;
+                result.Country = response.country;
+                result.CountryCode = response.countryCode;
+                result.Region = response.region;
+                result.RegionName = response.regionName;
+                result.ErrorDescription = "";
+                result.ISP = response.isp;
+                result.Organization = response.org;
+                result.Latitude = response.lat;
+                result.Longitude = response.lon;
+                result.HostName = await _reverseLookupService.GetHostName(ipAddress!);
+                result.IsBogonIP = false;
+                result.IsHosting = response.hosting ?? false;
+                result.IsMobile = response.mobile ?? false;
+                result.IsProxy = response.proxy ?? false;
+                result.As = response._as;
+                result.AsName = response.asname;
+                result.Url = response.query;
+                result.Query = response.query;
+
+                return result;
+            }
+            else             
+            {
+                return null;
+            }
         }
     }
 }

@@ -1,0 +1,11 @@
+<FineCodeCoverage>
+  <Enabled>
+    True
+  </Enabled>
+  <Exclude>
+    [UnitTests]*
+  </Exclude>
+  <IncludeTestAssembly>
+    False
+  </IncludeTestAssembly>
+</FineCodeCoverage>

@@ -18,6 +18,7 @@ namespace TraceRoute.Services
     {
         private readonly HttpClient _httpClient = httpClient;
         private readonly ILogger _logger = logger;
+        internal String rootNodeBaseAddress = ConfigurationHelper.GetRootNode();
 
         /// <summary>
         /// Send the presence of the current server to the root node
@@ -26,9 +27,7 @@ namespace TraceRoute.Services
         /// <param name="cancellationToken">The cancellation token</param>
         /// <returns>True if the action succeeds</returns>
         public async Task<bool> SendPresence(ServerEntry localServer, CancellationToken cancellationToken)
-        {
-            String rootNodeBaseAddress = ConfigurationHelper.GetRootNode();
-
+        {           
             try
             {
                 _logger.LogDebug("Sending the presence to: {0}", rootNodeBaseAddress);
@@ -61,8 +60,6 @@ namespace TraceRoute.Services
         /// <returns>The list of the registered nodes</returns>
         public async Task<List<ServerEntry>?> GetServerList(CancellationToken cancellationToken)
         {
-            String rootNodeBaseAddress = ConfigurationHelper.GetRootNode();
-
             try
             {
                 _logger.LogDebug("Asking the server list the presence to: {0}", rootNodeBaseAddress);
@@ -71,15 +68,9 @@ namespace TraceRoute.Services
                 HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
-                    List<ServerEntry>? result = await response.Content.ReadFromJsonAsync<List<ServerEntry>>(cancellationToken);
-                    if (result == null)
-                    {
-                        _logger.LogDebug("No server received");                        
-                    }
-                    else
-                    {
-                        _logger.LogDebug("Number of server received: {0}", result.Count);
-                    }
+                    List<ServerEntry> result = (await response.Content.ReadFromJsonAsync<List<ServerEntry>>(cancellationToken))!;
+
+                    _logger.LogDebug("Number of server received: {0}", result.Count);
                     return result;
                 }
                 else
@@ -111,15 +102,8 @@ namespace TraceRoute.Services
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
-                    ServerEntry? result = await response.Content.ReadFromJsonAsync<ServerEntry>();
-                    if (result == null)
-                    {
-                        _logger.LogDebug("No server info received from {0}", serverEntry.url);
-                    }
-                    else
-                    {
-                        _logger.LogDebug("Successfully received the information from {0}", serverEntry.url);
-                    }
+                    ServerEntry result = (await response.Content.ReadFromJsonAsync<ServerEntry>())!;
+                    _logger.LogDebug("Successfully received the information from {0}", serverEntry.url);
                     return result;
                 }
                 else
@@ -133,6 +117,51 @@ namespace TraceRoute.Services
                 _logger.LogError(ex, "Error asking the server info from the server: {0}, {1}", serverEntry.url, ex.Message);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Retrives the server information from a given server
+        /// </summary>
+        /// <param name="HostToTrace">The IP to trace</param>
+        /// <param name="RemoteServerUrl">The remote TraceRoute server</param>
+        /// <returns>The result of the traceroute</returns>
+        public async Task<TraceResultViewModel> RemoteTrace(string HostToTrace, string RemoteServerUrl)
+        {
+            TraceResultViewModel result = new();
+            string traceError = "";
+
+            try
+            {
+                _logger.LogDebug("Asking to trace the IP {0} to the server {1}", HostToTrace, RemoteServerUrl);
+                
+                string url = $"{RemoteServerUrl}api/trace/{HostToTrace}";
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    result = (await response.Content.ReadFromJsonAsync<TraceResultViewModel>())!;
+                    _logger.LogDebug("Successfully received the traceroute from {0}", RemoteServerUrl);
+                }
+                else
+                {
+                    traceError = String.Format("Error asking the trace result from the server: {0}, {1}, {2}", RemoteServerUrl, response.StatusCode, response.ReasonPhrase);
+                    _logger.LogError(traceError);
+                }
+            }
+            catch (Exception ex)
+            {
+                traceError = String.Format("Error asking the trace result from the server: {0}, {1}", RemoteServerUrl, ex.Message);
+                _logger.LogError(ex, traceError);
+            }
+
+            if (traceError != "")
+            {
+                result = new TraceResultViewModel()
+                {
+                    ErrorDescription = traceError
+                };
+            }
+
+            return result!;
         }
     }
 }

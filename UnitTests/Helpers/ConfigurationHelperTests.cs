@@ -37,8 +37,17 @@ namespace UnitTests.Helpers
         {
             Mock<HttpRequest> request = new Mock<HttpRequest>();
             request.Setup(r => r.Host).Returns(new HostString("traceroute.di-maria.it", 443));
-
             Assert.IsTrue(ConfigurationHelper.IsRootNode(request.Object));
+
+            request.Setup(r => r.Host).Returns(new HostString("traceroute.di-maria.it", 442));
+            Assert.IsFalse(ConfigurationHelper.IsRootNode(request.Object));
+
+            request.Setup(r => r.Host).Returns(new HostString("test", 443));
+            Assert.IsFalse(ConfigurationHelper.IsRootNode(request.Object));
+
+            request.Setup(r => r.Host).Returns(new HostString("test", 442));
+            Assert.IsFalse(ConfigurationHelper.IsRootNode(request.Object));
+
         }
 
         [TestMethod]
@@ -52,6 +61,10 @@ namespace UnitTests.Helpers
             Assert.AreEqual("https://traceroute.di-maria.it/:443", result.CurrentServerURL);            
             Assert.AreEqual(ConfigurationHelper.GetEnableRemoteTraces(), result.EnableRemoteTraces);
             Assert.AreEqual(ConfigurationHelper.GetHostRemoteTraces(), result.HostRemoteTraces);
+
+            // Test with a null request
+            result = ConfigurationHelper.GetCurrentSettings(null!);
+            Assert.IsNotNull(result.CurrentServerURL);
         }
 
         [TestMethod]

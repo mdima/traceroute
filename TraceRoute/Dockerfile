@@ -8,7 +8,7 @@ LABEL org.opencontainers.image.description="C# ASP.NET Core 9.0 Visual Trace Rou
 LABEL org.opencontainers.image.authors="Michele Di Maria"
 LABEL org.opencontainers.image.url="https://github.com/mdima/traceroute"
 LABEL org.opencontainers.image.source="https://github.com/mdima/traceroute"
-LABEL org.opencontainers.image.version="2.0.3"
+LABEL org.opencontainers.image.version="3.0.0"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL com.docker.desktop.extension.icon="https://github.com/mdima/traceroute/blob/3035a90f9890dd1c2aaa469cf664107cf2713f29/SupportFiles/logo.png?raw=true"
 LABEL com.docker.extension.screenshots="[{'alt':'Main program screenshot', 'url':'https://github.com/mdima/traceroute/blob/3035a90f9890dd1c2aaa469cf664107cf2713f29/SupportFiles/screenshot.png?raw=true'}]"

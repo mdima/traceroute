@@ -25,21 +25,20 @@ function initMap() {
 }
 
 function addMarker(lat, long, text, ipAddress) {
-	var marker = L.marker([lat, long], {id: 'marker_' + text})
+	var marker = L.marker([lat, long], { id: 'marker_' + text })
 		.bindTooltip(text,
 			{
 				permanent: true,
 				direction: 'right'
 			})
 		.on('mouseover', hilightHopTable)
-		.on('click', function (evt) { ipDetailsJS(ipAddress); })
+		.on('click', function (evt) { DotNetHelper.invokeMethodAsync("OnShowIpDetails", ipAddress); })
 		.addTo(map);
-	markers.push[marker];
+	markers.push(marker);
 }
 
-function ipDetailsJS(ipAddress) {
-	var scope = angular.element(document.querySelector("body")).controller();
-	scope.IpDetails(ipAddress);
+function setDotNetHelper(helper) {
+	window.DotNetHelper = helper;
 }
 
 function hilightHopTable() {
@@ -87,10 +86,13 @@ function drawPath(HostList) {
 		}
 	}
 	polyline = L.polyline(latlngs, { color: 'red' }).addTo(map);
-	map.fitBounds(polyline.getBounds());
 }
 
 function hideKeyboard() {
     document.activeElement.blur();
 	$("input").trigger("blur");
+}
+
+function showModalDetails() {
+	$("#modalIpDetails").modal("show");
 }

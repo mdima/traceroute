@@ -20,8 +20,9 @@ namespace UnitTests.Services
             NullLoggerFactory factory = new();
             HttpClient httpClient = new HttpClient();
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
+            ReverseLookupService reverseLookupService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
 
-            _ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache);
+            _ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
         }
 
         [TestMethod]
