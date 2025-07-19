@@ -1,9 +1,10 @@
-﻿using System.IO.Compression;
-using System.Runtime.CompilerServices;
-using Blazored.Toast;
+﻿using Blazored.Toast;
 using log4net;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
+using System.Net;
+using System.Runtime.CompilerServices;
 using TraceRoute.Components;
 using TraceRoute.Helpers;
 using TraceRoute.Services;
@@ -13,12 +14,10 @@ using WebMarkupMin.AspNetCoreLatest;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseIISIntegration();    //Optional for IIS deployment
+builder.Services.AddControllersWithViews();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; }); ;
 builder.Services.AddRazorPages();
-
-//builder.Services.AddRazorPages();
-builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<StoreServerURLFilter>();
 builder.Services.AddHttpClient<IpApiClient>();
 builder.Services.AddHttpClient<TraceRouteApiClient>();
@@ -32,12 +31,6 @@ builder.Services.AddSingleton<ServerListService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<ServerListService>());
 builder.Services.AddBlazoredToast();
 
-//Forward headers configuration for reverse proxy
-builder.Services.Configure<ForwardedHeadersOptions>(options => {
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
-});
 //WebMarkupMin
 builder.Services.AddWebMarkupMin(
     options =>
@@ -86,11 +79,6 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options =>
     options.Level = CompressionLevel.Optimal;
 });
 
-//Forwardedfor
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-});
 //Cors allow all (required for remote traces)
 builder.Services.AddCors(o => o.AddPolicy("AllowAll", builder =>
 {
@@ -109,9 +97,10 @@ app.UseRouting();
 app.UseAntiforgery();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 app.MapRazorPages();
+app.MapControllers();
 // app.MapBlazorHub();
-
 app.UseMiddleware<StoreServerURLFilter>();
+app.UseStatusCodePages();
 
 //Cors allow all (required for remote traces)
 app.UseCors("AllowAll");
@@ -119,8 +108,12 @@ app.UseCors("AllowAll");
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment() || true)
 {
-    app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
-    app.UseExceptionHandler("/Error");
+    app.UseStatusCodePagesWithReExecute("/error", "?statusCode={0}");
+    app.UseExceptionHandler(new ExceptionHandlerOptions()
+    {
+        AllowStatusCode404Response = true,
+        ExceptionHandlingPath = "/error"
+    });
     app.UseHsts();
 }
 
@@ -149,8 +142,7 @@ app.UseStaticFiles(
                     r.Context.Response.Headers.Append("Cache-Control", "max-age=31536000");
                 }
             }
-    }
-    );
+    });
 
 //I record the starting events
 app.Lifetime.ApplicationStarted.Register(() => { _logger.Info($"Application started, environment: {builder.Environment.EnvironmentName}"); });

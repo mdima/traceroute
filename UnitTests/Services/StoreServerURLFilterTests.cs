@@ -40,7 +40,7 @@ namespace UnitTests.Services
                 await Task.CompletedTask;
             });
             Assert.IsNotEmpty(filter.GetServerURL());
-            Assert.AreEqual("http://localhost/", filter.GetServerURL());
+            Assert.AreEqual("https://localhost/", filter.GetServerURL());
         }
     }
 }

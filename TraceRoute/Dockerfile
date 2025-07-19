@@ -39,5 +39,6 @@ RUN dotnet publish "./TraceRoute.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_HTTP_PORTS=80
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TraceRoute.dll"]
