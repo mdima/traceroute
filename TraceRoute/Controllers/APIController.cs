@@ -30,19 +30,15 @@ namespace TraceRoute.Controllers
         /// <returns>JSON array of hops and the round trip time.</returns>
         /// <param name="destination">Hostname IP / URL</param>
         [HttpGet("api/trace/{destination}")]
-        public async Task<List<string>?> TraceRoute(string destination)
+        public async Task<TraceResultViewModel?> TraceRoute(string destination)
         {
-            List<string>? result = null;
+            TraceResultViewModel? result = await _tracerouteService.TraceRouteFull(destination);
+            _logger.LogInformation("Requested Trace from remote to: {0} from remote server {1}. Error: {2}, Hops: {3}", 
+                destination, 
+                Request.HttpContext.Connection.RemoteIpAddress!.ToString(), 
+                result.ErrorDescription, 
+                result.Hops.Count);
 
-            try
-            {
-                _logger.LogInformation("Requested Trace from remote to: {0}", destination);
-                result = await _tracerouteService.TraceRoute(destination);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error tracing to the IP Address from remote: {0}", destination);                
-            }
             return result;
         }
 

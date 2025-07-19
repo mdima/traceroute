@@ -89,24 +89,16 @@ namespace TraceRoute.Helpers
         /// <returns>TRUE if it is a Bogon IP address</returns>
         public bool IsBogonIP(string iPAddress)
         {
-            try
-            {
-                if (IPAddress.TryParse(iPAddress, out IPAddress? parsedIPAddress)) {
-                    foreach (IPNetwork2 network in _BogonNetworks)
-                    {
-                        if (network.Contains(parsedIPAddress)) return true;
-                    }
-                    return false;
+            if (IPAddress.TryParse(iPAddress, out IPAddress? parsedIPAddress)) {
+                foreach (IPNetwork2 network in _BogonNetworks)
+                {
+                    if (network.Contains(parsedIPAddress)) return true;
                 }
-                else
-                { 
-                    _logger.LogWarning("Cannot parse the IP Adderss {0}", iPAddress);
-                    return false;
-                }
+                return false;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in BogonIPService.IsBogonIP for the IP {0}", iPAddress);
+            else
+            { 
+                _logger.LogWarning("Cannot parse the IP Adderss {0}", iPAddress);
                 return false;
             }
         }

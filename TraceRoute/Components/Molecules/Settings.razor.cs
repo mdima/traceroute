@@ -9,7 +9,7 @@ namespace TraceRoute.Components.Molecules
     public partial class Settings(IHttpContextAccessor _context, IpApiClient _ipApiClient)
     {
 
-        SettingsViewModel settings = new();
+        internal SettingsViewModel settings = new();
 
         protected override async Task OnInitializedAsync()
         {

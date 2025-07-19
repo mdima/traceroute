@@ -8,7 +8,7 @@ namespace TraceRoute.Services
     /// </summary>
     public class StoreServerURLFilter : IMiddleware
     {
-        protected static string ServerURL = "";
+        internal static string ServerURL = "";
         ILog _logger = LogManager.GetLogger("StoreServerURLFilter");
 
         /// <summary>

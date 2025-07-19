@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -16,7 +18,7 @@ using static TraceRoute.Models.TraceResultViewModel;
 namespace UnitTests.Controllers
 {
     [TestClass]
-    public class APIControllerTests
+    public class APIControllerTests : Bunit.TestContext
     {
         private APIController _controller;
         private ServerListService _serverListService;
@@ -33,31 +35,37 @@ namespace UnitTests.Controllers
             IpApiClient ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseService);
             TraceRouteApiClient traceRouteApiClient = new(httpClient, factory.CreateLogger<TraceRouteApiClient>());
             TracerouteService tracerouteService = new(bogonIPService, factory.CreateLogger<TracerouteService>());
+            IHttpContextAccessor httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
+            Services.AddSingleton<IHttpContextAccessor>(httpContextAccessor);
+
             _serverListService = new(factory.CreateLogger<ServerListService>(), ipApiClient, storeServerURLFilter, traceRouteApiClient);
             _controller = new(factory, _serverListService, tracerouteService);
+            _controller.ControllerContext.HttpContext = httpContextAccessor.HttpContext!;
         }
 
         [TestMethod]
         public async Task TraceRouteOK()
         {
-            List<string>? response = await _controller.TraceRoute("192.188.248.215");
+            TraceResultViewModel? response = await _controller.TraceRoute("192.188.248.215");
 
             Assert.IsNotNull(response);
-            Assert.IsTrue(response.Count >= 2);
+            Assert.IsTrue(response.Hops.Count >= 2);
 
             response = await _controller.TraceRoute("127.0.0.1");
             Assert.IsNotNull(response);
-            Assert.IsTrue(response.Count >= 1);
+            Assert.IsEmpty(response.ErrorDescription);
+            Assert.IsTrue(response.Hops.Count >= 1);
 
-            String hop = response.First();
-            Assert.AreEqual("127.0.0.1", hop);
+            TraceHop hop = response.Hops.First();
+            Assert.AreEqual("127.0.0.1", hop.HopAddress);
         }
 
         [TestMethod]
         public async Task SecurityChecks()
         {
-            List<string>? response = await _controller.TraceRoute("www.nt2.it;ls /");
-            Assert.IsNull(response);
+            TraceResultViewModel? response = await _controller.TraceRoute("www.nt2.it;ls /");
+            Assert.IsNotNull(response);
+            Assert.IsNotEmpty(response.ErrorDescription);
         }
 
         [TestMethod]
@@ -75,6 +83,10 @@ namespace UnitTests.Controllers
             Assert.AreEqual(server.url, rootServer.url);
             result = await _controller.ReceivePresence(rootServer);
             Assert.IsTrue(result);
+
+            // null case
+            result = await _controller.ReceivePresence(new ServerEntry());
+            Assert.IsFalse(result);
         }
 
         [TestMethod]

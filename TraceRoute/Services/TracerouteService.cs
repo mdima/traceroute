@@ -110,7 +110,7 @@ namespace TraceRoute.Services
         internal IEnumerable<string> TraceRouteWindows(string destination)
         {
             // Initial variables
-            var limit = 1000;
+            var limit = 2000;
             var buffer = new byte[32];
             var pingOpts = new PingOptions(1, true);
             var ping = new Ping();
@@ -125,7 +125,10 @@ namespace TraceRoute.Services
 
                 if (result.Status != IPStatus.TimedOut)
                 {
-                    yield return string.Format("{0} {1} {2} ms", pingOpts.Ttl, result.Address.ToString(), result.RoundtripTime);
+                    if (result.Address.ToString() != "::1")
+                    {
+                        yield return string.Format("{0} {1} {2} ms", pingOpts.Ttl, result.Address.ToString(), result.RoundtripTime);
+                    }
                 }
             }
             while (result.Status != IPStatus.Success && pingOpts.Ttl < limit);

@@ -26,7 +26,7 @@ namespace TraceRoute.Services
         private readonly StoreServerURLFilter _storeServerURLFilter = storeServerURLFilter;
         private readonly TraceRouteApiClient _traceRouteApiClient = TraceRouteApiClient;
         ServerEntry? localServer;
-        private ConcurrentBag<ServerEntry> _serverList = new();
+        internal ConcurrentBag<ServerEntry> _serverList = new();
         public Action? ServiceInitialized;
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace TraceRoute.Services
             await InitializePresence();
         }
 
-        private async Task InitializePresence()
+        internal async Task InitializePresence()
         {
             if (_timerPresence != null) await _timerPresence.DisposeAsync();
 
@@ -79,6 +79,7 @@ namespace TraceRoute.Services
                         // This is the root node
                         if (ConfigurationHelper.GetEnableRemoteTraces())
                         {
+                            // I start the clean server list function with its own timer
                             await CleanServerList();
                         }
                         else
@@ -113,7 +114,7 @@ namespace TraceRoute.Services
                 _timerPresence = new Timer(async _ =>
                 {
                     await InitializePresence();
-                }, null, 5000, Timeout.Infinite);
+                }, null, 3000, Timeout.Infinite);
             }
         }
 
@@ -158,7 +159,7 @@ namespace TraceRoute.Services
         /// Sends the presence of the current server to the root host and retrieves the server list from it.
         /// </summary>
         /// <returns></returns>
-        private async Task SendPresenceToMainHost()
+        internal async Task SendPresenceToMainHost()
         {
             _logger.LogDebug("Sending presence to the root host");
             if (_timerPresence != null) await _timerPresence.DisposeAsync();
