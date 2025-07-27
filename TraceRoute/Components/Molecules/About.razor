@@ -1,4 +1,5 @@
-﻿<div class="offcanvas-header">
+﻿@using TraceRoute.Services
+<div class="offcanvas-header">
     <h5 id="offcanvasRightLabel">About</h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 </div>
@@ -21,7 +22,7 @@
         <li><a href="https://hub.docker.com/r/michele73/traceroute" target="_blank">Docker Hub</a> for the container repository</li>
     </ul>
     <p class="mt-3">
-        Project version: <strong>
+        Current node version: <strong>
         @if (currentVersion != null)
         {
             @string.Format("{0}.{1}.{2}", currentVersion.Major, currentVersion.Minor, currentVersion.Build)
@@ -30,9 +31,26 @@
         }
         </strong>
     </p>
+    @if (_serverListService.IsNewVersionAvailable())
+    {
+        <p class="mt-3">
+            <strong class="text-danger">A new version is available!</strong><br />
+            The version "@_serverListService.GetRootNodeVersion()" is available for download at:<br/>
+            <a href="https://hub.docker.com/r/michele73/traceroute" target="_blank">https://hub.docker.com/r/michele73/traceroute</a>
+        </p>
+    }
+    else
+    {
+        <p class="mt-3 text-success">
+            You are using the latest version of TraceRoute.
+        </p>
+    }
 </div>
 
 @code
 {
+    [Inject]
+    private ServerListService _serverListService { get; set; } = default!;
+
     internal Version? currentVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
 }

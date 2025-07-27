@@ -1,16 +1,45 @@
 ﻿using Bunit;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TraceRoute.Helpers;
+using TraceRoute.Services;
 
 namespace UnitTests.Components.Molecules
 {
     [TestClass]
     public class AboutTests : Bunit.TestContext
     {
+        ServerListService _serverListService;
+
+        public AboutTests()
+        {
+            NullLoggerFactory factory = new();
+
+            HttpClient httpClient = new HttpClient();
+            MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
+            ReverseLookupService reverseLookupService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
+
+            IpApiClient _ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            TraceRouteApiClient _traceRouteApiClient = new(httpClient, factory.CreateLogger<TraceRouteApiClient>());
+
+            BogonIPService bogonIPService = new(factory);
+
+            StoreServerURLFilter _storeServerURLFilter = new();
+            IHttpContextAccessor _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
+            Services.AddSingleton<IHttpContextAccessor>(_httpContextAccessor);
+
+            _serverListService = new(factory.CreateLogger<ServerListService>(), _ipApiClient, _storeServerURLFilter, _traceRouteApiClient);
+            Services.AddSingleton<ServerListService>(_serverListService);
+        }
 
         [TestMethod]
         public void TestAbout()
@@ -30,6 +59,22 @@ namespace UnitTests.Components.Molecules
             cut.Instance.currentVersion = null;
             cut.Render();
             Assert.Contains("<span>Unknown</span>", cut.Markup);
+        }
+
+        [TestMethod]
+        public void TestCheckVersion()
+        {
+            // No new version available
+            _serverListService._newVersionAvailable = false;
+            var cut = RenderComponent<TraceRoute.Components.Molecules.About>();
+            var versionCheck = cut.Find(".text-success");
+            Assert.IsNotNull(versionCheck);
+
+            // New version available
+            _serverListService._newVersionAvailable = true;
+            cut.Render();
+            versionCheck = cut.Find(".text-danger");
+            Assert.IsNotNull(versionCheck);
         }
     }
 }

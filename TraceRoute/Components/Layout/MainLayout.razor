@@ -41,8 +41,15 @@
                 <a class="btn btn-secondary ms-1" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button" title="Settings">
                     <i class="fa-solid fa-gear"></i>
                 </a>
-                <a class="btn btn-secondary ms-1" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" title="About...">
+                <a class="btn btn-secondary ms-1 position-relative" data-bs-toggle="offcanvas" href="#offcanvasAbout" role="button" title="About...">
                     <i class="fa-solid">...</i>
+                    @if (_serverListService.IsNewVersionAvailable())
+                    {
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                            <span class="visually-hidden">New version available!</span>
+                        </span>
+                    }
                 </a>
             </li>
         </ul>

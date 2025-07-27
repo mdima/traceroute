@@ -37,14 +37,7 @@ namespace UnitTests.Services
             string result = await _reverseService.GetHostName("192.188.248.215");
 
             Assert.IsNotNull(result);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Assert.AreEqual("mail.nt2.it", result);
-            }
-            else
-            {
-                Assert.AreEqual("mail.nt2.it.", result);
-            }            
+            Assert.AreEqual("mail.nt2.it", result);        
 
             // Good case
             IPAddress iPAddress = IPAddress.Parse("192.188.248.215");
@@ -69,7 +62,7 @@ namespace UnitTests.Services
             }
             else
             {
-                Assert.AreEqual("mail.nt2.it.", result);
+                Assert.AreEqual("mail.nt2.it", result);
             }            
         }
 

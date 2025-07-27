@@ -12,6 +12,7 @@ namespace TraceRoute.Models
         public string url { get; set; } = "Localhost";
         public bool isLocalHost { get; set; }
         public IpDetails Details { get; set; } = new();
+        public String version { get; set; } = "";
 
         public bool Equals(ServerEntry sampleToCompare)
         {

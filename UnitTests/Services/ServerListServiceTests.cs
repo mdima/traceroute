@@ -158,6 +158,19 @@ namespace UnitTests.Services
             List<ServerEntry> result = _serverListService.GetServerList();
             Assert.IsNotNull(result.Where(x => x.url == ConfigurationHelper.GetRootNode()).FirstOrDefault());
 
+            // Check the new version available or not
+            ServerEntry? rootNode = result.Where(x => x.url == ConfigurationHelper.GetRootNode()).FirstOrDefault();
+            Assert.IsNotNull(rootNode);
+            Assert.IsNotNull(_serverListService.localServer);
+            _serverListService.localServer.version = rootNode.version;
+            await _serverListService.SendPresenceToMainHost();
+            Assert.IsFalse(_serverListService.IsNewVersionAvailable());
+
+            _serverListService.localServer.version = "old version";
+            await _serverListService.SendPresenceToMainHost();
+            Assert.IsTrue(_serverListService.IsNewVersionAvailable());
+            Assert.AreEqual(rootNode.version, _serverListService.GetRootNodeVersion());
+
             // I make sure that the service cannot update the server list
             _traceRouteApiClient.rootNodeBaseAddress = "http://localhost:5000";
             await _serverListService.SendPresenceToMainHost();

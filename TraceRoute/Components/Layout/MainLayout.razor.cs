@@ -50,7 +50,7 @@ namespace TraceRoute.Components.Layout
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            _serverListService.ServiceInitialized += RefreshServerList;
+            _serverListService.ServerListChanged += RefreshServerList;
             serverList = _serverListService.GetServerList();
             selectedServerUrl = serverList.Where(x => x.isLocalHost).First().url;
 
@@ -87,14 +87,17 @@ namespace TraceRoute.Components.Layout
 
         internal async void RefreshServerList()
         {
-            serverList = _serverListService.GetServerList();
-            if (!serverList.Where(x => x.url == selectedServerUrl).Any())
+            if (!Enumerable.SequenceEqual(serverList, _serverListService.GetServerList()))
             {
-                selectedServerUrl = serverList.Where(x => x.isLocalHost).First().url;
+                serverList = _serverListService.GetServerList();
+                if (!serverList.Where(x => x.url == selectedServerUrl).Any())
+                {
+                    selectedServerUrl = serverList.Where(x => x.isLocalHost).First().url;
+                }
+                await InvokeAsync(() => {
+                    StateHasChanged();
+                });
             }
-            await InvokeAsync(() => {
-                StateHasChanged();
-            });
         }
 
         internal async Task BeginTraceRoute()

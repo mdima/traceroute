@@ -25,9 +25,11 @@ namespace TraceRoute.Services
         private static CancellationToken _cancelCurrentOperation = new CancellationToken();
         private readonly StoreServerURLFilter _storeServerURLFilter = storeServerURLFilter;
         private readonly TraceRouteApiClient _traceRouteApiClient = TraceRouteApiClient;
-        ServerEntry? localServer;
+        internal ServerEntry? localServer;
         internal ConcurrentBag<ServerEntry> _serverList = new();
-        public Action? ServiceInitialized;
+        public Action? ServerListChanged;
+        internal Boolean _newVersionAvailable = false;
+        internal String _newVersion = "";
 
         /// <summary>
         /// Start the service
@@ -47,7 +49,7 @@ namespace TraceRoute.Services
             if (_timerPresence != null) await _timerPresence.DisposeAsync();
 
             if (!String.IsNullOrEmpty(_storeServerURLFilter.GetServerURL()))
-            {                
+            {
                 IpDetails? localHostInfo = await _ipApiClient.GetCurrentServerDetails();
                 if (localHostInfo != null)
                 {
@@ -55,13 +57,14 @@ namespace TraceRoute.Services
                     {
                         lastUpdate = DateTime.Now,
                         isOnline = true,
-                        isLocalHost = true,                        
+                        isLocalHost = true,
                         url = _storeServerURLFilter.GetServerURL(),
                         Details = localHostInfo,
+                        version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown"
                     };
                     _serverList = [localServer];
                     _logger.LogInformation("Local server information initialized");
-                    ServiceInitialized?.Invoke();
+                    ServerListChanged?.Invoke();
                     if (localServer.url != ConfigurationHelper.GetRootNode())
                     {
                         // This is a client node
@@ -70,7 +73,7 @@ namespace TraceRoute.Services
                             await SendPresenceToMainHost();
                         }
                         else
-                        {                            
+                        {
                             _logger.LogDebug("Hosting of remote traces are disabled");
                         }
                     }
@@ -91,7 +94,7 @@ namespace TraceRoute.Services
                 else
                 {
                     _logger.LogError("Error getting the local server information");
-                }                
+                }
             }
             else
             {
@@ -101,7 +104,8 @@ namespace TraceRoute.Services
                     lastUpdate = DateTime.Now,
                     isOnline = false,
                     isLocalHost = true,
-                    url = "Localhost"
+                    url = "Localhost",
+                    version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown"
                 };
                 _serverList = [localServer];
 
@@ -142,7 +146,7 @@ namespace TraceRoute.Services
                 cancellationToken = cts.Token;
                 cts.Cancel();
                 _logger.LogDebug("Current operation cancelled");
-            }            
+            }
             return Task.CompletedTask;
         }
 
@@ -180,11 +184,26 @@ namespace TraceRoute.Services
                         if (server.url != localServer.url)
                         {
                             server.isLocalHost = false;
+                            if (server.url == ConfigurationHelper.GetRootNode())
+                            {
+                                // I check if a new version is available
+                                if (server.version != localServer.version)
+                                {
+                                    _newVersionAvailable = true;
+                                    _newVersion = server.version;
+                                    _logger.LogInformation("New version available: {0} vs {1}", server.version, localServer.version);
+                                }
+                                else
+                                {
+                                    _newVersionAvailable = false;
+                                }
+                            }
                             newServerList.Add(server);
                         }
                     }
                     newServerList.Add(localServer);
                     _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
+                    ServerListChanged?.Invoke();
                     _logger.LogInformation("Server list updated");
                 }
                 else
@@ -230,6 +249,7 @@ namespace TraceRoute.Services
                 }
             }
             _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
+            ServerListChanged?.Invoke();
             _logger.LogDebug("Server list cleaned");
 
             // I set the next execution cycle
@@ -247,13 +267,14 @@ namespace TraceRoute.Services
         public bool AddServer(ServerEntry server)
         {
             ServerEntry? foundServer = _serverList.Where(x => x.url == server.url && !x.isLocalHost).FirstOrDefault();
-            
+
             if (foundServer == null)
             {
                 server.isLocalHost = false;
                 server.lastUpdate = DateTime.Now;
                 _serverList.Add(server);
                 _serverList = new(_serverList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
+                ServerListChanged?.Invoke();
                 return true;
             }
             else
@@ -281,6 +302,24 @@ namespace TraceRoute.Services
         public async Task<ServerEntry?> GetRemoteServerInfo(ServerEntry serverEntry)
         {
             return await _traceRouteApiClient.GetServerInfo(serverEntry);
+        }
+
+        /// <summary>
+        /// Determines whether a new version of the application is available.
+        /// </summary>
+        /// <returns>Returns TRUE if a new version is available</returns>
+        public bool IsNewVersionAvailable()
+        {
+            return _newVersionAvailable;
+        }
+
+        /// <summary>
+        /// Returns the version of the root node if a new version is available.
+        /// </summary>
+        /// <returns>The root node version</returns>
+        public String GetRootNodeVersion()
+        {
+            return _newVersion;
         }
     }
 }

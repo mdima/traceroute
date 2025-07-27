@@ -146,11 +146,13 @@ namespace UnitTests.Components.Layout
         {
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
             cut.Instance.selectedServerUrl = "not existing server";
+            cut.Instance.serverList = new();
 
             cut.Instance.RefreshServerList();
             Assert.AreEqual("Localhost", cut.Instance.selectedServerUrl);
 
             // I test it again to check the normal result
+            cut.Instance.serverList = new();
             cut.Instance.RefreshServerList();
             Assert.AreEqual("Localhost", cut.Instance.selectedServerUrl);
         }

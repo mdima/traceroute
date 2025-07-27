@@ -48,8 +48,10 @@ namespace TraceRoute.Controllers
         [HttpPost("api/presence")]
         public async Task<bool> ReceivePresence([FromBody] ServerEntry server)
         {
-            _logger.LogInformation("Received presence from: {0}, public IP: {1}", server.url, 
-                Request.HttpContext.Connection.RemoteIpAddress!.ToString());
+            _logger.LogInformation("Received presence from: {0}, public IP: {1}, version: {2}", 
+                server.url, 
+                Request.HttpContext.Connection.RemoteIpAddress!.ToString(),
+                server.version);
 
             ServerEntry? checkInfo = await _serverListService.GetRemoteServerInfo(server);
             if (checkInfo != null && checkInfo.Equals(server))
