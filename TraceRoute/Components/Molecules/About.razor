@@ -53,4 +53,15 @@
     private ServerListService _serverListService { get; set; } = default!;
 
     internal Version? currentVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
+
+    protected override void OnInitialized()
+    {
+        _serverListService.OnNewVersionAvailableChanged += () =>
+        {
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        };
+    }
 }

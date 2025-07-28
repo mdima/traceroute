@@ -27,7 +27,8 @@ namespace TraceRoute.Services
         private readonly TraceRouteApiClient _traceRouteApiClient = TraceRouteApiClient;
         internal ServerEntry? localServer;
         internal ConcurrentBag<ServerEntry> _serverList = new();
-        public Action? ServerListChanged;
+        public Action? OnServerListChanged;
+        public Action? OnNewVersionAvailableChanged;
         internal Boolean _newVersionAvailable = false;
         internal String _newVersion = "";
 
@@ -64,7 +65,7 @@ namespace TraceRoute.Services
                     };
                     _serverList = [localServer];
                     _logger.LogInformation("Local server information initialized");
-                    ServerListChanged?.Invoke();
+                    OnServerListChanged?.Invoke();
                     if (localServer.url != ConfigurationHelper.GetRootNode())
                     {
                         // This is a client node
@@ -189,9 +190,13 @@ namespace TraceRoute.Services
                                 // I check if a new version is available
                                 if (server.version != localServer.version)
                                 {
-                                    _newVersionAvailable = true;
-                                    _newVersion = server.version;
-                                    _logger.LogInformation("New version available: {0} vs {1}", server.version, localServer.version);
+                                    if (_newVersionAvailable == false)
+                                    { 
+                                        _newVersionAvailable = true;
+                                        _newVersion = server.version;
+                                        _logger.LogInformation("New version available: {0} vs {1}", server.version, localServer.version);
+                                        OnNewVersionAvailableChanged?.Invoke();
+                                    }
                                 }
                                 else
                                 {
@@ -203,7 +208,7 @@ namespace TraceRoute.Services
                     }
                     newServerList.Add(localServer);
                     _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
-                    ServerListChanged?.Invoke();
+                    OnServerListChanged?.Invoke();
                     _logger.LogInformation("Server list updated");
                 }
                 else
@@ -249,7 +254,7 @@ namespace TraceRoute.Services
                 }
             }
             _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
-            ServerListChanged?.Invoke();
+            OnServerListChanged?.Invoke();
             _logger.LogDebug("Server list cleaned");
 
             // I set the next execution cycle
@@ -274,7 +279,7 @@ namespace TraceRoute.Services
                 server.lastUpdate = DateTime.Now;
                 _serverList.Add(server);
                 _serverList = new(_serverList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
-                ServerListChanged?.Invoke();
+                OnServerListChanged?.Invoke();
                 return true;
             }
             else

@@ -50,7 +50,7 @@ namespace TraceRoute.Components.Layout
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            _serverListService.ServerListChanged += RefreshServerList;
+            _serverListService.OnServerListChanged += RefreshServerList;
             serverList = _serverListService.GetServerList();
             selectedServerUrl = serverList.Where(x => x.isLocalHost).First().url;
 

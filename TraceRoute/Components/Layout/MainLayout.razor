@@ -23,8 +23,7 @@
                 <label class="input-group-text my-1" for="TraceSource">Source</label>
                 <select class="form-select my-1 mr-sm-2"
                         id="TraceSource"
-                        @bind="selectedServerUrl"
-                        @onclick="RefreshServerList"
+                        @bind="selectedServerUrl"                       
                         placeholder="Select the source of the traceroute">
                     @foreach (ServerEntry server in serverList)
                     {

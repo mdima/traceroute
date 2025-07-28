@@ -62,7 +62,7 @@ namespace UnitTests.Components.Molecules
         }
 
         [TestMethod]
-        public void TestCheckVersion()
+        public async Task TestCheckVersion()
         {
             // No new version available
             _serverListService._newVersionAvailable = false;
@@ -71,7 +71,9 @@ namespace UnitTests.Components.Molecules
             Assert.IsNotNull(versionCheck);
 
             // New version available
-            _serverListService._newVersionAvailable = true;
+            await _serverListService.InitializePresence();
+            _serverListService.localServer!.version = "not existing version";
+            await _serverListService.SendPresenceToMainHost();
             cut.Render();
             versionCheck = cut.Find(".text-danger");
             Assert.IsNotNull(versionCheck);
