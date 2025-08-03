@@ -20,9 +20,9 @@ namespace TraceRoute.Services
     {
         private readonly ILogger _logger = logger;
         private readonly IpApiClient _ipApiClient = ipApiClient;
-        private static Timer? _timerPresence = null;
-        private static Timer? _timerServerList = null;
-        private static CancellationToken _cancelCurrentOperation = new CancellationToken();
+        internal static Timer? _timerPresence;
+        private static Timer? _timerServerList;
+        internal static CancellationToken _cancelCurrentOperation = new CancellationToken();
         private readonly StoreServerURLFilter _storeServerURLFilter = storeServerURLFilter;
         private readonly TraceRouteApiClient _traceRouteApiClient = TraceRouteApiClient;
         internal ServerEntry? localServer;
@@ -84,7 +84,7 @@ namespace TraceRoute.Services
                         if (ConfigurationHelper.GetEnableRemoteTraces())
                         {
                             // I start the clean server list function with its own timer
-                            await CleanServerList();
+                            CleanServerList();
                         }
                         else
                         {
@@ -108,7 +108,7 @@ namespace TraceRoute.Services
                     url = "Localhost",
                     version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown"
                 };
-                _serverList = [localServer];
+                _serverList = new() { localServer };
 
                 _logger.LogInformation("The HttpContext last URL is not available");
             }
@@ -120,6 +120,15 @@ namespace TraceRoute.Services
                 {
                     await InitializePresence();
                 }, null, 3000, Timeout.Infinite);
+            }
+            else
+            {
+                if (_timerPresence != null)
+                {
+                    _timerPresence.Change(Timeout.Infinite, Timeout.Infinite);
+                    _timerPresence.Dispose();
+                    _timerPresence = null;
+                }
             }
         }
 
@@ -139,6 +148,12 @@ namespace TraceRoute.Services
                 _timerPresence.Change(Timeout.Infinite, Timeout.Infinite);
                 _timerPresence.Dispose();
                 _timerPresence = null;
+            }
+            if (_timerServerList != null)
+            {
+                _timerServerList.Change(Timeout.Infinite, Timeout.Infinite);
+                _timerServerList.Dispose();
+                _timerServerList = null;
             }
 
             if (_cancelCurrentOperation.CanBeCanceled)
@@ -228,10 +243,14 @@ namespace TraceRoute.Services
         /// Re initialize the server list by removing expired servers.
         /// </summary>
         /// <returns></returns>
-        internal async Task CleanServerList()
+        internal void CleanServerList()
         {
             _logger.LogDebug("Cleaning the server list");
-            if (_timerServerList != null) await _timerServerList.DisposeAsync();
+            if (_timerServerList != null) {
+                _timerServerList.Change(Timeout.Infinite, Timeout.Infinite);
+                _timerServerList.Dispose();
+                _timerServerList = null;
+            }
 
             List<ServerEntry>? newServerList = new();
             foreach (ServerEntry server in _serverList)
@@ -253,14 +272,14 @@ namespace TraceRoute.Services
                     newServerList.Add(server);
                 }
             }
-            _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
+            _serverList = [.. newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList()];
             OnServerListChanged?.Invoke();
             _logger.LogDebug("Server list cleaned");
 
             // I set the next execution cycle
-            _timerServerList = new Timer(async _ =>
+            _timerServerList = new Timer(_ =>
             {
-                await CleanServerList();
+                CleanServerList();
             }, null, 60000, Timeout.Infinite);
         }
 
@@ -278,7 +297,7 @@ namespace TraceRoute.Services
                 server.isLocalHost = false;
                 server.lastUpdate = DateTime.Now;
                 _serverList.Add(server);
-                _serverList = new(_serverList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
+                _serverList = [.. _serverList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList()];
                 OnServerListChanged?.Invoke();
                 return true;
             }

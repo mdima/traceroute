@@ -21,6 +21,7 @@ namespace TraceRoute.Helpers
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: false)
+            .AddJsonFile("appsettings.tests.json", optional: true, reloadOnChange: false)
             .AddJsonFile(Path.Combine("./config/", "appsettings.json"), optional: true, reloadOnChange: true)
             .Build();
 

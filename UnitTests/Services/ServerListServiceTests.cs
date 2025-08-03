@@ -47,6 +47,8 @@ namespace UnitTests.Services
             Services.AddSingleton<IHttpContextAccessor>(_httpContextAccessor);
 
             _serverListService = new(_loggingFactory.CreateLogger<ServerListService>(), _ipApiClient, _storeServerURLFilter, _traceRouteApiClient);
+            Services.AddSingleton<ServerListService>(_serverListService);
+            Services.AddHostedService(provider => provider.GetRequiredService<ServerListService>());
 
             IpApiClient.BASE_URL = "http://ip-api.com";
         }
@@ -74,6 +76,10 @@ namespace UnitTests.Services
             Assert.IsNotNull(result);
             ServerEntry? serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();
             Assert.AreEqual("Localhost", result[0].url);
+
+            ServerEntry? serverEntryLocal = _serverListService.GetCurrentServerInfo();
+            Assert.IsNotNull(serverEntryLocal);
+            Assert.AreSame(serverEntry, serverEntryLocal);
 
             // I force an error to simulate a bad response from the IPApiClient
             IpApiClient.BASE_URL = "asdf";
@@ -104,12 +110,17 @@ namespace UnitTests.Services
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.Count);
 
-            // I stop the service again with a valid cancellationToken
+            // I stop the service again with a valid cancellationToken and an active _timerPresence timer
             var cts = new CancellationTokenSource();
             CancellationToken token = cts.Token;
             Assert.IsTrue(token.CanBeCanceled);
+            ServerListService._timerPresence = new Timer(async _ =>
+            {
+                await _serverListService.InitializePresence();
+            }, null, 30000, Timeout.Infinite);
+            ServerListService._cancelCurrentOperation = cts.Token;
 
-            await ((IHostedService)_serverListService).StopAsync(token);
+            await ((IHostedService)_serverListService).StopAsync(cts.Token);
             result = _serverListService.GetServerList();
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.Count);
@@ -118,7 +129,7 @@ namespace UnitTests.Services
         [TestMethod("Can clean the server list")]
         public async Task CleanServerList()
         {
-            await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
+            await ((IHostedService)_serverListService).StartAsync(new CancellationToken());            
             List<ServerEntry> result = _serverListService.GetServerList();
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count >= 1);
@@ -127,12 +138,14 @@ namespace UnitTests.Services
             ServerEntry serverEntry = new()
             {
                 lastUpdate = DateTime.Now.AddMinutes(-10),
-                url = "http://localhost:5000"
+                url = "http://localhost:5000",
+                isLocalHost = false
             };
             ServerEntry serverEntry2 = new()
             {
                 lastUpdate = DateTime.Now,
-                url = "http://localhost:5001"
+                url = "http://localhost:5001",
+                isLocalHost = false
             };
             _serverListService._serverList.Add(serverEntry);
             _serverListService._serverList.Add(serverEntry2);
@@ -141,7 +154,8 @@ namespace UnitTests.Services
             Assert.IsTrue(secondResult.Count == result.Count + 2);
 
             // I clean the server list
-            await _serverListService.CleanServerList();
+            _serverListService.CleanServerList();
+            Assert.AreEqual(2, _serverListService.GetServerList().Count);
 
             // I check if the expired server is no longer there
             List<ServerEntry> thirdResult = _serverListService.GetServerList();
@@ -195,6 +209,22 @@ namespace UnitTests.Services
             Assert.IsFalse(_serverListService.AddServer(serverEntry));
             result = _serverListService.GetServerList();
             Assert.AreEqual(1, result.Where(x => x.url == serverEntry.url).Count());
+        }
+
+        [TestMethod]
+        public async Task GetRemoteServerInfo()
+        {
+            ServerEntry serverEntry = new()
+            {
+                lastUpdate = DateTime.Now.AddMinutes(-10),
+                url = "http://localhost:5014"
+            };
+            Assert.IsNull(await _serverListService.GetRemoteServerInfo(serverEntry));
+
+            serverEntry.url = ConfigurationHelper.GetRootNode();
+            ServerEntry? result = await _serverListService.GetRemoteServerInfo(serverEntry);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(serverEntry.url, result.url);
         }
     }
 }
