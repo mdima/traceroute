@@ -30,8 +30,8 @@
                         <div class="col-3 text-muted">City</div>
                         <div class="col-9">
                             @currentHop.Details.City
-                            <span hidden="@(currentHop.Details.District != null)"> (@currentHop.Details.District) </span> -
-                            @currentHop.Details.Zip
+                            <span hidden="@(String.IsNullOrEmpty(currentHop.Details.District))"> - (@currentHop.Details.District) </span>
+                            <span hidden="@(String.IsNullOrEmpty(currentHop.Details.Zip))"> - @currentHop.Details.Zip </span>
                         </div>
                         <div class="col-3 text-muted">ISP</div>
                         <div class="col-9">@currentHop.Details.ISP</div>

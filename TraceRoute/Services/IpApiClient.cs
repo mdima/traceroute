@@ -91,6 +91,7 @@ namespace TraceRoute.Services
                 result.District = response.district;
                 result.Country = response.country;
                 result.CountryCode = response.countryCode;
+                result.Zip = response.zip;
                 result.Region = response.region;
                 result.RegionName = response.regionName;
                 result.ErrorDescription = "";
