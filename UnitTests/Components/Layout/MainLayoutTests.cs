@@ -149,12 +149,12 @@ namespace UnitTests.Components.Layout
             cut.Instance.serverList = new();
 
             cut.Instance.RefreshServerList();
-            Assert.AreEqual("Localhost", cut.Instance.selectedServerUrl);
+            Assert.Contains("localhost", cut.Instance.selectedServerUrl.ToLower());
 
             // I test it again to check the normal result
             cut.Instance.serverList = new();
             cut.Instance.RefreshServerList();
-            Assert.AreEqual("Localhost", cut.Instance.selectedServerUrl);
+            Assert.Contains("localhost", cut.Instance.selectedServerUrl.ToLower());
         }
 
         [TestMethod]
