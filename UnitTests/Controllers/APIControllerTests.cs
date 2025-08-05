@@ -17,7 +17,7 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace UnitTests.Controllers
 {
-    [TestClass]
+
     public class APIControllerTests : Bunit.TestContext
     {
         private APIController _controller;
@@ -43,32 +43,32 @@ namespace UnitTests.Controllers
             _controller.ControllerContext.HttpContext = httpContextAccessor.HttpContext!;
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TraceRouteOK()
         {
             TraceResultViewModel? response = await _controller.TraceRoute("192.188.248.215");
 
-            Assert.IsNotNull(response);
-            Assert.IsTrue(response.Hops.Count >= 2);
+            Assert.NotNull(response);
+            Assert.True(response.Hops.Count >= 2);
 
             response = await _controller.TraceRoute("127.0.0.1");
-            Assert.IsNotNull(response);
-            Assert.IsEmpty(response.ErrorDescription);
-            Assert.IsTrue(response.Hops.Count >= 1);
+            Assert.NotNull(response);
+            Assert.Empty(response.ErrorDescription);
+            Assert.True(response.Hops.Count >= 1);
 
             TraceHop hop = response.Hops.First();
-            Assert.AreEqual("127.0.0.1", hop.HopAddress);
+            Assert.Equal("127.0.0.1", hop.HopAddress);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task SecurityChecks()
         {
             TraceResultViewModel? response = await _controller.TraceRoute("www.nt2.it;ls /");
-            Assert.IsNotNull(response);
-            Assert.IsNotEmpty(response.ErrorDescription);
+            Assert.NotNull(response);
+            Assert.NotEmpty(response.ErrorDescription);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task ReceivePresence()
         {
             ServerEntry server = new();
@@ -76,43 +76,43 @@ namespace UnitTests.Controllers
 
             bool result = await _controller.ReceivePresence(server);
 
-            Assert.IsFalse(result);
+            Assert.False(result);
 
             ServerEntry? rootServer = await _serverListService.GetRemoteServerInfo(server);
-            Assert.IsNotNull(rootServer);
-            Assert.AreEqual(server.url, rootServer.url);
+            Assert.NotNull(rootServer);
+            Assert.Equal(server.url, rootServer.url);
             result = await _controller.ReceivePresence(rootServer);
-            Assert.IsTrue(result);
+            Assert.True(result);
 
             // null case
             result = await _controller.ReceivePresence(new ServerEntry());
-            Assert.IsFalse(result);
+            Assert.False(result);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetServerList()
         {
             await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
             ServerEntry? server = _serverListService.GetCurrentServerInfo();
-            Assert.IsNotNull(server);
+            Assert.NotNull(server);
 
             List<ServerEntry> serverList = _controller.GetServerList();
-            Assert.IsNotNull(serverList);
+            Assert.NotNull(serverList);
 
-            Assert.IsTrue(serverList.Contains(server));
+            Assert.Contains(server, serverList);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetServerInfo()
         {
             await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
             ServerEntry? server = _serverListService.GetCurrentServerInfo();
-            Assert.IsNotNull(server);
+            Assert.NotNull(server);
 
             ServerEntry? serverInfo = _controller.GetServerInfo();
-            Assert.IsNotNull(serverInfo);
+            Assert.NotNull(serverInfo);
 
-            Assert.AreEqual(server, serverInfo);
+            Assert.Equal(server, serverInfo);
         }
     }
 }

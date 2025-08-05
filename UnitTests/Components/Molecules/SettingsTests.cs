@@ -15,7 +15,7 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace UnitTests.Components.Molecules
 {
-    [TestClass]
+
     public class SettingTests : Bunit.TestContext
     {
         public SettingTests()
@@ -36,24 +36,24 @@ namespace UnitTests.Components.Molecules
             Services.AddMemoryCache(x => { x.TrackStatistics = true; x.TrackLinkedCacheEntries = true; });
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSettings()
         {
             // Arrange a simple render with empty values
             var cut = RenderComponent<Settings>();
-            Assert.IsNotNull(cut);
-            Assert.IsEmpty(cut.Instance.settings.ServerLocation);
+            Assert.NotNull(cut);
+            Assert.Empty(cut.Instance.settings.ServerLocation);
 
             // I set the HttpContext to simulate a request
             ContextAccessorHelper.GetContext("/", "localhost");
             cut = RenderComponent<Settings>();
             cut.WaitForAssertion(() =>
             {
-                Assert.IsNotNull(cut.Instance.settings);
-                Assert.IsNotEmpty(cut.Instance.settings.ServerLocation);
+                Assert.NotNull(cut.Instance.settings);
+                Assert.NotEmpty(cut.Instance.settings.ServerLocation);
             }, TimeSpan.FromSeconds(10));
 
-            Assert.IsNotEmpty(cut.Instance.settings.ServerLocation);
+            Assert.NotEmpty(cut.Instance.settings.ServerLocation);
         }
     }
 }

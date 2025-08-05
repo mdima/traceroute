@@ -21,8 +21,8 @@ namespace TraceRoute.Services
         private readonly ILogger _logger = logger;
         private readonly IpApiClient _ipApiClient = ipApiClient;
         internal static Timer? _timerPresence;
-        private static Timer? _timerServerList;
-        internal static CancellationToken _cancelCurrentOperation = new CancellationToken();
+        internal static Timer? _timerServerList;
+        internal static CancellationToken _cancelCurrentOperation = new();
         private readonly StoreServerURLFilter _storeServerURLFilter = storeServerURLFilter;
         private readonly TraceRouteApiClient _traceRouteApiClient = TraceRouteApiClient;
         internal ServerEntry? localServer;
@@ -159,7 +159,6 @@ namespace TraceRoute.Services
             if (_cancelCurrentOperation.CanBeCanceled)
             {
                 var cts = CancellationTokenSource.CreateLinkedTokenSource(_cancelCurrentOperation);
-                cancellationToken = cts.Token;
                 cts.Cancel();
                 _logger.LogDebug("Current operation cancelled");
             }
@@ -222,7 +221,9 @@ namespace TraceRoute.Services
                         }
                     }
                     newServerList.Add(localServer);
-                    _serverList = new(newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList());
+                    _serverList = new (
+                        newServerList.OrderBy(x => x.Details.Country).ThenBy(x => x.Details.City)
+                    );
                     OnServerListChanged?.Invoke();
                     _logger.LogInformation("Server list updated");
                 }
@@ -272,7 +273,9 @@ namespace TraceRoute.Services
                     newServerList.Add(server);
                 }
             }
-            _serverList = [.. newServerList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList()];
+            _serverList = new(
+                newServerList.OrderBy(x => x.Details.Country).ThenBy(x => x.Details.City)
+            );
             OnServerListChanged?.Invoke();
             _logger.LogDebug("Server list cleaned");
 
@@ -297,7 +300,9 @@ namespace TraceRoute.Services
                 server.isLocalHost = false;
                 server.lastUpdate = DateTime.Now;
                 _serverList.Add(server);
-                _serverList = [.. _serverList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City).ToList()];
+                _serverList = new(
+                    _serverList.OrderBy(x => x.Details.Country).ThenBy(y => y.Details.City)
+                );
                 OnServerListChanged?.Invoke();
                 return true;
             }

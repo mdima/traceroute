@@ -18,7 +18,7 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace UnitTests.Components.Pages
 {
-    [TestClass]
+
     public class HomeTests : Bunit.TestContext
     {
         public HomeTests()
@@ -39,12 +39,12 @@ namespace UnitTests.Components.Pages
             Services.AddMemoryCache(x => { x.TrackStatistics = true; x.TrackLinkedCacheEntries = true; });
         }
 
-        [TestMethod]
+        [Fact]
         public void TestHome()
         {
             // Arrange a simple render with empty values
             var cut = RenderComponent<Home>();
-            Assert.IsNotNull(cut);
+            Assert.NotNull(cut);
 
             // I prepare some test data
             List<TraceHop> Hops= new()
@@ -75,7 +75,7 @@ namespace UnitTests.Components.Pages
             });
 
             // Assert that the component is rendered correctly
-            Assert.IsNotNull(cut);
+            Assert.NotNull(cut);
             Assert.Contains("a.b.c.d.", cut.Markup);
             Assert.Contains("ISP Name", cut.Markup);
             Assert.Contains("hostname", cut.Markup);
@@ -91,12 +91,12 @@ namespace UnitTests.Components.Pages
                  }));
             });
             cut.InvokeAsync(() => cut.Instance.IpDetails(Hops[0]));
-            Assert.IsTrue(eventFired);
+            Assert.True(eventFired);
 
             // I run the method again using the click
             eventFired = false;
             cut.Find(".link-secondary").Click();
-            Assert.IsTrue(eventFired);
+            Assert.True(eventFired);
         }
     }
 }

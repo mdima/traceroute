@@ -13,7 +13,7 @@ using TraceRoute.Services;
 
 namespace UnitTests.Services
 {
-    [TestClass]
+
     public class ReverseLookupServiceTests
     {
         private ReverseLookupService _reverseService;
@@ -31,53 +31,53 @@ namespace UnitTests.Services
         ///     To make it work set the DNS to 8.8.8.8 in the global Docker settings.
         /// </summary>
         /// <returns></returns>
-        [TestMethod]
+        [Fact]
         public async Task GetHostName()
         {
             string result = await _reverseService.GetHostName("192.188.248.215");
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("mail.nt2.it", result);        
+            Assert.NotNull(result);
+            Assert.Equal("mail.nt2.it", result);        
 
             // Good case
             IPAddress iPAddress = IPAddress.Parse("192.188.248.215");
             result = await _reverseService.GetHostNameWindows(iPAddress);
-            Assert.IsNotNull(result);
-            Assert.AreEqual("mail.nt2.it", result);
+            Assert.NotNull(result);
+            Assert.Equal("mail.nt2.it", result);
 
             // Bad case
             result = await _reverseService.GetHostNameWindows(IPAddress.None);
-            Assert.IsEmpty(result);
+            Assert.Empty(result);
 
             // Bad case 2
             result = await _reverseService.GetHostNameWindows(IPAddress.Any);
-            Assert.IsEmpty(result);
+            Assert.Empty(result);
 
             // On Linux
             result = await _reverseService.GetHostNameLinux(iPAddress);
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Assert.AreEqual("", result);
+                Assert.Equal("", result);
             }
             else
             {
-                Assert.AreEqual("mail.nt2.it", result);
+                Assert.Equal("mail.nt2.it", result);
             }            
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetHostNameNull()
         {
             //Just test a random IP
             string result = await _reverseService.GetHostName("123.32.321.1");
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("", result);
+            Assert.NotNull(result);
+            Assert.Equal("", result);
 
             result = await _reverseService.GetHostName(null!);
-            Assert.IsNotNull(result);
-            Assert.AreEqual("", result);
+            Assert.NotNull(result);
+            Assert.Equal("", result);
 
         }
     }

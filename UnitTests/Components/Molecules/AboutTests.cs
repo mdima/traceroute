@@ -15,7 +15,7 @@ using TraceRoute.Services;
 
 namespace UnitTests.Components.Molecules
 {
-    [TestClass]
+
     public class AboutTests : Bunit.TestContext
     {
         ServerListService _serverListService;
@@ -31,8 +31,6 @@ namespace UnitTests.Components.Molecules
             IpApiClient _ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
             TraceRouteApiClient _traceRouteApiClient = new(httpClient, factory.CreateLogger<TraceRouteApiClient>());
 
-            BogonIPService bogonIPService = new(factory);
-
             StoreServerURLFilter _storeServerURLFilter = new();
             IHttpContextAccessor _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
             Services.AddSingleton<IHttpContextAccessor>(_httpContextAccessor);
@@ -41,12 +39,12 @@ namespace UnitTests.Components.Molecules
             Services.AddSingleton<ServerListService>(_serverListService);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAbout()
         {
             // Arrange a simple render
             var cut = RenderComponent<TraceRoute.Components.Molecules.About>();
-            Assert.IsNotNull(cut);
+            Assert.NotNull(cut);
             // Check if the header contains the expected text
             Assert.Contains(cut.Instance.currentVersion!.Major + ".", cut.Markup);
 
@@ -61,14 +59,14 @@ namespace UnitTests.Components.Molecules
             Assert.Contains("<span>Unknown</span>", cut.Markup);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestCheckVersion()
         {
             // No new version available
             _serverListService._newVersionAvailable = false;
             var cut = RenderComponent<TraceRoute.Components.Molecules.About>();
             var versionCheck = cut.Find(".text-success");
-            Assert.IsNotNull(versionCheck);
+            Assert.NotNull(versionCheck);
 
             // New version available
             await _serverListService.InitializePresence();
@@ -76,7 +74,7 @@ namespace UnitTests.Components.Molecules
             await _serverListService.SendPresenceToMainHost();
             cut.Render();
             versionCheck = cut.Find(".text-danger");
-            Assert.IsNotNull(versionCheck);
+            Assert.NotNull(versionCheck);
         }
     }
 }

@@ -11,7 +11,7 @@ using TraceRoute.Services;
 
 namespace UnitTests.Services
 {
-    [TestClass]
+
     public class IpApiClientTests
     {
         private IpApiClient _ipApiClient;
@@ -25,39 +25,39 @@ namespace UnitTests.Services
             _ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetKnownIP()
         {
             IpApiResponse? result = await _ipApiClient.Get("192.188.248.215");
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("success", result.status);
-            Assert.AreEqual("Milan", result.city);
-            Assert.AreEqual("Italy", result.country);
-            Assert.AreEqual("Lombardy", result.regionName);
-            Assert.AreEqual("Europe", result.continent);
-            Assert.IsNotNull(result.lat);
-            Assert.IsNotNull(result.lon);
-            Assert.IsNotNull(result.isp);
-            Assert.IsNotNull(result.zip);
-            Assert.IsNotNull(result.district);
+            Assert.NotNull(result);
+            Assert.Equal("success", result.status);
+            Assert.Equal("Milan", result.city);
+            Assert.Equal("Italy", result.country);
+            Assert.Equal("Lombardy", result.regionName);
+            Assert.Equal("Europe", result.continent);
+            Assert.NotNull(result.lat);
+            Assert.NotNull(result.lon);
+            Assert.NotNull(result.isp);
+            Assert.NotNull(result.zip);
+            Assert.NotNull(result.district);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetUnKnownIP()
         {
             IpApiResponse? result = await _ipApiClient.Get("192.168.0.1");
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("fail", result.status);
+            Assert.NotNull(result);
+            Assert.Equal("fail", result.status);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetErrorIP()
         {
             IpApiResponse? result = await _ipApiClient.Get("qwerty");
 
-            Assert.IsNull(result);
+            Assert.Null(result);
         }
     }
 }

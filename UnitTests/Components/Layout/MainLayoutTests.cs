@@ -18,13 +18,12 @@ using TraceRoute.Services;
 using static TraceRoute.Models.TraceResultViewModel;
 
 namespace UnitTests.Components.Layout
-{
-    [TestClass]
+{    
     public class MainLayoutTests : Bunit.TestContext
     {
         private Boolean toastFired = false;
         IHttpContextAccessor httpContextAccessor;
-        MemoryCache memoryCache;
+        private readonly MemoryCache memoryCache;
 
         public MainLayoutTests()
         {
@@ -76,44 +75,44 @@ namespace UnitTests.Components.Layout
             toastFired = true;
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLayout()
         {
             // Arrange a simple render
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
-            Assert.IsNotNull(cut);
+            Assert.NotNull(cut);
 
             // Check if the header contains the expected text
-            Assert.IsTrue(cut.Markup.Contains("TraceRoute"));
+            Assert.Contains("TraceRoute", cut.Markup);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInitialHost()
         {
             // I reset the default http context
             var context = new DefaultHttpContext();
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
             // Check the hostToTrace as empty
-            Assert.IsEmpty(cut.Instance.hostToTrace);
+            Assert.Empty(cut.Instance.hostToTrace);
 
             ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
             cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
-            Assert.IsEmpty(cut.Instance.hostToTrace);
+            Assert.Empty(cut.Instance.hostToTrace);
 
             ContextAccessorHelper.GetContext("/", "localhost", "8.8.8.8");
             cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
-            Assert.IsNotEmpty(cut.Instance.hostToTrace);
-            Assert.AreEqual("8.8.8.8", cut.Instance.hostToTrace);
+            Assert.NotEmpty(cut.Instance.hostToTrace);
+            Assert.Equal("8.8.8.8", cut.Instance.hostToTrace);
 
             // I empty the context
             httpContextAccessor = new HttpContextAccessor() { HttpContext = null };
             cut.Instance.hostToTrace = "";
             cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
-            Assert.IsEmpty(cut.Instance.hostToTrace);
+            Assert.Empty(cut.Instance.hostToTrace);
             httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestShowServerEntry()
         {
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
@@ -129,7 +128,7 @@ namespace UnitTests.Components.Layout
                 }
             };
             String? result = cut.Instance.ShowServerEntry(serverEntry);
-            Assert.AreEqual("Country - City - http://localhost", result);
+            Assert.Equal("Country - City - http://localhost", result);
 
             // Null Country & City
             serverEntry = new ServerEntry
@@ -138,10 +137,10 @@ namespace UnitTests.Components.Layout
                 Details = new IpDetails()
             };
             result = cut.Instance.ShowServerEntry(serverEntry);
-            Assert.AreEqual("http://localhost", result);
+            Assert.Equal("http://localhost", result);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRefreshServerList()
         {
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
@@ -157,7 +156,7 @@ namespace UnitTests.Components.Layout
             Assert.Contains("localhost", cut.Instance.selectedServerUrl.ToLower());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestBeginTraceRoute()
         {
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
@@ -167,20 +166,20 @@ namespace UnitTests.Components.Layout
 
             // Invalid server selected
             await cut.InvokeAsync(cut.Instance.BeginTraceRoute);
-            Assert.IsTrue(toastFired);
+            Assert.True(toastFired);
             toastFired = false;
 
             // Local server selected
             cut.Instance.selectedServerUrl = cut.Instance.serverList.First().url;
             await cut.InvokeAsync(cut.Instance.BeginTraceRoute);
-            Assert.IsFalse(toastFired);
+            Assert.False(toastFired);
             cut.WaitForAssertion(() =>
             {
-                Assert.IsNotNull(cut.Instance.traceResult);
-                Assert.IsTrue(cut.Instance.traceResult.Hops.Count > 0);
+                Assert.NotNull(cut.Instance.traceResult);
+                Assert.True(cut.Instance.traceResult.Hops.Count > 0);
             });
-            Assert.IsTrue(cut.Instance.traceResult!.Hops.First().Details.IsBogonIP);
-            Assert.IsFalse(cut.Instance.traceResult!.Hops.Last().Details.IsBogonIP);
+            Assert.True(cut.Instance.traceResult!.Hops.First().Details.IsBogonIP);
+            Assert.False(cut.Instance.traceResult!.Hops.Last().Details.IsBogonIP);
 
             // remote server selected
             cut.Instance.serverList.Add(new ServerEntry
@@ -196,25 +195,25 @@ namespace UnitTests.Components.Layout
             });
             cut.Instance.selectedServerUrl = "https://traceroute.di-maria.it/";
             await cut.InvokeAsync(cut.Instance.BeginTraceRoute);
-            Assert.IsFalse(toastFired);
+            Assert.False(toastFired);
 
             // I generate a trace error
             toastFired = false;
             cut.Instance.selectedServerUrl = cut.Instance.serverList.First().url;
             cut.Instance.hostToTrace = Guid.NewGuid().ToString();
             await cut.InvokeAsync(cut.Instance.BeginTraceRoute);
-            Assert.IsTrue(toastFired);
+            Assert.True(toastFired);
 
             // I make sure I cannot get the trace hop details
             IpApiClient.BASE_URL = "aaaa";
             cut.Instance.hostToTrace = "8.8.8.8";
             memoryCache.Clear();    // I need to empty the memory cache
             await cut.InvokeAsync(cut.Instance.BeginTraceRoute);          
-            Assert.IsNull(cut.Instance.traceResult.Hops.Where(x => x.HopAddress == "8.8.8.8").First().Details.Country);
+            Assert.Null(cut.Instance.traceResult.Hops.Where(x => x.HopAddress == "8.8.8.8").First().Details.Country);
             IpApiClient.BASE_URL = "http://ip-api.com";
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestOnShowHopDetails()
         {
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
@@ -230,10 +229,10 @@ namespace UnitTests.Components.Layout
                 }
             };
             await cut.InvokeAsync(() => cut.Instance.OnShowHopDetails(hop));
-            Assert.AreEqual(hop, cut.Instance.currentHop);
+            Assert.Equal(hop, cut.Instance.currentHop);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestOnShowIpDetails()
         {
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
@@ -246,7 +245,7 @@ namespace UnitTests.Components.Layout
             toastFired = false;
             cut.Instance.traceResult = new TraceResultViewModel();
             await cut.InvokeAsync(() => cut.Instance.OnShowIpDetails("asdf"));
-            Assert.IsTrue(toastFired);
+            Assert.True(toastFired);
 
             // Valid result
             toastFired = false;
@@ -260,11 +259,11 @@ namespace UnitTests.Components.Layout
                 }
             });
             await cut.InvokeAsync(() => cut.Instance.OnShowIpDetails("127.0.0.1"));
-            Assert.IsFalse(toastFired);
-            Assert.AreEqual(cut.Instance.traceResult.Hops.First(), cut.Instance.currentHop);
+            Assert.False(toastFired);
+            Assert.Equal(cut.Instance.traceResult.Hops.First(), cut.Instance.currentHop);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestShowServerDetails()
         {
             var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
@@ -273,13 +272,13 @@ namespace UnitTests.Components.Layout
             cut.Instance.currentHop = null;
             cut.Instance.selectedServerUrl = Guid.NewGuid().ToString();
             await cut.InvokeAsync(() => cut.Instance.ShowServerDetails());
-            Assert.IsNull(cut.Instance.currentHop);
+            Assert.Null(cut.Instance.currentHop);
 
             // Existing server
             cut.Instance.selectedServerUrl = cut.Instance.serverList.First().url;
             await cut.InvokeAsync(() => cut.Instance.ShowServerDetails());
-            Assert.IsNotNull(cut.Instance.currentHop);
-            Assert.AreEqual(cut.Instance.selectedServerUrl, cut.Instance.currentHop.HopAddress);
+            Assert.NotNull(cut.Instance.currentHop);
+            Assert.Equal(cut.Instance.selectedServerUrl, cut.Instance.currentHop.HopAddress);
         }
     }
 }

@@ -58,7 +58,7 @@ namespace TraceRoute.Services
         /// <returns>The result of the operation</returns>
         internal async Task<string> GetHostNameLinux(IPAddress address)
         {
-            string result;
+            string result = "";
 
             try
             {
@@ -80,7 +80,6 @@ namespace TraceRoute.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in GetHostNameLinux for address: {0}, Err: {1}", address, ex.Message);
-                return string.Empty;
             }
 
             return result;

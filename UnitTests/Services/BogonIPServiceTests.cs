@@ -8,7 +8,7 @@ using TraceRoute.Helpers;
 
 namespace UnitTests.Services
 {
-    [TestClass]
+
     public class BogonIPServiceTests
     {
         private BogonIPService _BogonIPService;
@@ -19,20 +19,20 @@ namespace UnitTests.Services
             _BogonIPService = new BogonIPService(factory);
         }
 
-        [TestMethod]
+        [Fact]
         public void IsBogonIP()
         {
             bool result = _BogonIPService.IsBogonIP("127.0.0.1");
-            Assert.IsTrue(result);
+            Assert.True(result);
 
             result = _BogonIPService.IsBogonIP("192.168.0.1");
-            Assert.IsTrue(result);
+            Assert.True(result);
 
             result = _BogonIPService.IsBogonIP("192.188.248.215");
-            Assert.IsFalse(result);
+            Assert.False(result);
 
             result = _BogonIPService.IsBogonIP("errorip");
-            Assert.IsFalse(result);
+            Assert.False(result);
         }
     }
 }

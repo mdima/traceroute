@@ -10,47 +10,46 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using TraceRoute.Helpers;
 using TraceRoute.Models;
 
 namespace UnitTests.Helpers
 {
-    [TestClass]
+
     public class ConfigurationHelperTests
     {
-        [TestMethod]
+        [Fact]
         public void GetCacheMinutes()
         {
-            Assert.AreEqual(60, ConfigurationHelper.GetCacheMinutes());
+            Assert.Equal(60, ConfigurationHelper.GetCacheMinutes());
         }
 
-        [TestMethod]
+        [Fact]
         public void GetRootNode()
         {
-            Assert.AreEqual("https://traceroute.di-maria.it/", ConfigurationHelper.GetRootNode());
+            Assert.Equal("https://traceroute.di-maria.it/", ConfigurationHelper.GetRootNode());
         }
 
-        [TestMethod]
+        [Fact]
         public void IsRootNode()
         {
             Mock<HttpRequest> request = new Mock<HttpRequest>();
             request.Setup(r => r.Host).Returns(new HostString("traceroute.di-maria.it", 443));
-            Assert.IsTrue(ConfigurationHelper.IsRootNode(request.Object));
+            Assert.True(ConfigurationHelper.IsRootNode(request.Object));
 
             request.Setup(r => r.Host).Returns(new HostString("traceroute.di-maria.it", 442));
-            Assert.IsFalse(ConfigurationHelper.IsRootNode(request.Object));
+            Assert.False(ConfigurationHelper.IsRootNode(request.Object));
 
             request.Setup(r => r.Host).Returns(new HostString("test", 443));
-            Assert.IsFalse(ConfigurationHelper.IsRootNode(request.Object));
+            Assert.False(ConfigurationHelper.IsRootNode(request.Object));
 
             request.Setup(r => r.Host).Returns(new HostString("test", 442));
-            Assert.IsFalse(ConfigurationHelper.IsRootNode(request.Object));
+            Assert.False(ConfigurationHelper.IsRootNode(request.Object));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void GetCurrentSettings()
         {
             Mock<HttpRequest> request = new Mock<HttpRequest>();
@@ -58,34 +57,34 @@ namespace UnitTests.Helpers
 
             SettingsViewModel result = ConfigurationHelper.GetCurrentSettings(request.Object);
 
-            Assert.AreEqual("https://traceroute.di-maria.it/:443", result.CurrentServerURL);            
-            Assert.AreEqual(ConfigurationHelper.GetEnableRemoteTraces(), result.EnableRemoteTraces);
-            Assert.AreEqual(ConfigurationHelper.GetHostRemoteTraces(), result.HostRemoteTraces);
+            Assert.Equal("https://traceroute.di-maria.it/:443", result.CurrentServerURL);            
+            Assert.Equal(ConfigurationHelper.GetEnableRemoteTraces(), result.EnableRemoteTraces);
+            Assert.Equal(ConfigurationHelper.GetHostRemoteTraces(), result.HostRemoteTraces);
 
             // Test with a null request
             result = ConfigurationHelper.GetCurrentSettings(null!);
-            Assert.IsNotNull(result.CurrentServerURL);
+            Assert.NotNull(result.CurrentServerURL);
         }
 
-        [TestMethod]
+        [Fact]
         public void GetSetEnableRemoteTraces()
         {            
-            Assert.IsTrue(ConfigurationHelper.GetEnableRemoteTraces());
+            Assert.True(ConfigurationHelper.GetEnableRemoteTraces());
 
             Environment.SetEnvironmentVariable("TRACEROUTE_ENABLEREMOTETRACES", "false");
-            Assert.IsFalse(ConfigurationHelper.GetEnableRemoteTraces());
+            Assert.False(ConfigurationHelper.GetEnableRemoteTraces());
         }
 
-        [TestMethod]
+        [Fact]
         public void GetSetHostRemoteTraces()
         {            
-            Assert.IsTrue(ConfigurationHelper.GetHostRemoteTraces());
+            Assert.True(ConfigurationHelper.GetHostRemoteTraces());
 
             Environment.SetEnvironmentVariable("TRACEROUTE_HOSTREMOTETRACES", "false");
-            Assert.IsFalse(ConfigurationHelper.GetHostRemoteTraces());
+            Assert.False(ConfigurationHelper.GetHostRemoteTraces());
         }
 
-        [TestMethod]
+        [Fact]
         public void GetNumericValue()
         {
             var method = typeof(ConfigurationHelper).GetMethod("GetNumericValue", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -94,7 +93,7 @@ namespace UnitTests.Helpers
                 "aaaa", 991
             };            
             int? result = (int?)method.Invoke(null, parameterValues);
-            Assert.AreEqual(991, result);
+            Assert.Equal(991, result);
 
             parameterValues = new object[]
             {
@@ -102,10 +101,10 @@ namespace UnitTests.Helpers
             };
             result = (int?)method.Invoke(null, parameterValues);
 
-            Assert.AreEqual(60, result);
+            Assert.Equal(60, result);
         }
 
-        [TestMethod]
+        [Fact]
         public void GetNumericValue_NoDefault()
         {
             var method = typeof(ConfigurationHelper).GetMethod("GetNumericValue", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -116,10 +115,10 @@ namespace UnitTests.Helpers
             };
             int? result = (int?)method.Invoke(null, parameterValues);
 
-            Assert.IsNull(result);
+            Assert.Null(result);
         }
 
-        [TestMethod]
+        [Fact]
         public void GetAppSetting()
         {
             var method = typeof(ConfigurationHelper).GetMethod("GetAppSetting", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -128,16 +127,16 @@ namespace UnitTests.Helpers
                 "RootNode", "https://traceroute.di-maria.it/"
             };
             string? result = (string?)method.Invoke(null, parameterValues);
-            Assert.IsNotNull(result);
-            Assert.AreEqual("https://traceroute.di-maria.it/", result);
+            Assert.NotNull(result);
+            Assert.Equal("https://traceroute.di-maria.it/", result);
 
             parameterValues = new object[]
             {
                 "RootNodeNotExisting", "1234"
             };
             result = (string?)method.Invoke(null, parameterValues);
-            Assert.IsNotNull(result);
-            Assert.AreEqual("1234", result);
+            Assert.NotNull(result);
+            Assert.Equal("1234", result);
         }
     }
 }

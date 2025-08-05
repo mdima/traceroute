@@ -9,17 +9,17 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace UnitTests.Components.Molecules
 {
-    [TestClass]
+
     public class IpDetailsComponentTests : Bunit.TestContext
     {
-        [TestMethod]
+        [Fact]
         public void TestIpDetails()
         {
             // Arrange a simple render
             var cut = RenderComponent<IpDetailsComponent>(p =>
                 p.Add(a => a.currentHop, null)
             );
-            Assert.IsNotNull(cut);
+            Assert.NotNull(cut);
             // Check if the header contains the expected text
             Assert.Contains("<span class=\"visually-hidden\">Loading...</span>", cut.Markup);
 

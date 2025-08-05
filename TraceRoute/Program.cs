@@ -150,4 +150,4 @@ app.Lifetime.ApplicationStopping.Register(() => { _logger.Info("Application stop
 app.Lifetime.ApplicationStopped.Register(() => { _logger.Info("Application ended"); });
 
 //I run the app
-app.Run();
+await app.RunAsync();

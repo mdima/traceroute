@@ -9,10 +9,10 @@ using TraceRoute.Services;
 namespace UnitTests.Services
 {
 
-    [TestClass]
+
     public class StoreServerURLFilterTests
     {
-        [TestMethod]
+        [Fact]
         public async Task TestFilter()
         {
             StoreServerURLFilter filter = new();
@@ -27,7 +27,7 @@ namespace UnitTests.Services
                 context.Request.Host = new HostString("localhost", 5000);
                 await Task.CompletedTask;
             });
-            Assert.IsEmpty(filter.GetServerURL());
+            Assert.Empty(filter.GetServerURL());
 
             // Good request
             contextAccessor = ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
@@ -39,8 +39,8 @@ namespace UnitTests.Services
                 context.Request.Host = new HostString("localhost", 80);
                 await Task.CompletedTask;
             });
-            Assert.IsNotEmpty(filter.GetServerURL());
-            Assert.AreEqual("https://localhost/", filter.GetServerURL());
+            Assert.NotEmpty(filter.GetServerURL());
+            Assert.Equal("https://localhost/", filter.GetServerURL());
         }
     }
 }

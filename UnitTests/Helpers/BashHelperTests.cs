@@ -8,10 +8,10 @@ using TraceRoute.Services;
 
 namespace UnitTests.Helpers
 {
-    [TestClass]
+
     public class BashHelperTests
     {
-        [TestMethod]
+        [Fact]
         public async Task TraceKnown()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -27,7 +27,7 @@ namespace UnitTests.Helpers
             {
                 hops.RemoveAt(0);
             }
-            Assert.IsTrue(hops.Count > 0);
+            Assert.True(hops.Count > 0);
         }
     }
 }

@@ -12,7 +12,7 @@ using TraceRoute.Services;
 
 namespace UnitTests.Services
 {
-    [TestClass]
+
     public class TraceRouteServiceTests
     {
         private TracerouteService _tracerouteService;
@@ -24,7 +24,7 @@ namespace UnitTests.Services
             _tracerouteService = new(bogonIPService, factory.CreateLogger<TracerouteService>());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestTraceRoute()
         {
             // Arrange
@@ -32,24 +32,24 @@ namespace UnitTests.Services
             // Act
             List<string> result = await _tracerouteService.TraceRoute(destination);
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count > 0);
+            Assert.NotNull(result);
+            Assert.True(result.Count > 0);
 
             // Windows
             result = _tracerouteService.TraceRouteWindows(destination).ToList();
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count > 0);
+            Assert.NotNull(result);
+            Assert.True(result.Count > 0);
 
             // Linux
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 result = await _tracerouteService.TraceRouteLinux(destination);
-                Assert.IsNotNull(result);
-                Assert.IsTrue(result.Count > 0);
+                Assert.NotNull(result);
+                Assert.True(result.Count > 0);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestTraceRouteFull()
         {
             // Arrange
@@ -59,14 +59,14 @@ namespace UnitTests.Services
             TraceResultViewModel? result = await _tracerouteService.TraceRouteFull(destination);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Hops.Count > 0);
+            Assert.NotNull(result);
+            Assert.True(result.Hops.Count > 0);
 
             // Bad cases
             result = await _tracerouteService.TraceRouteFull("wrongname");
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Hops.Count == 0);
+            Assert.NotNull(result);
+            Assert.True(result.Hops.Count == 0);
 
         }
 

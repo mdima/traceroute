@@ -14,10 +14,10 @@ using Microsoft.AspNetCore.Builder;
 
 namespace UnitTests
 {
-    [TestClass]
+
     public class ProgramTests
     {        
-        [TestMethod]
+        [Fact]
         public void Program()
         {
             WebApplicationFactory<Program> waf = new WebApplicationFactory<Program>()
@@ -30,16 +30,16 @@ namespace UnitTests
             try
             {
                 server = waf.Server;
-                Assert.IsNotNull(server);
+                Assert.NotNull(server);
 
                 // Check for individual services
                 var scope = server.Services.CreateScope();
 
                 var ipApiClient = scope.ServiceProvider.GetService<IpApiClient>();
-                Assert.IsNotNull(ipApiClient);
+                Assert.NotNull(ipApiClient);
 
                 var memoryCache = scope.ServiceProvider.GetService<IMemoryCache>();
-                Assert.IsNotNull(memoryCache);
+                Assert.NotNull(memoryCache);
             }
             catch (Exception ex)
             {
