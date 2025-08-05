@@ -144,13 +144,13 @@ namespace TraceRoute.Services
                 else
                 {
                     traceError = String.Format("Error asking the trace result from the server: {0}, {1}, {2}", RemoteServerUrl, response.StatusCode, response.ReasonPhrase);
-                    _logger.LogError(traceError);
+                    _logger.LogError("{traceError}", traceError);
                 }
             }
             catch (Exception ex)
             {
                 traceError = String.Format("Error asking the trace result from the server: {0}, {1}", RemoteServerUrl, ex.Message);
-                _logger.LogError(ex, traceError);
+                _logger.LogError(ex, "{traceError}", traceError);
             }
 
             if (traceError != "")

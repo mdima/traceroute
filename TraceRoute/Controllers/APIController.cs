@@ -35,7 +35,7 @@ namespace TraceRoute.Controllers
             TraceResultViewModel? result = await _tracerouteService.TraceRouteFull(destination);
             _logger.LogInformation("Requested Trace from remote to: {0} from remote server {1}. Error: {2}, Hops: {3}", 
                 destination, 
-                Request.HttpContext.Connection.RemoteIpAddress!.ToString(), 
+                Request.HttpContext.Connection.RemoteIpAddress?.ToString(), 
                 result.ErrorDescription, 
                 result.Hops.Count);
 
@@ -50,7 +50,7 @@ namespace TraceRoute.Controllers
         {
             _logger.LogInformation("Received presence from: {0}, public IP: {1}, version: {2}", 
                 server.url, 
-                Request.HttpContext.Connection.RemoteIpAddress!.ToString(),
+                Request.HttpContext.Connection.RemoteIpAddress?.ToString(),
                 server.version);
 
             ServerEntry? checkInfo = await _serverListService.GetRemoteServerInfo(server);

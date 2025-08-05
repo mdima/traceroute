@@ -30,7 +30,7 @@ namespace TraceRoute.Services
             {
                 if (IPAddress.TryParse(ipAddress, out IPAddress? address) && address != null)
                 {
-                    _logger.LogDebug("Asking the reverse lookup for IP: {0}", ipAddress);
+                    _logger.LogDebug("Asking the reverse lookup for IP: {ipAddress}", ipAddress);
 
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
@@ -64,7 +64,7 @@ namespace TraceRoute.Services
             {
                 string lookup = "host " + address;
                 var lookupResult = await lookup.Bash();
-                _logger.LogDebug("Lookup bash result: {0}", lookupResult);
+                _logger.LogDebug("Lookup bash result: {lookupResult}", lookupResult);
 
                 var splits = lookupResult.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToList();
                 if (splits.Count > 0 && !lookupResult.Contains("not found:") && !lookupResult.Contains("has no PTR record"))
@@ -79,7 +79,7 @@ namespace TraceRoute.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in GetHostNameLinux for address: {0}, Err: {1}", address, ex.Message);
+                _logger.LogError(ex, "Error in GetHostNameLinux for address: {address}, Err: {Message}", address, ex.Message);
             }
 
             return result;
@@ -105,7 +105,7 @@ namespace TraceRoute.Services
                 }
                 else
                 {
-                    _logger.LogError(ex, "Error in GetHostNameWindows for address: {0}, Err: {1}", address, ex.Message);
+                    _logger.LogError(ex, "Error in GetHostNameWindows for address: {address}, Err: {Message}", address, ex.Message);
                     return string.Empty;
                 }
             }
