@@ -24,7 +24,7 @@
   <ItemGroup>
     <PackageReference Include="Blazored.Toast" Version="4.2.1" />
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-    <PackageReference Include="IPNetwork2" Version="3.1.775" />
+    <PackageReference Include="IPNetwork2" Version="3.4.832" />
     <PackageReference Include="log4net" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
