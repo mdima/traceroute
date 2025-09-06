@@ -39,7 +39,7 @@ namespace UnitTests.Controllers
             Services.AddSingleton<IHttpContextAccessor>(httpContextAccessor);
 
             _serverListService = new(factory.CreateLogger<ServerListService>(), ipApiClient, storeServerURLFilter, traceRouteApiClient);
-            _controller = new(factory, _serverListService, tracerouteService);
+            _controller = new(factory, _serverListService, tracerouteService, bogonIPService);
             _controller.ControllerContext.HttpContext = httpContextAccessor.HttpContext!;
         }
 
@@ -83,6 +83,11 @@ namespace UnitTests.Controllers
             Assert.Equal(server.url, rootServer.url);
             result = await _controller.ReceivePresence(rootServer);
             Assert.True(result);
+
+            // invalid case
+            server.url = "https://www.nt2.it/";
+            result = await _controller.ReceivePresence(server);
+            Assert.False(result);
 
             // null case
             result = await _controller.ReceivePresence(new ServerEntry());

@@ -121,15 +121,6 @@ namespace TraceRoute.Services
                     await InitializePresence();
                 }, null, 3000, Timeout.Infinite);
             }
-            else
-            {
-                if (_timerPresence != null)
-                {
-                    _timerPresence.Change(Timeout.Infinite, Timeout.Infinite);
-                    _timerPresence.Dispose();
-                    _timerPresence = null;
-                }
-            }
         }
 
         /// <summary>
@@ -186,7 +177,8 @@ namespace TraceRoute.Services
             if (localServer != null)
             {
                 // I send the local server info to the root server
-                await _traceRouteApiClient.SendPresence(localServer, _cancelCurrentOperation);
+                Boolean presenceResult = await _traceRouteApiClient.SendPresence(localServer, _cancelCurrentOperation);
+                _logger.LogDebug("Presence sent to the main host. Result: {0}", presenceResult);
 
                 // I retrieve the server list from the root server
                 _logger.LogDebug("Updating the server list from the root host");

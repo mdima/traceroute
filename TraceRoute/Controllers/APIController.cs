@@ -18,11 +18,12 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace TraceRoute.Controllers
 {
-    public class APIController(ILoggerFactory LoggerFactory, ServerListService serverListService, TracerouteService tracerouteService) : Controller
+    public class APIController(ILoggerFactory LoggerFactory, ServerListService serverListService, TracerouteService tracerouteService, BogonIPService bogonIPService) : Controller
     {
         private readonly ILogger _logger = LoggerFactory.CreateLogger<APIController>();
         private readonly ServerListService _serverListService = serverListService;
         private readonly TracerouteService _tracerouteService = tracerouteService;
+        private readonly BogonIPService _bogonIPService = bogonIPService;
 
         /// <summary>
         /// Performs traceroute on specified hostname. Used by a remote server to trace from this location.
@@ -48,13 +49,19 @@ namespace TraceRoute.Controllers
         [HttpPost("api/presence")]
         public async Task<bool> ReceivePresence([FromBody] ServerEntry server)
         {
-            _logger.LogInformation("Received presence from: {0}, public IP: {1}, version: {2}", 
+            Boolean isPrivate = await _bogonIPService.IsPrivateServer(server.url);
+            _logger.LogInformation("Received presence from: {0}, public IP: {1}, version: {2}, is private: {3}", 
                 server.url, 
                 Request.HttpContext.Connection.RemoteIpAddress!.ToString(),
-                server.version);
+                server.version,
+                isPrivate);
+
+            // I do not process a private server
+            if (isPrivate) return false;
 
             ServerEntry? checkInfo = await _serverListService.GetRemoteServerInfo(server);
-            if (checkInfo != null && checkInfo.Equals(server))
+            if (checkInfo == null) return false;
+            if (checkInfo.Equals(server))
             {
                 checkInfo.lastUpdate = DateTime.Now;
                 checkInfo.isOnline = true;                

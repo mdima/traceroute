@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Security.Policy;
 using TraceRoute.Controllers;
 
-namespace TraceRoute.Helpers
+namespace TraceRoute.Services
 {
     /// <summary>
     /// Used to know if the given IP Address is a Bogon (private) network address
@@ -100,6 +101,42 @@ namespace TraceRoute.Helpers
             { 
                 _logger.LogWarning("Cannot parse the IP Adderss {0}", iPAddress);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Provides a method to check if the given URL belongs to a private non reachable server.
+        /// </summary>
+        /// <param name="URLAddress">The URL address to check</param>
+        /// <returns>TRUE if it is a private URL Address</returns>
+        public async Task<bool> IsPrivateServer(string URLAddress)
+        {
+            try
+            {
+                IPAddress[] addresses;
+                if (IPAddress.TryParse(URLAddress, out IPAddress? parsedIPAddress))
+                {
+                    addresses = [parsedIPAddress];
+                }
+                else
+                {
+                    var uri = new Uri(URLAddress);
+                    addresses = await Dns.GetHostAddressesAsync(uri.Host);
+                }
+
+                foreach (var ip in addresses)
+                {
+                    if (IsBogonIP(ip.ToString()))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error in IsPrivateServer. URL Address {0}", URLAddress);
+                return true;
             }
         }
     }
