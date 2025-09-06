@@ -21,7 +21,7 @@ at the same time will offer your host as source for other users. You can disable
 
 ### Running in Docker
 You can use the following image to run Visual Trace Route locally:
-michele73/traceroute:3.0.1
+michele73/traceroute:3.0.2
 
 Example:
 ```
