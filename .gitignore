@@ -42,3 +42,4 @@ Thumbs.db
 /.vs/TraceRoute/v15/Server/sqlite3
 /.vs
 /TraceRoute/Config/appsettings.json
+/TraceRoute/.aspnet/DataProtection-Keys

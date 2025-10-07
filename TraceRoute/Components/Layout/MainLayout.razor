@@ -15,7 +15,7 @@
         <form class="form-inline d-md-flex ms-auto" role="search" @onsubmit="BeginTraceRoute">
             <div class="input-group me-2">
                 <input type="text" @bind-value="hostToTrace" class="form-control my-1" placeholder="IP address or hostname" autocapitalize="off" spellcheck="false">
-                <button @onclick="BeginTraceRoute" class="btn btn-secondary my-1" title="Perform the Trace Route" type="button">
+                <button @onclick="BeginTraceRoute" class="btn btn-primary my-1" title="Perform the Trace Route" type="button">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
             </div>
