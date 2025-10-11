@@ -11,7 +11,7 @@ LABEL org.opencontainers.image.source="https://github.com/mdima/traceroute"
 LABEL org.opencontainers.image.version="3.0.3"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL com.docker.desktop.extension.icon="https://github.com/mdima/traceroute/blob/3035a90f9890dd1c2aaa469cf664107cf2713f29/SupportFiles/logo.png?raw=true"
-LABEL com.docker.extension.screenshots="[{'alt':'Main program screenshot', 'url':'https://github.com/mdima/traceroute/blob/3035a90f9890dd1c2aaa469cf664107cf2713f29/SupportFiles/screenshot.png?raw=true'}]"
+LABEL com.docker.extension.screenshots="[{'alt':'Main program screenshot', 'url':'https://github.com/mdima/traceroute/raw/master/SupportFiles/screenshot.png?raw=true'}]"
 
 RUN apt-get update \
     && apt-get install -y curl traceroute dnsutils 
