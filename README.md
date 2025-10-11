@@ -18,14 +18,15 @@ at the same time will offer your host as source for other users. You can disable
 * Added the multi-source traceroute feature to allow to run the traceroute from different sources
 * Added the new version check
 * Frontend converted to Blazor
+* Added the "cannot trace behind this point" management
 
 ### Running in Docker
 You can use the following image to run Visual Trace Route locally:
-michele73/traceroute:3.0.2
+michele73/traceroute:latest
 
 Example:
 ```
-docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:3.0.1
+docker run -d -p 8081:80 --name=traceroute --restart=always -v traecroute_logs:/app/logs michele73/traceroute:latest
 ```
 
 The image repository is here: https://hub.docker.com/r/michele73/traceroute
