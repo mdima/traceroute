@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
@@ -64,14 +65,14 @@ namespace TraceRoute.Services
                     }
 #if DEBUG
                     //In case of a debug I some fake hop
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "15.161.156.80", TripTime = Random.Shared.NextSingle() * 10, Index = 3 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "213.205.32.10", TripTime = Random.Shared.NextSingle() * 10, Index = 4 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "62.101.124.129", TripTime = Random.Shared.NextSingle() * 10, Index = 5 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "93.63.100.249", TripTime = Random.Shared.NextSingle() * 10, Index = 6 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "4.14.49.2", TripTime = Random.Shared.NextSingle() * 10, Index = 7 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "66.219.34.194", TripTime = Random.Shared.NextSingle() * 10, Index = 8 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "208.123.73.4", TripTime = Random.Shared.NextSingle() * 10, Index = 9 });
-                    traceResult.Hops.Add(new TraceHop() { HopAddress = "208.123.73.68", TripTime = Random.Shared.NextSingle() * 10, Index = 10 });
+                    traceResult.Hops.Insert(1, new TraceHop() { HopAddress = "15.161.156.80", TripTime = Random.Shared.NextSingle() * 10, Index = 3 });
+                    traceResult.Hops.Insert(1, new TraceHop() { HopAddress = "213.205.32.10", TripTime = Random.Shared.NextSingle() * 10, Index = 4 });
+                    traceResult.Hops.Insert(1, new TraceHop() { HopAddress = "62.101.124.129", TripTime = Random.Shared.NextSingle() * 10, Index = 5 });
+                    traceResult.Hops.Insert(1, new TraceHop() { HopAddress = "93.63.100.249", TripTime = Random.Shared.NextSingle() * 10, Index = 6 });
+                    traceResult.Hops.Insert(1, new TraceHop() { HopAddress = "4.14.49.2", TripTime = Random.Shared.NextSingle() * 10, Index = 7 });
+                    traceResult.Hops.Insert(1, new TraceHop() { HopAddress = "66.219.34.194", TripTime = Random.Shared.NextSingle() * 10, Index = 8 });
+                    traceResult.Hops.Insert(1, new TraceHop() { HopAddress = "208.123.73.4", TripTime = Random.Shared.NextSingle() * 10, Index = 9 });
+                    traceResult.Hops.Insert(1, new TraceHop() { HopAddress = "208.123.73.68", TripTime = Random.Shared.NextSingle() * 10, Index = 10 });
 #endif
                 }
             }
@@ -89,16 +90,27 @@ namespace TraceRoute.Services
         /// </summary>
         /// <param name="destination">The destination of the Trace operation</param>
         /// <returns>The hop list</returns>
-        public async Task<List<string>> TraceRoute(string destination)
+        public async Task<List<String>> TraceRoute(String destination)
         {
+            List<String> result = new();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return TraceRouteWindows(destination).ToList();
+                result = TraceRouteWindows(destination).ToList();
             }
             else
             {
-                return await TraceRouteLinux(destination);
+                result = await TraceRouteLinux(destination);
             }
+
+            // I make sure that the last entry is the destination
+            String destinationIp = await EnsureIpAddress(destination);
+            if (result.Count > 0 && !result.Last().Contains(destinationIp))
+            {
+                // I add a fake entry and the destination
+                result.Add("x ... 0");
+                result.Add(String.Format("x {0} 0", destinationIp));
+            }
+            return result;
         }
 
         /// <summary>
@@ -109,7 +121,7 @@ namespace TraceRoute.Services
         internal IEnumerable<string> TraceRouteWindows(string destination)
         {
             // Initial variables
-            var limit = 2000;
+            var limit = 30;
             var buffer = new byte[32];
             var pingOpts = new PingOptions(1, true);
             var ping = new Ping();
@@ -119,7 +131,7 @@ namespace TraceRoute.Services
 
             do
             {
-                result = ping.Send(destination, 4000, buffer, pingOpts);
+                result = ping.Send(destination, 1000, buffer, pingOpts);
                 pingOpts = new PingOptions(pingOpts.Ttl + 1, pingOpts.DontFragment);
 
                 if (result.Status != IPStatus.TimedOut)
@@ -129,8 +141,13 @@ namespace TraceRoute.Services
                         yield return string.Format("{0} {1} {2} ms", pingOpts.Ttl, result.Address.ToString(), result.RoundtripTime);
                     }
                 }
+                else 
+                {
+                    yield return string.Format("x ... 0");
+                    break;
+                }
             }
-            while (result.Status != IPStatus.Success && pingOpts.Ttl < limit);
+            while (result.Status != IPStatus.Success || pingOpts.Ttl < limit);
         }
 
         /// <summary>
@@ -151,6 +168,40 @@ namespace TraceRoute.Services
             }
 
             return hops;
+        }
+
+        /// <summary>
+        /// Makes sure that the given host is an IP Address, otherwise it tries to resolve it.
+        /// </summary>
+        /// <param name="hostToTrace"></param>
+        /// <returns>The IP address of the specified host or the </returns>
+        /// <exception cref="Exception"></exception>
+        internal async Task<string> EnsureIpAddress(string hostToTrace)
+        {
+            if (IPAddress.TryParse(hostToTrace, out IPAddress? address) && address != null)
+            {
+                return hostToTrace;
+            }
+            else
+            {
+                try
+                {
+                    var addresses = await Dns.GetHostAddressesAsync(hostToTrace);
+                    if (addresses.Length > 0)
+                    {
+                        return addresses[0].ToString();
+                    }
+                    else
+                    {
+                        return hostToTrace;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error ensuring the IP of the host: {0}", hostToTrace);
+                    return hostToTrace;
+                }
+            }
         }
     }
 }

@@ -67,6 +67,15 @@ namespace UnitTests.Components.Pages
                         ISP = "ISP Name"
                     }
                 },
+                new TraceHop
+                {
+                    HopAddress = "...",
+                    Details = new IpDetails
+                    {
+                        IsBogonIP = false,
+                        ISP = "-"
+                    }
+                },
             };
             // I rerender the component with the test data
             cut = RenderComponent<Home>(p =>

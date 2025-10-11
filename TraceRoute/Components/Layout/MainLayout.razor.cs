@@ -134,6 +134,11 @@ namespace TraceRoute.Components.Layout
                         item.Details.City = "-";
                         item.Details.ISP = "Internal IP address";
                     }
+                    else if(item.HopAddress == "...")
+                    {
+                        item.Details.City = "-";
+                        item.Details.ISP = "-";
+                    }
                     else
                     {
                         IpDetails? details = await _ipApiClient.GetTraceHopDetails(item.HopAddress);

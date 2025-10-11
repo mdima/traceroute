@@ -25,7 +25,7 @@
                         <tr class="tr_hop_@(hop.Index)" data-index-value="@(hop.Index)" onmouseover="hilightTooltip(this)">
                             <td class="ps-2 tr_hop_@(hop.Index)">@hop.Index</td>
                             <td class="tr_hop_@(hop.Index)">
-                                @if (!hop.Details.IsBogonIP)
+                                @if (!hop.Details.IsBogonIP && hop.HopAddress != "...")
                                 {
                                     <a href="#" class="link-secondary" @onclick="() => IpDetails(hop)">@hop.HopAddress</a>
                                 }
@@ -40,7 +40,11 @@
                                     </small>
                                 }
                             </td>
-                            <td class="small text-end text-nowrap tr_hop_@(hop.Index)">@String.Format("{0:0.000}", hop.TripTime) ms</td>
+                            <td class="small text-end text-nowrap tr_hop_@(hop.Index)">
+                                @if (hop.TripTime != 0) {
+                                    @String.Format("{0:0.000} ms", hop.TripTime)
+                                }
+                            </td>
                             <td hidden="@(!String.IsNullOrEmpty(hop.Details.ISP) || hop.Details.IsBogonIP)" class="small tr_hop_@hop.Index">
                                 <div class="spinner-border spinner-border-sm" role="status">
                                     <span class="visually-hidden">Loading...</span>
@@ -49,7 +53,7 @@
                             <td class="small text-break tr_hop_@hop.Index">
                                 <span hidden="@(hop.Details.Country == null)">
                                     @hop.Details.Country - @hop.Details.City
-                                </span>                            
+                                </span>
                             </td>
                             <td class="small text-break tr_hop_@hop.Index d-xl-table-cell">
                                 <span hidden="@(hop.Details.ISP == null)">

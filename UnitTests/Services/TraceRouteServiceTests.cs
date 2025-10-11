@@ -46,6 +46,14 @@ namespace UnitTests.Services
                 Assert.NotNull(result);
                 Assert.True(result.Count > 0);
             }
+
+            // Unreachanble destination
+            destination = "www.microsoft.com";
+            result = await _tracerouteService.TraceRoute(destination);
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Count > 0);
+            Assert.Contains("x ... 0", result);
         }
 
         [Fact]
@@ -66,7 +74,31 @@ namespace UnitTests.Services
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Hops.Count == 0);
+        }
 
+        [Fact]
+        public async Task TestEnsureIpAddress()
+        {
+            // Arrange
+            string destination = "www.google.com";
+            // Act
+            string? result = await _tracerouteService.EnsureIpAddress(destination);
+            Assert.NotNull(result);
+            Assert.NotEmpty(result);
+
+            result = await _tracerouteService.EnsureIpAddress("mail.nt2.it");            
+            Assert.NotNull(result);
+            Assert.Equal("192.188.248.215", result);
+
+            result = await _tracerouteService.EnsureIpAddress("192.188.248.218");
+            Assert.NotNull(result);
+            Assert.Equal("192.188.248.218", result);
+
+            // Bad cases
+            result = await _tracerouteService.EnsureIpAddress("wrongname");
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("wrongname", result);
         }
 
     }
