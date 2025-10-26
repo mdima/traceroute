@@ -18,11 +18,11 @@
                 else
                 {
                     <div class="row">
-                        <div class="col-12 text-muted" hidden="@(currentHop.Details.Continent == null)">
-                            <label class="text-muted">Continent</label>
-                            @currentHop.Details.Continent
-                        </div>
-
+                        @if (currentHop.Details.Continent != null)
+                        {
+                            <div class="col-3 text-muted">Continent</div>
+                            <div class="col-9">@currentHop.Details.Continent</div>                            
+                        }
                         <div class="col-3 text-muted">Country</div>
                         <div class="col-9">@currentHop.Details.Country (@currentHop.Details.CountryCode)</div>
                         <div class="col-3 text-muted">Region</div>
@@ -36,7 +36,13 @@
                         <div class="col-3 text-muted">ISP</div>
                         <div class="col-9">@currentHop.Details.ISP</div>
                         <div class="col-3 text-muted">Organization</div>
-                        <div class="col-9">@currentHop.Details.Organization</div>
+                        <div class="col-9">
+                            @currentHop.Details.Organization
+                            @if (String.IsNullOrEmpty(currentHop.Details.Organization))
+                            {
+                                <span>//</span>
+                            }
+                        </div>
                         <div class="col-3 text-muted">AS</div>
                         <div class="col-9">@currentHop.Details.As (@currentHop.Details.AsName)</div>
                         <div class="col-3 text-muted">Is mobile</div>
