@@ -18,7 +18,7 @@ using static TraceRoute.Models.TraceResultViewModel;
 
 namespace UnitTests.Components.Layout
 {    
-    public class MainLayoutTests : Bunit.TestContext
+    public class MainLayoutTests : BunitContext
     {
         private Boolean toastFired = false;
         IHttpContextAccessor httpContextAccessor;
@@ -78,7 +78,7 @@ namespace UnitTests.Components.Layout
         public void TestLayout()
         {
             // Arrange a simple render
-            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            var cut = Render<TraceRoute.Components.Layout.MainLayout>();
             Assert.NotNull(cut);
 
             // Check if the header contains the expected text
@@ -90,23 +90,23 @@ namespace UnitTests.Components.Layout
         {
             // I reset the default http context
             var context = new DefaultHttpContext();
-            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            var cut = Render<TraceRoute.Components.Layout.MainLayout>();
             // Check the hostToTrace as empty
             Assert.Empty(cut.Instance.hostToTrace);
 
             ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
-            cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            cut = Render<TraceRoute.Components.Layout.MainLayout>();
             Assert.Empty(cut.Instance.hostToTrace);
 
             ContextAccessorHelper.GetContext("/", "localhost", "8.8.8.8");
-            cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            cut = Render<TraceRoute.Components.Layout.MainLayout>();
             Assert.NotEmpty(cut.Instance.hostToTrace);
             Assert.Equal("8.8.8.8", cut.Instance.hostToTrace);
 
             // I empty the context
             httpContextAccessor = new HttpContextAccessor() { HttpContext = null };
             cut.Instance.hostToTrace = "";
-            cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            cut = Render<TraceRoute.Components.Layout.MainLayout>();
             Assert.Empty(cut.Instance.hostToTrace);
             httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost");
         }
@@ -114,7 +114,7 @@ namespace UnitTests.Components.Layout
         [Fact]
         public void TestShowServerEntry()
         {
-            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            var cut = Render<TraceRoute.Components.Layout.MainLayout>();
 
             // Full detailed ServerEntry
             ServerEntry serverEntry = new ServerEntry
@@ -142,7 +142,7 @@ namespace UnitTests.Components.Layout
         [Fact]
         public void TestRefreshServerList()
         {
-            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            var cut = Render<TraceRoute.Components.Layout.MainLayout>();
             cut.Instance.selectedServerUrl = "not existing server";
             cut.Instance.serverList = new();
 
@@ -158,7 +158,7 @@ namespace UnitTests.Components.Layout
         [Fact]
         public async Task TestBeginTraceRoute()
         {
-            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            var cut = Render<TraceRoute.Components.Layout.MainLayout>();
             cut.Instance.selectedServerUrl = "not existing server";
             cut.Instance.hostToTrace = "127.0.0.1";
             toastFired = false;
@@ -215,7 +215,7 @@ namespace UnitTests.Components.Layout
         [Fact]
         public async Task TestOnShowHopDetails()
         {
-            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            var cut = Render<TraceRoute.Components.Layout.MainLayout>();
 
             cut.Instance.traceResult = new TraceResultViewModel();
             TraceHop hop = new()
@@ -234,7 +234,7 @@ namespace UnitTests.Components.Layout
         [Fact]
         public async Task TestOnShowIpDetails()
         {
-            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            var cut = Render<TraceRoute.Components.Layout.MainLayout>();
 
             // Null result
             cut.Instance.traceResult = null;
@@ -265,7 +265,7 @@ namespace UnitTests.Components.Layout
         [Fact]
         public async Task TestShowServerDetails()
         {
-            var cut = RenderComponent<TraceRoute.Components.Layout.MainLayout>();
+            var cut = Render<TraceRoute.Components.Layout.MainLayout>();
 
             // Non existing server
             cut.Instance.currentHop = null;

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
 using TraceRoute.Helpers;
 using TraceRoute.Models;
 using static TraceRoute.Models.TraceResultViewModel;
@@ -21,7 +22,9 @@ namespace TraceRoute.Services
         private readonly IMemoryCache _MemoryCache = MemoryCache;
         private readonly ReverseLookupService _reverseLookupService = reverseLookupService;
         private readonly ILogger _logger = logger;
-        
+        private int _quotaRemaining = 45;
+        private DateTime _quotaReset = DateTime.UtcNow.AddMinutes(1);
+
         /// <summary>
         /// Retrives the IP information from IP-API.com
         /// </summary>
@@ -42,12 +45,15 @@ namespace TraceRoute.Services
                         _logger.LogDebug("Asking the IP information for IP: {0}", ipAddress);
                         if (ipAddress == "127.0.0.1") ipAddress = "";
                         string route = $"{BASE_URL}/json/{ipAddress}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
-                        response = await _httpClient.GetFromJsonAsync<IpApiResponse>(route, ct);
+                        HttpResponseMessage httpResponse = await _httpClient.GetAsync(route, ct);
+                        response = await httpResponse.Content.ReadFromJsonAsync<IpApiResponse>(ct);
                         _logger.LogDebug("Result: {0}", JsonConvert.SerializeObject(response));
                         if (response != null)
                         {
                             _MemoryCache.Set(cacheName, response, DateTimeOffset.Now.AddMinutes(ConfigurationHelper.GetCacheMinutes()));
                         }
+                        // I take care of the usage quota
+                        httpResponse.Headers.TryGetValues("X-Rl", out IEnumerable<string>? values);
                     }
                     return response;
                 }

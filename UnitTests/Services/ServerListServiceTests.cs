@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Bunit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Memory;
@@ -21,7 +22,7 @@ using TraceRoute.Services;
 namespace UnitTests.Services
 {
 
-    public class ServerListServiceTests : Bunit.TestContext
+    public class ServerListServiceTests : BunitContext
     {
         private IpApiClient _ipApiClient;
         private NullLoggerFactory _loggingFactory;

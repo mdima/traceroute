@@ -16,7 +16,7 @@ using TraceRoute.Services;
 namespace UnitTests.Components.Molecules
 {
 
-    public class AboutTests : Bunit.TestContext
+    public class AboutTests : BunitContext
     {
         ServerListService _serverListService;
 
@@ -43,14 +43,14 @@ namespace UnitTests.Components.Molecules
         public void TestAbout()
         {
             // Arrange a simple render
-            var cut = RenderComponent<TraceRoute.Components.Molecules.About>();
+            var cut = Render<TraceRoute.Components.Molecules.About>();
             Assert.NotNull(cut);
             // Check if the header contains the expected text
             Assert.Contains(cut.Instance.currentVersion!.Major + ".", cut.Markup);
 
             // Null assembly
             System.Reflection.Assembly.SetEntryAssembly(null);
-            cut = RenderComponent<TraceRoute.Components.Molecules.About>();
+            cut = Render<TraceRoute.Components.Molecules.About>();
             Assert.Contains("<span>Unknown</span>", cut.Markup);
 
             // I set the current version to null
@@ -64,7 +64,7 @@ namespace UnitTests.Components.Molecules
         {
             // No new version available
             _serverListService._newVersionAvailable = false;
-            var cut = RenderComponent<TraceRoute.Components.Molecules.About>();
+            var cut = Render<TraceRoute.Components.Molecules.About>();
             var versionCheck = cut.Find(".text-success");
             Assert.NotNull(versionCheck);
 

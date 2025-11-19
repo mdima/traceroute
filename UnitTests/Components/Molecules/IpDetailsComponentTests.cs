@@ -10,13 +10,13 @@ using static TraceRoute.Models.TraceResultViewModel;
 namespace UnitTests.Components.Molecules
 {
 
-    public class IpDetailsComponentTests : Bunit.TestContext
+    public class IpDetailsComponentTests : BunitContext
     {
         [Fact]
         public void TestIpDetails()
         {
             // Arrange a simple render
-            var cut = RenderComponent<IpDetailsComponent>(p =>
+            var cut = Render<IpDetailsComponent>(p =>
                 p.Add(a => a.currentHop, null)
             );
             Assert.NotNull(cut);
@@ -25,7 +25,7 @@ namespace UnitTests.Components.Molecules
 
             // I set a valid hop 
             TraceHop traceHop = new TraceHop() { HopAddress = Guid.NewGuid().ToString(), Details = new() };
-            cut = RenderComponent<IpDetailsComponent>(p =>
+            cut = Render<IpDetailsComponent>(p =>
                             p.Add(a => a.currentHop, traceHop)
                         );
             Assert.Contains(traceHop.HopAddress, cut.Markup);

@@ -16,7 +16,7 @@ using static TraceRoute.Models.TraceResultViewModel;
 namespace UnitTests.Components.Molecules
 {
 
-    public class SettingTests : Bunit.TestContext
+    public class SettingTests : BunitContext
     {
         public SettingTests()
         {
@@ -40,13 +40,13 @@ namespace UnitTests.Components.Molecules
         public void TestSettings()
         {
             // Arrange a simple render with empty values
-            var cut = RenderComponent<Settings>();
+            var cut = Render<Settings>();
             Assert.NotNull(cut);
             Assert.Empty(cut.Instance.settings.ServerLocation);
 
             // I set the HttpContext to simulate a request
             ContextAccessorHelper.GetContext("/", "localhost");
-            cut = RenderComponent<Settings>();
+            cut = Render<Settings>();
             cut.WaitForAssertion(() =>
             {
                 Assert.NotNull(cut.Instance.settings);

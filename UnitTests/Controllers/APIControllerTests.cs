@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Bunit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,7 +19,7 @@ using static TraceRoute.Models.TraceResultViewModel;
 namespace UnitTests.Controllers
 {
 
-    public class APIControllerTests : Bunit.TestContext
+    public class APIControllerTests : BunitContext
     {
         private APIController _controller;
         private ServerListService _serverListService;

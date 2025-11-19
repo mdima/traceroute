@@ -19,7 +19,7 @@ using static TraceRoute.Models.TraceResultViewModel;
 namespace UnitTests.Components.Pages
 {
 
-    public class HomeTests : Bunit.TestContext
+    public class HomeTests : BunitContext
     {
         public HomeTests()
         {
@@ -43,7 +43,7 @@ namespace UnitTests.Components.Pages
         public void TestHome()
         {
             // Arrange a simple render with empty values
-            var cut = RenderComponent<Home>();
+            var cut = Render<Home>();
             Assert.NotNull(cut);
 
             // I prepare some test data
@@ -78,7 +78,7 @@ namespace UnitTests.Components.Pages
                 },
             };
             // I rerender the component with the test data
-            cut = RenderComponent<Home>(p =>
+            cut = Render<Home>(p =>
             {
                 p.Add(a => a.Hops, Hops);
             });
@@ -91,7 +91,7 @@ namespace UnitTests.Components.Pages
 
             // I test the details
             Boolean eventFired = false;
-            cut = RenderComponent<Home>(p =>
+            cut = Render<Home>(p =>
             {
                 p.Add(a => a.Hops, Hops);
                 p.Add(p => p.OnShowHopDetails, EventCallback.Factory.Create<TraceHop>(this, (hop) =>
