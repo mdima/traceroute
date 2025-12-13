@@ -74,7 +74,8 @@ namespace UnitTests.Services
             result = _serverListService.GetServerList();
             Assert.NotNull(result);
             ServerEntry? serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();
-            Assert.Contains("localhost", result[0].url.ToLower());
+            Assert.NotNull(serverEntry); 
+            Assert.Contains("localhost", serverEntry.url.ToLower());
 
             ServerEntry? serverEntryLocal = _serverListService.GetCurrentServerInfo();
             Assert.NotNull(serverEntryLocal);

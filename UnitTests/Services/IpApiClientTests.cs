@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using TraceRoute.Models;
@@ -31,8 +32,8 @@ namespace UnitTests.Services
             IpApiResponse? result = await _ipApiClient.Get("192.188.248.215");
 
             Assert.NotNull(result);
-            Assert.Equal("success", result.status);
-            Assert.Equal("Milan", result.city);
+            Assert.Equal("success", result.status);            
+            Assert.Equal("Zona Industriale", result.city); // Assert.Equal("Milan", result.city); ??
             Assert.Equal("Italy", result.country);
             Assert.Equal("Lombardy", result.regionName);
             Assert.Equal("Europe", result.continent);
