@@ -4,7 +4,7 @@ EXPOSE 80
 EXPOSE 443
 
 LABEL org.opencontainers.image.title="TraceRoute"
-LABEL org.opencontainers.image.description="ASP.NET Core 9.0 Visual Trace Route Web Application"
+LABEL org.opencontainers.image.description="ASP.NET Core 10.0 Visual Trace Route Web Application"
 LABEL org.opencontainers.image.authors="Michele Di Maria"
 LABEL org.opencontainers.image.url="https://github.com/mdima/traceroute"
 LABEL org.opencontainers.image.source="https://github.com/mdima/traceroute"

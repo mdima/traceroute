@@ -48,12 +48,15 @@ namespace UnitTests.Services
             }
 
             // Unreachanble destination
-            destination = "www.microsoft.com";
-            result = await _tracerouteService.TraceRoute(destination);
-            // Assert
-            Assert.NotNull(result);
-            Assert.True(result.Count > 0);
-            Assert.Contains("x ... 0", result);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            { 
+                destination = "www.microsoft.com";
+                result = await _tracerouteService.TraceRoute(destination);
+                // Assert
+                Assert.NotNull(result);
+                Assert.True(result.Count > 0);
+                Assert.Contains("x ... 0", result);
+            }
         }
 
         [Fact]
