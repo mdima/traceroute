@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,12 +17,14 @@ namespace UnitTests.Services
     public class IpApiClientTests
     {
         private IpApiClient _ipApiClient;
+        NullLoggerFactory factory = new();
+        MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
+        ReverseLookupService reverseLookupService;
 
         public IpApiClientTests() {
-            NullLoggerFactory factory = new();
-            HttpClient httpClient = new HttpClient();
-            MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
-            ReverseLookupService reverseLookupService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
+            
+            HttpClient httpClient = new HttpClient();            
+            reverseLookupService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
 
             _ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
         }
@@ -58,6 +61,49 @@ namespace UnitTests.Services
         {
             IpApiResponse? result = await _ipApiClient.Get("qwerty");
 
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task TestAPIQuota()
+        {
+            // Normal result 
+            IpApiResponse? result = await _ipApiClient.Get("192.188.248.215"); 
+            Assert.NotNull(result);
+
+            Assert.NotNull(_ipApiClient.requestLimit);
+            int requestLimit = int.Parse(_ipApiClient.requestLimit);
+            Assert.True(requestLimit > 0);
+
+            Assert.True(_ipApiClient._quotaReset < DateTime.Now);
+
+            // Simulate limit exeeded
+            _ipApiClient._quotaReset = DateTime.Now.AddMinutes(1);
+            result = await _ipApiClient.Get("192.188.248.216");
+            Assert.Null(result);
+            _ipApiClient._quotaReset = DateTime.MinValue;
+
+            // Simulate quota hit
+            var overrideHandler = new OverrideHeadersHandler(
+                new Dictionary<string, string>
+                {
+                    ["X-Rl"] = "0",
+                    ["X-Ttl"] = "60"
+                }
+            )
+            {
+                InnerHandler = new HttpClientHandler()
+            }; ;
+            var fakeHttpClient = new HttpClient(overrideHandler);
+            IpApiClient fakeApiClient = new(fakeHttpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            result = await fakeApiClient.Get("192.188.248.217");
+
+            Assert.NotNull(result);
+            Assert.NotNull(fakeApiClient.requestLimit);
+            Assert.Equal("0", fakeApiClient.requestLimit);
+
+            // I double check the quota exeeded condition
+            result = await fakeApiClient.Get("192.188.248.218");
             Assert.Null(result);
         }
     }

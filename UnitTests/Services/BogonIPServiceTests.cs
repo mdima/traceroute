@@ -33,6 +33,9 @@ namespace UnitTests.Services
 
             result = _BogonIPService.IsBogonIP("errorip");
             Assert.False(result);
+
+            result = _BogonIPService.IsBogonIP("...");
+            Assert.False(result);
         }
 
         [Fact]

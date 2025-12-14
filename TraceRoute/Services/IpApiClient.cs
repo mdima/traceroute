@@ -22,8 +22,9 @@ namespace TraceRoute.Services
         private readonly IMemoryCache _MemoryCache = MemoryCache;
         private readonly ReverseLookupService _reverseLookupService = reverseLookupService;
         private readonly ILogger _logger = logger;
-        private int _quotaRemaining = 45;
-        private DateTime _quotaReset = DateTime.UtcNow.AddMinutes(1);
+        internal DateTime _quotaReset = DateTime.MinValue;
+        internal String? requestLimit;
+        internal String? requestTtl;
 
         /// <summary>
         /// Retrives the IP information from IP-API.com
@@ -42,18 +43,31 @@ namespace TraceRoute.Services
                     IpApiResponse? response = _MemoryCache.Get<IpApiResponse>(cacheName);
                     if (response == null)
                     {
-                        _logger.LogDebug("Asking the IP information for IP: {0}", ipAddress);
-                        if (ipAddress == "127.0.0.1") ipAddress = "";
-                        string route = $"{BASE_URL}/json/{ipAddress}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
-                        HttpResponseMessage httpResponse = await _httpClient.GetAsync(route, ct);
-                        response = await httpResponse.Content.ReadFromJsonAsync<IpApiResponse>(ct);
-                        _logger.LogDebug("Result: {0}", JsonConvert.SerializeObject(response));
-                        if (response != null)
+                        if (_quotaReset < DateTime.Now)
                         {
-                            _MemoryCache.Set(cacheName, response, DateTimeOffset.Now.AddMinutes(ConfigurationHelper.GetCacheMinutes()));
+                            _logger.LogDebug("Asking the IP information for IP: {0}", ipAddress);
+                            if (ipAddress == "127.0.0.1") ipAddress = "";
+                            string route = $"{BASE_URL}/json/{ipAddress}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
+                            HttpResponseMessage httpResponse = await _httpClient.GetAsync(route, ct);
+                            response = await httpResponse.Content.ReadFromJsonAsync<IpApiResponse>(ct);
+                            _logger.LogDebug("Result: {0}", JsonConvert.SerializeObject(response));
+                            if (response != null)
+                            {
+                                _MemoryCache.Set(cacheName, response, DateTimeOffset.Now.AddMinutes(ConfigurationHelper.GetCacheMinutes()));
+                            }
+                            // I take care of the usage quota
+                            requestLimit = httpResponse.Headers.GetValues("X-Rl").FirstOrDefault();
+                            if (requestLimit != null && requestLimit == "0")
+                            {
+                                requestTtl = httpResponse.Headers.GetValues("X-Ttl").First();   // I assume this is valued
+                                _quotaReset = DateTime.Now.AddSeconds(int.Parse(requestTtl));
+                                _logger.LogWarning("IP API quota reaced. Sleeping for {0} seconds", requestTtl);
+                            }
                         }
-                        // I take care of the usage quota
-                        httpResponse.Headers.TryGetValues("X-Rl", out IEnumerable<string>? values);
+                        else
+                        {
+                            _logger.LogWarning("Cannot make more requests to IP API until: {0}", _quotaReset);
+                        }
                     }
                     return response;
                 }

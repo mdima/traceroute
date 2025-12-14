@@ -90,6 +90,8 @@ namespace TraceRoute.Services
         /// <returns>TRUE if it is a Bogon IP address</returns>
         public bool IsBogonIP(string iPAddress)
         {
+            if (iPAddress == "...") return false;
+
             if (IPAddress.TryParse(iPAddress, out IPAddress? parsedIPAddress)) {
                 foreach (IPNetwork2 network in _BogonNetworks)
                 {
@@ -98,7 +100,7 @@ namespace TraceRoute.Services
                 return false;
             }
             else
-            { 
+            {
                 _logger.LogWarning("Cannot parse the IP Adderss {0}", iPAddress);
                 return false;
             }
