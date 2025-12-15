@@ -10,7 +10,6 @@
         <label for="EnableRemoteTraces" class="form-label">Enable remote traces<br />
             <small>If enabled allows this not to perform traceroutes on remote hosts.</small>
         </label>
-        @settings.EnableRemoteTraces.ToString()
         <select class="form-select" id="EnableRemoteTraces" value="@settings.EnableRemoteTraces.ToString()" disabled>
             <option value="True">Yes</option>
             <option value="False">No</option>
@@ -21,7 +20,6 @@
             Host remote traces<br />
             <small>If enabled allows remote hosts to make traceroutes using this host.</small>
         </label>
-        @settings.HostRemoteTraces
         <select class="form-select" id="HostRemoteTraces" value="@settings.HostRemoteTraces.ToString()" disabled>
             <option value="True">Yes</option>
             <option value="False">No</option>
