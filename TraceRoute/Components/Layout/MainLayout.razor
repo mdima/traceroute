@@ -20,21 +20,24 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
             </div>
-            <div class="input-group me-2" hidden="@(!ConfigurationHelper.GetEnableRemoteTraces())">
-                <label class="input-group-text my-1 inputLabel" for="TraceSource">Source</label>
-                <select class="form-select my-1 mr-sm-2"
-                        id="TraceSource"
-                        @bind="selectedServerUrl"                       
-                        placeholder="Select the source of the traceroute">
-                    @foreach (ServerEntry server in serverList)
-                    {
-                        <option value="@server.url">@ShowServerEntry(server)</option>
-                    })
-                </select>
-                <button @onclick="ShowServerDetails" class="btn btn-secondary my-1 inputButton" type="button" aria-label="Show server info">
-                    <i class="fa-solid fa-info"></i>
-                </button>
-            </div>
+            @if (ConfigurationHelper.GetEnableRemoteTraces())
+            {
+                <div class="input-group me-2">
+                    <label class="input-group-text my-1 inputLabel" for="TraceSource">Source</label>
+                    <select class="form-select my-1 mr-sm-2"
+                            id="TraceSource"
+                            @bind="selectedServerUrl"
+                            placeholder="Select the source of the traceroute">
+                        @foreach (ServerEntry server in serverList)
+                        {
+                            <option value="@server.url">@ShowServerEntry(server)</option>
+                        }
+                    </select>
+                    <button @onclick="ShowServerDetails" class="btn btn-secondary my-1 inputButton" type="button" aria-label="Show server info">
+                        <i class="fa-solid fa-info"></i>
+                    </button>
+                </div>
+            }
         </form>
         <ul class="navbar-nav mb-1">
             <li class="nav-item">

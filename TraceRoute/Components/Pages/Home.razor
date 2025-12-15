@@ -45,20 +45,25 @@
                                     @String.Format("{0:0.000} ms", hop.TripTime)
                                 }
                             </td>
-                            <td hidden="@(!String.IsNullOrEmpty(hop.Details.ISP) || hop.Details.IsBogonIP)" class="small tr_hop_@hop.Index">
-                                <div class="spinner-border spinner-border-sm" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
+                            <td class="small tr_hop_@hop.Index">
+                                @if (String.IsNullOrEmpty(hop.Details.ISP) && !hop.Details.IsBogonIP)
+                                {
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                }
                             </td>
                             <td class="small text-break tr_hop_@hop.Index">
-                                <span hidden="@(hop.Details.Country == null)">
-                                    @hop.Details.Country - @hop.Details.City
-                                </span>
+                                @if (hop.Details.Country != null)
+                                {
+                                    @String.Format("{0} - {1}", hop.Details.Country, @hop.Details.City)
+                                }
                             </td>
                             <td class="small text-break tr_hop_@hop.Index d-xl-table-cell">
-                                <span hidden="@(hop.Details.ISP == null)">
+                                @if (hop.Details.ISP != null)
+                                {
                                     @hop.Details.ISP
-                                </span>
+                                }
                             </td>
                         </tr>
                     }

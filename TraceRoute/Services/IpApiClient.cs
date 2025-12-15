@@ -104,30 +104,31 @@ namespace TraceRoute.Services
 
             if (response != null && response.status != "fail")
             {
-                IpDetails result = new();
-
-                result.Continent = response.continent;
-                result.City = response.city;
-                result.District = response.district;
-                result.Country = response.country;
-                result.CountryCode = response.countryCode;
-                result.Zip = response.zip;
-                result.Region = response.region;
-                result.RegionName = response.regionName;
-                result.ErrorDescription = "";
-                result.ISP = response.isp;
-                result.Organization = response.org;
-                result.Latitude = response.lat;
-                result.Longitude = response.lon;
+                IpDetails result = new()
+                {
+                    Continent = response.continent,
+                    City = response.city,
+                    District = response.district,
+                    Country = response.country,
+                    CountryCode = response.countryCode,
+                    Zip = response.zip,
+                    Region = response.region,
+                    RegionName = response.regionName,
+                    ErrorDescription = "",
+                    ISP = response.isp,
+                    Organization = response.org,
+                    Latitude = response.lat,
+                    Longitude = response.lon,
+                    IsBogonIP = false,
+                    IsHosting = response.hosting ?? false,
+                    IsMobile = response.mobile ?? false,
+                    IsProxy = response.proxy ?? false,
+                    As = response._as,
+                    AsName = response.asname,
+                    Url = response.query,
+                    Query = response.query
+                };
                 result.HostName = await _reverseLookupService.GetHostName(ipAddress!);
-                result.IsBogonIP = false;
-                result.IsHosting = response.hosting ?? false;
-                result.IsMobile = response.mobile ?? false;
-                result.IsProxy = response.proxy ?? false;
-                result.As = response._as;
-                result.AsName = response.asname;
-                result.Url = response.query;
-                result.Query = response.query;
 
                 return result;
             }

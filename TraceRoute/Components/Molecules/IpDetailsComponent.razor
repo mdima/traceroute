@@ -11,7 +11,7 @@
             <div class="modal-body">
                 @if (currentHop == null)
                 {
-                    <div class="spinner-border spinner-border-lg m-5" role="status" hidden="@(currentHop != null)">
+                    <div class="spinner-border spinner-border-lg m-5" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 }
@@ -30,8 +30,8 @@
                         <div class="col-3 text-muted">City</div>
                         <div class="col-9">
                             @currentHop.Details.City
-                            <span hidden="@(String.IsNullOrEmpty(currentHop.Details.District))"> - (@currentHop.Details.District) </span>
-                            <span hidden="@(String.IsNullOrEmpty(currentHop.Details.Zip))"> - @currentHop.Details.Zip </span>
+                            @if (!String.IsNullOrEmpty(currentHop.Details.District)) @String.Format(" - {0}", @currentHop.Details.District)
+                            @if (!String.IsNullOrEmpty(currentHop.Details.Zip)) @String.Format(" - {0}", @currentHop.Details.Zip)
                         </div>
                         <div class="col-3 text-muted">ISP</div>
                         <div class="col-9">@currentHop.Details.ISP</div>
