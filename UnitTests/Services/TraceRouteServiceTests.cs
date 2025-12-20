@@ -50,7 +50,7 @@ namespace UnitTests.Services
             // Unreachanble destination
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             { 
-                destination = "www.microsoft.com";
+                destination = "www.pfsense.com";
                 result = await _tracerouteService.TraceRoute(destination);
                 // Assert
                 Assert.NotNull(result);

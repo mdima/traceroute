@@ -1,5 +1,5 @@
 # Visual Trace Route
-C# ASP.NET Core 9.0 Visual Trace Route Web Application
+C# ASP.NET Core 10 Visual Trace Route Web Application
 ![Visual Trace Route Screenshot](https://github.com/mdima/traceroute/blob/master/SupportFiles/screenshot.png?raw=true)
 
 Based on the original repository: https://github.com/bencorn/traceroute
@@ -8,7 +8,7 @@ Running this container you will join the Visual Traceroute network and will allo
 at the same time will offer your host as source for other users. You can disable this feature by setting the environment variable (see below).
 
 ### Improvements from the original repository:
-* Project converted to NetCore9
+* Project converted to NetCore10
 * Changed the maps implemented from Google Maps to OpenStreetMap
 * Changed the IP information source from keycdn.com to ip-api.com
 * Added a sidebar with the hops information

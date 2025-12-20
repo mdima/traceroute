@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="bunit" Version="2.2.2" />
+    <PackageReference Include="bunit" Version="2.3.4" />
     <PackageReference Include="bunit.core" Version="1.40.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
