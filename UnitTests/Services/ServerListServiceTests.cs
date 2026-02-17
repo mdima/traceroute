@@ -85,6 +85,7 @@ namespace UnitTests.Services
             IpApiClient.BASE_URL = "asdf";
             StoreServerURLFilter.ServerURL = "http://localhost:5000";
             Thread.Sleep(4000);
+            result = _serverListService.GetServerList();
             Assert.NotNull(result);
             serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();
             Assert.Contains("localhost", result[0].url.ToLower());
