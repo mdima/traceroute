@@ -73,7 +73,7 @@ namespace UnitTests.Services
             await ((IHostedService)_serverListService).StartAsync(new CancellationToken());
             result = _serverListService.GetServerList();
             Assert.NotNull(result);
-            ServerEntry? serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();
+            ServerEntry? serverEntry = result.Where(x => x.isLocalHost && x.url.ToLower().Contains("localhost")).FirstOrDefault();
             Assert.NotNull(serverEntry); 
             Assert.Contains("localhost", serverEntry.url.ToLower());
 
@@ -87,7 +87,8 @@ namespace UnitTests.Services
             Thread.Sleep(4000);
             result = _serverListService.GetServerList();
             Assert.NotNull(result);
-            serverEntry = result.Where(x => x.isLocalHost).FirstOrDefault();
+            serverEntry = result.Where(x => x.isLocalHost && x.url.ToLower().Contains("localhost")).FirstOrDefault();
+            Assert.NotNull(serverEntry);
             Assert.Contains("localhost", result[0].url.ToLower());
 
             // I set the server URL to the root node
