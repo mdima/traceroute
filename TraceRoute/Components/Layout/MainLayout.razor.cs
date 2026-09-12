@@ -18,9 +18,14 @@ using static TraceRoute.Models.TraceResultViewModel;
 namespace TraceRoute.Components.Layout
 {
     public partial class MainLayout(ServerListService serverListService, BogonIPService bogonIPService, IHttpContextAccessor contextAccessor, IJSRuntime jSRuntime, 
-        TracerouteService tracerouteService, TraceRouteApiClient traceRouteApiClient, IpApiClient ipApiClient)
+        TracerouteService tracerouteService, TraceRouteApiClient traceRouteApiClient)
     {
-        private IpApiClient _ipApiClient = ipApiClient;
+
+        [Inject]
+        private IpApiClient _ipApiClient { get; set; } = default!;
+
+        [Inject]
+        private ReverseLookupService _reverseLookupService { get; set; } = default!;
 
         [Inject]
         private IToastService _toastService { get; set; } = default!;
@@ -41,13 +46,10 @@ namespace TraceRoute.Components.Layout
         internal TraceResultViewModel? traceResult;
         internal TraceHop? currentHop;
 
-        private Boolean ipApiErrorAlreadyShown = false;
-
         protected override void OnInitialized()
         {
             base.OnInitialized();
             _serverListService.OnServerListChanged += RefreshServerList;
-            _ipApiClient.ErrorOccurred += IpApiClientErrorOccurred;
             serverList = _serverListService.GetServerList();
             selectedServerUrl = serverList.Where(x => x.isLocalHost).First().url;
 
@@ -58,31 +60,16 @@ namespace TraceRoute.Components.Layout
                 {
                     hostToTrace = clientIPAddress;
                 }
-            }
-        }
-
-        public void Dispose()
-        {
-            _ipApiClient.ErrorOccurred -= IpApiClientErrorOccurred;
+            }            
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {            
             if (firstRender)
-            {
+            {                
                 await _jSRuntime.InvokeVoidAsync("initMap");
                 await _jSRuntime.InvokeVoidAsync("setDotNetHelper", _componentReference);
             }
-        }
-
-        private void IpApiClientErrorOccurred(object? sender, EventArgs e)
-        {
-            _ = InvokeAsync(() =>
-            {
-                if (ipApiErrorAlreadyShown) return;
-                _toastService.ShowError("Cannot reach ip-api.com");
-                ipApiErrorAlreadyShown = true;
-            });
         }
 
         internal String? ShowServerEntry(ServerEntry serverEntry)

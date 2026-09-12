@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -17,12 +16,12 @@ namespace UnitTests.Services
     {
         TraceRouteApiClient _traceRouteApiClient;
 
-        public TraceRouteApiClientTests() {
+        public TraceRouteApiClientTests() { 
 
-            IHttpClientFactory factory = new ServiceCollection().AddHttpClient().BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+            HttpClient httpClient = new HttpClient();
             ILogger<TraceRouteApiClient> logger = new LoggerFactory().CreateLogger<TraceRouteApiClient>();
 
-            _traceRouteApiClient = new TraceRouteApiClient(factory, logger);
+            _traceRouteApiClient = new TraceRouteApiClient(httpClient, logger);
         }
 
         [Fact]

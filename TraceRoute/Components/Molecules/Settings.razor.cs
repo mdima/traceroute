@@ -6,13 +6,10 @@ using TraceRoute.Services;
 namespace TraceRoute.Components.Molecules
 {
 
-    public partial class Settings(IHttpContextAccessor context, IpApiClient ipApiClient)
+    public partial class Settings(IHttpContextAccessor _context, IpApiClient _ipApiClient)
     {
 
         internal SettingsViewModel settings = new();
-
-        private readonly IHttpContextAccessor _context = context;
-        private readonly IpApiClient _ipApiClient = ipApiClient;
 
         protected override async Task OnInitializedAsync()
         {

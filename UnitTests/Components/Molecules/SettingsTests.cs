@@ -25,15 +25,13 @@ namespace UnitTests.Components.Molecules
 
             // Initialize the test context for Bunit
             NullLoggerFactory loggingFactory = new();
-            Services.ConfigureHttpClientDefaults(http => { http.ConfigureHttpClient(client => { client.Timeout = TimeSpan.FromSeconds(5); }); });
-            Services.AddHttpClient();
-            IHttpClientFactory factory = Services.BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+            HttpClient httpClient = new HttpClient();
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
             ReverseLookupService reverseLookupService = new(loggingFactory.CreateLogger<ReverseLookupService>(), memoryCache);
             Services.AddSingleton(reverseLookupService);
 
-            IpApiClient ipApiClient = new(factory, loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
-            Services.AddSingleton<IpApiClient>();
+            IpApiClient ipApiClient = new(httpClient, loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            Services.AddHttpClient<IpApiClient>();
 
             Services.AddMemoryCache(x => { x.TrackStatistics = true; x.TrackLinkedCacheEntries = true; });
         }

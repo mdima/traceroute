@@ -27,14 +27,14 @@ namespace UnitTests.Controllers
         public APIControllerTests()
         {
             NullLoggerFactory factory = new();
-            IHttpClientFactory httpClientFactory = new ServiceCollection().AddHttpClient().BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+            HttpClient httpClient = new HttpClient();
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
             BogonIPService bogonIPService = new(factory);
             StoreServerURLFilter storeServerURLFilter = new();
             ReverseLookupService reverseService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
 
-            IpApiClient ipApiClient = new(httpClientFactory, factory.CreateLogger<IpApiClient>(), memoryCache, reverseService);
-            TraceRouteApiClient traceRouteApiClient = new(httpClientFactory, factory.CreateLogger<TraceRouteApiClient>());
+            IpApiClient ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseService);
+            TraceRouteApiClient traceRouteApiClient = new(httpClient, factory.CreateLogger<TraceRouteApiClient>());
             TracerouteService tracerouteService = new(bogonIPService, factory.CreateLogger<TracerouteService>());
             IHttpContextAccessor httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
             Services.AddSingleton<IHttpContextAccessor>(httpContextAccessor);

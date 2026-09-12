@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
@@ -23,11 +22,11 @@ namespace UnitTests.Services
         ReverseLookupService reverseLookupService;
 
         public IpApiClientTests() {
-
-            IHttpClientFactory httpClientFactory = new ServiceCollection().AddHttpClient().BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+            
+            HttpClient httpClient = new HttpClient();            
             reverseLookupService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
 
-            _ipApiClient = new(httpClientFactory, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            _ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
         }
 
         [Fact]
@@ -95,11 +94,8 @@ namespace UnitTests.Services
             {
                 InnerHandler = new HttpClientHandler()
             }; ;
-
-            HttpClient fakeHttpClient = new HttpClient(overrideHandler);
-            IHttpClientFactory httpClientFactory = new FakeHttpClientFactory(fakeHttpClient);
-
-            IpApiClient fakeApiClient = new(httpClientFactory, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            var fakeHttpClient = new HttpClient(overrideHandler);
+            IpApiClient fakeApiClient = new(fakeHttpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
             result = await fakeApiClient.Get("192.188.248.217");
 
             Assert.NotNull(result);
