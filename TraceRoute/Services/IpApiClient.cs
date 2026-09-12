@@ -11,20 +11,21 @@ namespace TraceRoute.Services
     /// <summary>
     /// Service that interacts with IP-API.com
     /// </summary>
-    /// <param name="httpClient">The HttpClient to use</param>
+    /// <param name="httpClientFactory">The HttpClient factory to use</param>
     /// <param name="logger">The Logger service</param>
     /// <param name="MemoryCache">The Memory Cache service</param>
     /// <param name="reverseLookupService">The ReverseLookupService service</param>
-    public class IpApiClient(HttpClient httpClient, ILogger<IpApiClient> logger, IMemoryCache MemoryCache, ReverseLookupService reverseLookupService)
+    public class IpApiClient(IHttpClientFactory httpClientFactory, ILogger<IpApiClient> logger, IMemoryCache MemoryCache, ReverseLookupService reverseLookupService)
     {
         internal static string BASE_URL = "http://ip-api.com";
-        private readonly HttpClient _httpClient = httpClient;
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly IMemoryCache _MemoryCache = MemoryCache;
         private readonly ReverseLookupService _reverseLookupService = reverseLookupService;
         private readonly ILogger _logger = logger;
         internal DateTime _quotaReset = DateTime.MinValue;
         internal String? requestLimit;
         internal String? requestTtl;
+        public event EventHandler? ErrorOccurred;
 
         /// <summary>
         /// Retrives the IP information from IP-API.com
@@ -35,6 +36,7 @@ namespace TraceRoute.Services
         public async Task<IpApiResponse?> Get(string? ipAddress, CancellationToken ct = default)
         {
             string cacheName = "IP_Info_" + ipAddress;
+            HttpClient httpClient = _httpClientFactory.CreateClient();
 
             try
             {
@@ -48,7 +50,7 @@ namespace TraceRoute.Services
                             _logger.LogDebug("Asking the IP information for IP: {0}", ipAddress);
                             if (ipAddress == "127.0.0.1") ipAddress = "";
                             string route = $"{BASE_URL}/json/{ipAddress}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
-                            HttpResponseMessage httpResponse = await _httpClient.GetAsync(route, ct);
+                            HttpResponseMessage httpResponse = await httpClient.GetAsync(route, ct);
                             response = await httpResponse.Content.ReadFromJsonAsync<IpApiResponse>(ct);
                             _logger.LogDebug("Result: {0}", JsonConvert.SerializeObject(response));
                             if (response != null)
@@ -80,6 +82,7 @@ namespace TraceRoute.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting the IP information for IP: {0}, Err: {1}", ipAddress, ex.Message);
+                OnErrorOccurred();
                 return null;
             }
         }
@@ -137,5 +140,14 @@ namespace TraceRoute.Services
                 return null;
             }
         }
+
+        /// <summary>
+        /// Fires when an error on ip-api occurred
+        /// </summary>
+        private void OnErrorOccurred()
+        {
+            ErrorOccurred?.Invoke(this, EventArgs.Empty);
+        }
+
     }
 }
