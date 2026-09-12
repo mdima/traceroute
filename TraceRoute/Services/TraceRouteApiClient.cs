@@ -12,11 +12,11 @@ namespace TraceRoute.Services
     /// <summary>
     /// Service that interacts with the root node of the TraceRoute service
     /// </summary>
-    /// <param name="httpClient">The HttpClient to use</param>
+    /// <param name="httpClientFactory">The HttpClient factory to use</param>
     /// <param name="logger">The Logger service</param>
-    public class TraceRouteApiClient(HttpClient httpClient, ILogger<TraceRouteApiClient> logger)
+    public class TraceRouteApiClient(IHttpClientFactory httpClientFactory, ILogger<TraceRouteApiClient> logger)
     {
-        private readonly HttpClient _httpClient = httpClient;
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly ILogger _logger = logger;
         internal String rootNodeBaseAddress = ConfigurationHelper.GetRootNode();
 
@@ -27,13 +27,15 @@ namespace TraceRoute.Services
         /// <param name="cancellationToken">The cancellation token</param>
         /// <returns>True if the action succeeds</returns>
         public async Task<bool> SendPresence(ServerEntry localServer, CancellationToken cancellationToken)
-        {           
+        {
+            HttpClient httpClient = _httpClientFactory.CreateClient();
+
             try
             {
                 _logger.LogDebug("Sending the presence to: {0}", rootNodeBaseAddress);
 
                 string url = $"{rootNodeBaseAddress}api/presence";
-                HttpResponseMessage response = await _httpClient.PostAsJsonAsync<ServerEntry>(url, localServer, cancellationToken);
+                HttpResponseMessage response = await httpClient.PostAsJsonAsync<ServerEntry>(url, localServer, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
                     Boolean result = await response.Content.ReadFromJsonAsync<Boolean>(cancellationToken);
@@ -60,12 +62,14 @@ namespace TraceRoute.Services
         /// <returns>The list of the registered nodes</returns>
         public async Task<List<ServerEntry>?> GetServerList(CancellationToken cancellationToken)
         {
+            HttpClient httpClient = _httpClientFactory.CreateClient();
+
             try
             {
                 _logger.LogDebug("Asking the server list the presence to: {0}", rootNodeBaseAddress);
 
                 string url = $"{rootNodeBaseAddress}api/serverlist";
-                HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken);
+                HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
                     List<ServerEntry> result = (await response.Content.ReadFromJsonAsync<List<ServerEntry>>(cancellationToken))!;
@@ -93,13 +97,14 @@ namespace TraceRoute.Services
         /// <returns></returns>
         public async Task<ServerEntry?> GetServerInfo(ServerEntry serverEntry)
         {
+            HttpClient httpClient = _httpClientFactory.CreateClient();
 
             try
             {
                 _logger.LogDebug("Asking the server info the presence to: {0}", serverEntry.url);
 
                 string url = $"{serverEntry.url}api/serverInfo";
-                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                HttpResponseMessage response = await httpClient.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
                     ServerEntry result = (await response.Content.ReadFromJsonAsync<ServerEntry>())!;
@@ -127,6 +132,7 @@ namespace TraceRoute.Services
         /// <returns>The result of the traceroute</returns>
         public async Task<TraceResultViewModel> RemoteTrace(string HostToTrace, string RemoteServerUrl)
         {
+            HttpClient httpClient = _httpClientFactory.CreateClient();
             TraceResultViewModel result = new();
             string traceError = "";
 
@@ -135,7 +141,7 @@ namespace TraceRoute.Services
                 _logger.LogDebug("Asking to trace the IP {0} to the server {1}", HostToTrace, RemoteServerUrl);
                 
                 string url = $"{RemoteServerUrl}api/trace/{HostToTrace}";
-                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                HttpResponseMessage response = await httpClient.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
                     result = (await response.Content.ReadFromJsonAsync<TraceResultViewModel>())!;

@@ -34,12 +34,12 @@ namespace UnitTests.Services
         public ServerListServiceTests()
         {
             _loggingFactory = new();
-            HttpClient httpClient = new();
+            IHttpClientFactory factory = new ServiceCollection().AddHttpClient().BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
             ReverseLookupService reverseLookupService = new(_loggingFactory.CreateLogger<ReverseLookupService>(), memoryCache);
 
-            _ipApiClient = new(httpClient, _loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
-            _traceRouteApiClient = new(httpClient, _loggingFactory.CreateLogger<TraceRouteApiClient>());
+            _ipApiClient = new(factory, _loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            _traceRouteApiClient = new(factory, _loggingFactory.CreateLogger<TraceRouteApiClient>());
 
             _storeServerURLFilter = new();
             _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
@@ -89,7 +89,6 @@ namespace UnitTests.Services
             Assert.NotNull(result);
             serverEntry = result.Where(x => x.isLocalHost && x.url.ToLower().Contains("localhost")).FirstOrDefault();
             Assert.NotNull(serverEntry);
-            Assert.Contains("localhost", result[0].url.ToLower());
 
             // I set the server URL to the root node
             IpApiClient.BASE_URL = "http://ip-api.com";

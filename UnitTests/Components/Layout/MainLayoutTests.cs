@@ -1,6 +1,10 @@
 ﻿using Blazored.Toast;
 using Blazored.Toast.Services;
 using Bunit;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using TraceRoute.Models;
@@ -27,18 +32,21 @@ namespace UnitTests.Components.Layout
         public MainLayoutTests()
         {
             // Initialize the test context for Bunit
-            NullLoggerFactory loggingFactory = new();
-            HttpClient httpClient = new HttpClient();
+            NullLoggerFactory loggingFactory = new();            
             memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
             ReverseLookupService reverseLookupService = new(loggingFactory.CreateLogger<ReverseLookupService>(), memoryCache);
             Services.AddSingleton(reverseLookupService);
 
-            IpApiClient ipApiClient = new(httpClient, loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
-            Services.AddHttpClient<IpApiClient>();
+            Services.ConfigureHttpClientDefaults(http => { http.ConfigureHttpClient(client => { client.Timeout = TimeSpan.FromSeconds(5); }); });
+            Services.AddHttpClient();
+            IHttpClientFactory factory = Services.BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+
+            IpApiClient ipApiClient = new(factory, loggingFactory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            Services.AddSingleton(ipApiClient);
 
             TraceRouteApiClient _traceRouteApiClient;
-            _traceRouteApiClient = new(httpClient, loggingFactory.CreateLogger<TraceRouteApiClient>());
-            Services.AddHttpClient<TraceRouteApiClient>();
+            _traceRouteApiClient = new(factory, loggingFactory.CreateLogger<TraceRouteApiClient>());
+            Services.AddSingleton<TraceRouteApiClient>();
 
             BogonIPService bogonIPService = new(loggingFactory);
             Services.AddSingleton(bogonIPService);
@@ -278,6 +286,77 @@ namespace UnitTests.Components.Layout
             await cut.InvokeAsync(() => cut.Instance.ShowServerDetails());
             Assert.NotNull(cut.Instance.currentHop);
             Assert.Equal(cut.Instance.selectedServerUrl, cut.Instance.currentHop.HopAddress);
+        }
+
+        [Fact]
+        public async Task TestIpApiNotAvailable()
+        {
+            IpApiClient _ipApiClient = Services.GetRequiredService<IpApiClient>();
+            IpApiClient.BASE_URL = "not.existing.domain";
+
+            try
+            {
+                toastFired = false;
+                var cut = Render<TraceRoute.Components.Layout.MainLayout>();
+
+                // I check the interface rendered initially
+                var versionCheck = cut.Markup.Contains("https://hub.docker.com/");
+                Assert.True(versionCheck);
+
+                // I check the alert shown up
+                cut.WaitForAssertion(
+                    () => Assert.True(toastFired),
+                    timeout: TimeSpan.FromSeconds(7));
+            }
+            finally
+            {
+                IpApiClient.BASE_URL = "http://ip-api.com";
+            }
+        }
+
+        [Fact]
+        public async Task TestIpApiTimeout()
+        {
+            // First I create a timing out web server
+            var builder = WebApplication.CreateBuilder();
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Listen(IPAddress.Loopback, 0);
+            });
+            var app = builder.Build();
+            app.MapGet("/{**path}", async (HttpContext context) =>
+            {
+                Console.WriteLine($"Ricevuta: {context.Request.Path}");
+                await Task.Delay(TimeSpan.FromSeconds(30));
+            });
+            await app.StartAsync();
+            // Then I retrieve the local url
+            var addresses = app.Services
+                .GetRequiredService<IServer>()
+                .Features
+                .Get<IServerAddressesFeature>();
+            String address = addresses!.Addresses.Single();
+
+            IpApiClient _ipApiClient = Services.GetRequiredService<IpApiClient>();
+            IpApiClient.BASE_URL = address;
+
+            try {
+                toastFired = false;
+                var cut = Render<TraceRoute.Components.Layout.MainLayout>();
+
+                // I check the interface rendered
+                var versionCheck = cut.Markup.Contains("https://hub.docker.com/");
+                Assert.True(versionCheck);
+
+                // I check the alert shown up
+                cut.WaitForAssertion(
+                    () => Assert.True(toastFired),
+                    timeout: TimeSpan.FromSeconds(60));
+            }
+            finally
+            {
+                IpApiClient.BASE_URL = "http://ip-api.com";
+            }
         }
     }
 }
