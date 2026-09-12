@@ -24,12 +24,12 @@ namespace UnitTests.Components.Molecules
         {
             NullLoggerFactory factory = new();
 
-            HttpClient httpClient = new HttpClient();
+            IHttpClientFactory httpClientFactory = new ServiceCollection().AddHttpClient().BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
             MemoryCache memoryCache = new(new MemoryCacheOptions() { TrackStatistics = true, TrackLinkedCacheEntries = true });
             ReverseLookupService reverseLookupService = new(factory.CreateLogger<ReverseLookupService>(), memoryCache);
 
-            IpApiClient _ipApiClient = new(httpClient, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
-            TraceRouteApiClient _traceRouteApiClient = new(httpClient, factory.CreateLogger<TraceRouteApiClient>());
+            IpApiClient _ipApiClient = new(httpClientFactory, factory.CreateLogger<IpApiClient>(), memoryCache, reverseLookupService);
+            TraceRouteApiClient _traceRouteApiClient = new(httpClientFactory, factory.CreateLogger<TraceRouteApiClient>());
 
             StoreServerURLFilter _storeServerURLFilter = new();
             IHttpContextAccessor _httpContextAccessor = ContextAccessorHelper.GetContext("/", "localhost", "127.0.0.1");
