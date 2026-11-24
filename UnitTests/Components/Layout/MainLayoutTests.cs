@@ -293,6 +293,7 @@ namespace UnitTests.Components.Layout
         {
             IpApiClient _ipApiClient = Services.GetRequiredService<IpApiClient>();
             IpApiClient.BASE_URL = "not.existing.domain";
+            memoryCache.Clear();    // I need to empty the memory cache
 
             try
             {
@@ -339,6 +340,7 @@ namespace UnitTests.Components.Layout
 
             IpApiClient _ipApiClient = Services.GetRequiredService<IpApiClient>();
             IpApiClient.BASE_URL = address;
+            memoryCache.Clear();    // I need to empty the memory cache
 
             try {
                 toastFired = false;
