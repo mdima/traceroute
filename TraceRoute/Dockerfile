@@ -14,7 +14,8 @@ LABEL com.docker.desktop.extension.icon="https://github.com/mdima/traceroute/blo
 LABEL com.docker.extension.screenshots="[{'alt':'Main program screenshot', 'url':'https://github.com/mdima/traceroute/raw/master/SupportFiles/screenshot.png?raw=true'}]"
 
 RUN apt-get update \
-    && apt-get install -y curl traceroute dnsutils 
+    && apt-get install -y curl traceroute dnsutils libcap2-bin \
+    && setcap cap_net_raw+ep "$(readlink -f /usr/bin/traceroute)"
 
 ## Add a new user "traceroute" with user id 8877
 RUN useradd -r traceroute

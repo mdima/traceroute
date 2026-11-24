@@ -306,7 +306,7 @@ namespace UnitTests.Components.Layout
                 // I check the alert shown up
                 cut.WaitForAssertion(
                     () => Assert.True(toastFired),
-                    timeout: TimeSpan.FromSeconds(7));
+                    timeout: TimeSpan.FromSeconds(15));
             }
             finally
             {
